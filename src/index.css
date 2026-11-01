@@ -33,14 +33,14 @@
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   --font-hud: var(--font-display);
 
-  /* Mac Terminal Theme: Deep Atlas Navy terminal with brighter Ivory & Gold texts floating on Ivory page */
+  /* Mac Terminal Theme: Gold terminal with Deep Navy & Ivory texts floating on Ivory page */
   --theme-yellow: #F5EFE6;         /* Brighter Ivory page canvas */
   --bg-pastel-yellow: #F5EFE6;
-  --mac-terminal-bg: #0E1D61;      /* Completely Deep Atlas Navy terminal interior */
-  --mac-terminal-header: #070F33;  /* Dark Navy titlebar */
-  --mac-card-bg: #142470;          /* Elevated Navy card */
-  --mac-card-hover: #1C3090;       /* Hover card */
-  --honey-yellow: #E0BC5C;         /* Bright Gold accents inside terminal */
+  --mac-terminal-bg: #B89A5A;      /* Completely Gold terminal interior */
+  --mac-terminal-header: #A3843C;  /* Refined Gold titlebar */
+  --mac-card-bg: rgba(255, 255, 255, 0.22); /* Elevated golden luminous card */
+  --mac-card-hover: rgba(255, 255, 255, 0.34); /* Hover card */
+  --honey-yellow: #0E1D61;         /* Deep Navy accents inside terminal */
 }
 
 *,
@@ -820,21 +820,21 @@ body {
   max-height: calc(100vh - 36px);
   max-height: calc(100dvh - 36px);
   background: var(--mac-terminal-bg);
-  border: 2px solid var(--gold-accent);
+  border: 2.5px solid var(--deep-atlas-navy);
   border-radius: 14px;
-  box-shadow: 0 24px 60px rgba(14, 29, 97, 0.4);
+  box-shadow: 0 24px 60px rgba(14, 29, 97, 0.28);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
-  color: var(--ivory);
+  color: #070F33;
 }
 
 /* Window Titlebar */
 .mac-titlebar {
   position: relative;
   background: var(--mac-terminal-header);
-  border-bottom: 1px solid rgba(184, 154, 90, 0.25);
+  border-bottom: 1.5px solid rgba(14, 29, 97, 0.25);
   padding: 12px 22px;
   display: flex;
   align-items: center;
@@ -899,7 +899,7 @@ body {
 }
 
 .window-title-name-yellow {
-  color: var(--gold-accent);
+  color: #070F33;
   font-family: var(--font-cute);
   font-size: 1.05rem;
   font-weight: 800;
@@ -907,19 +907,19 @@ body {
 }
 
 .window-app-name {
-  color: var(--ivory);
+  color: #0E1D61;
   font-weight: 700;
   font-size: 0.94rem;
 }
 
 .window-title-tag {
-  background: rgba(184, 154, 90, 0.15);
-  color: var(--ivory);
+  background: rgba(14, 29, 97, 0.12);
+  color: #0E1D61;
   font-size: 0.76rem;
   font-weight: 600;
   padding: 3px 9px;
   border-radius: 4px;
-  border: 1px solid rgba(184, 154, 90, 0.3);
+  border: 1px solid rgba(14, 29, 97, 0.25);
 }
 
 .mac-header-actions {
@@ -929,9 +929,9 @@ body {
 }
 
 .mac-action-btn {
-  background: #142470;
-  border: 1px solid rgba(184, 154, 90, 0.28);
-  color: var(--ivory);
+  background: #0E1D61;
+  border: 1px solid #0E1D61;
+  color: var(--ivory-terminal);
   padding: 6px 13px;
   font-family: var(--font-cute);
   font-size: 0.82rem;
@@ -946,8 +946,8 @@ body {
 }
 
 .mac-action-btn:hover {
-  background: var(--gold-accent);
-  color: #0E1D61;
+  background: #1B339A;
+  color: var(--ivory-terminal);
   font-weight: 700;
   transform: translateY(-1px);
 }
@@ -958,8 +958,8 @@ body {
 
 /* Mac Tab Bar */
 .mac-tabbar {
-  background: var(--deep-atlas-navy);
-  border-bottom: 1px solid rgba(184, 154, 90, 0.25);
+  background: var(--mac-terminal-header);
+  border-bottom: 1.5px solid rgba(14, 29, 97, 0.22);
   padding: 10px 22px;
   display: flex;
   align-items: center;
@@ -972,19 +972,19 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(245, 239, 230, 0.1);
+  background: rgba(14, 29, 97, 0.12);
   padding: 4px;
   border-radius: 8px;
-  border: 1px solid rgba(224, 188, 92, 0.3);
+  border: 1px solid rgba(14, 29, 97, 0.22);
 }
 
 .mac-tab-btn {
   background: transparent;
   border: none;
-  color: var(--ivory-soft);
+  color: #070F33;
   font-family: var(--font-cute);
   font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 650;
   padding: 7px 18px;
   border-radius: 6px;
   cursor: pointer;
@@ -992,26 +992,26 @@ body {
 }
 
 .mac-tab-btn:hover {
-  color: var(--ivory-terminal);
-  background: rgba(224, 188, 92, 0.2);
+  color: #000000;
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .mac-tab-btn.active {
-  background: var(--gold-accent);
-  color: #070F33;
+  background: #0E1D61;
+  color: var(--ivory-terminal);
   font-weight: 750;
-  box-shadow: 0 2px 8px rgba(224, 188, 92, 0.3);
+  box-shadow: 0 2px 8px rgba(14, 29, 97, 0.35);
 }
 
 .mac-tab-guide {
   font-family: var(--font-cute);
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--ivory-terminal);
-  background: rgba(245, 239, 230, 0.1);
+  color: #070F33;
+  background: rgba(14, 29, 97, 0.1);
   padding: 5px 12px;
   border-radius: 6px;
-  border: 1px solid rgba(224, 188, 92, 0.25);
+  border: 1px solid rgba(14, 29, 97, 0.2);
 }
 
 /* Content Body (Scrollable interior with sleek macOS scrollbars) */
@@ -1026,7 +1026,7 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: rgba(112, 85, 30, 0.35) transparent;
+  scrollbar-color: rgba(14, 29, 97, 0.35) transparent;
 }
 
 .mac-content-body::-webkit-scrollbar {
@@ -1038,12 +1038,12 @@ body {
 }
 
 .mac-content-body::-webkit-scrollbar-thumb {
-  background: rgba(112, 85, 30, 0.3);
+  background: rgba(14, 29, 97, 0.3);
   border-radius: 4px;
 }
 
 .mac-content-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(112, 85, 30, 0.5);
+  background: rgba(14, 29, 97, 0.5);
 }
 
 .mac-pane.fade-in {
@@ -1058,29 +1058,29 @@ body {
 /* Card Styling */
 .mac-card {
   background: var(--mac-card-bg);
-  border: 1px solid rgba(224, 188, 92, 0.3);
+  border: 1.5px solid rgba(14, 29, 97, 0.25);
   border-radius: 10px;
   padding: 20px 22px;
   display: flex;
   flex-direction: column;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 16px rgba(7, 15, 51, 0.3);
-  color: var(--ivory-terminal);
+  box-shadow: 0 4px 16px rgba(14, 29, 97, 0.12);
+  color: #070F33;
 }
 
 .mac-card:hover {
   background: var(--mac-card-hover);
-  border-color: var(--gold-accent);
+  border-color: #0E1D61;
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(7, 15, 51, 0.45);
+  box-shadow: 0 8px 22px rgba(14, 29, 97, 0.22);
 }
 
 .cute-icon-box {
   width: 36px;
   height: 36px;
-  background: rgba(224, 188, 92, 0.16);
-  border: 1px solid rgba(224, 188, 92, 0.38);
-  color: var(--gold-accent);
+  background: #0E1D61;
+  border: 1px solid #0E1D61;
+  color: #FAF7F2;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -1091,10 +1091,10 @@ body {
 .tag-pill {
   font-family: var(--font-cute);
   font-size: 0.76rem;
-  font-weight: 600;
-  color: var(--gold-accent);
-  background: rgba(224, 188, 92, 0.14);
-  border: 1px solid rgba(224, 188, 92, 0.32);
+  font-weight: 700;
+  color: #070F33;
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(14, 29, 97, 0.28);
   padding: 3px 9px;
   border-radius: 4px;
 }
@@ -1107,15 +1107,16 @@ body {
 .pane-heading {
   font-family: var(--font-cute);
   font-size: 1.85rem;
-  font-weight: 800;
-  color: var(--ivory-terminal);
+  font-weight: 850;
+  color: #070F33;
   margin: 0 0 5px 0;
   letter-spacing: -0.01em;
 }
 
 .pane-subtitle {
   font-size: 0.98rem;
-  color: var(--ivory-soft);
+  color: #0E1D61;
+  font-weight: 550;
   margin: 0;
   line-height: 1.5;
 }
@@ -1134,9 +1135,8 @@ body {
   font-family: var(--font-cute);
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--gold-accent);
-  background: rgba(224, 188, 92, 0.16);
-  border: 1px solid rgba(224, 188, 92, 0.38);
+  color: #FAF7F2;
+  background: #0E1D61;
   padding: 5px 13px;
   border-radius: 20px;
   margin-bottom: 10px;
@@ -1145,22 +1145,24 @@ body {
 .about-name-title {
   font-family: var(--font-cute);
   font-size: 2.35rem;
-  font-weight: 800;
-  color: var(--ivory-terminal);
+  font-weight: 850;
+  color: #070F33;
   line-height: 1.2;
   margin: 0 0 8px 0;
   letter-spacing: -0.01em;
 }
 
 .highlight-cute {
-  color: var(--gold-accent);
+  color: #FAF7F2;
+  text-shadow: 0 1px 3px rgba(14, 29, 97, 0.4);
 }
 
 .about-description {
   font-family: var(--font-cute);
   font-size: 1.02rem;
   line-height: 1.62;
-  color: var(--ivory-soft);
+  color: #0E1D61;
+  font-weight: 500;
   max-width: 980px;
   margin: 0;
 }
@@ -1182,15 +1184,15 @@ body {
 .cute-card-title {
   font-family: var(--font-cute);
   font-size: 1.12rem;
-  font-weight: 700;
-  color: var(--ivory-terminal);
+  font-weight: 750;
+  color: #070F33;
   margin: 0;
 }
 
 .cute-card-desc {
   font-size: 0.92rem;
   line-height: 1.55;
-  color: var(--ivory-soft);
+  color: #0E1D61;
   margin: 0 0 12px 0;
   flex-grow: 1;
 }
@@ -1207,7 +1209,7 @@ body {
   align-items: center;
   justify-content: space-between;
   background: var(--mac-card-bg);
-  border: 1px solid rgba(224, 188, 92, 0.3);
+  border: 1.5px solid rgba(14, 29, 97, 0.25);
   padding: 12px 22px;
   border-radius: 8px;
   font-family: var(--font-cute);
@@ -1221,17 +1223,17 @@ body {
 }
 
 .status-label-cute {
-  color: var(--ivory-soft);
+  color: #0E1D61;
   font-weight: 600;
 }
 
 .status-value-cute {
-  color: var(--gold-accent);
-  font-weight: 700;
+  color: #070F33;
+  font-weight: 750;
 }
 
 .status-divider-dot {
-  color: rgba(224, 188, 92, 0.5);
+  color: rgba(14, 29, 97, 0.4);
 }
 
 .status-available {
@@ -1278,8 +1280,8 @@ body {
 .skill-card-heading {
   font-family: var(--font-cute);
   font-size: 1.08rem;
-  font-weight: 700;
-  color: var(--ivory-terminal);
+  font-weight: 750;
+  color: #070F33;
   margin: 0;
 }
 
@@ -1292,10 +1294,10 @@ body {
 .skill-tag-cute {
   font-family: var(--font-cute);
   font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--ivory-terminal);
-  background: #0B174D;
-  border: 1px solid rgba(224, 188, 92, 0.35);
+  font-weight: 650;
+  color: #FAF7F2;
+  background: #0E1D61;
+  border: 1px solid #0E1D61;
   padding: 6px 13px;
   border-radius: 6px;
   transition: all 0.2s ease;
@@ -1303,10 +1305,8 @@ body {
 }
 
 .skill-tag-cute:hover {
-  background: var(--gold-accent);
-  border-color: var(--gold-accent);
-  color: #070F33;
-  font-weight: 750;
+  background: #1B339A;
+  color: #FAF7F2;
   transform: translateY(-1px);
 }
 
@@ -1344,13 +1344,13 @@ body {
 .project-name-text {
   font-family: var(--font-cute);
   font-size: 1.15rem;
-  font-weight: 750;
-  color: var(--ivory-terminal);
+  font-weight: 800;
+  color: #070F33;
   letter-spacing: -0.01em;
 }
 
 .project-pipe-divider {
-  color: var(--gold-accent);
+  color: #0E1D61;
   font-weight: 700;
   font-size: 1.05rem;
   opacity: 0.6;
@@ -1359,21 +1359,21 @@ body {
 .project-tech-text {
   font-family: var(--font-mono);
   font-size: 0.84rem;
-  font-weight: 500;
-  color: var(--gold-accent);
-  background: #0B174D;
+  font-weight: 600;
+  color: #FAF7F2;
+  background: #0E1D61;
   padding: 3px 10px;
   border-radius: 5px;
-  border: 1px solid rgba(224, 188, 92, 0.35);
+  border: 1px solid #0E1D61;
 }
 
 .project-repo-link {
   font-family: var(--font-cute);
   font-size: 0.8rem;
   font-weight: 750;
-  color: #070F33;
-  background: var(--gold-accent);
-  border: 1px solid var(--gold-accent);
+  color: #FAF7F2;
+  background: #0E1D61;
+  border: 1px solid #0E1D61;
   padding: 6px 14px;
   border-radius: 6px;
   text-decoration: none;
@@ -1386,9 +1386,8 @@ body {
 }
 
 .project-repo-link:hover {
-  background: #F0D07E;
-  border-color: #F0D07E;
-  color: #040921;
+  background: #1B339A;
+  color: #FAF7F2;
   transform: translateY(-1px);
   box-shadow: none;
 }
@@ -1396,7 +1395,7 @@ body {
 .project-desc-cute {
   font-size: 0.93rem;
   line-height: 1.6;
-  color: var(--ivory-soft);
+  color: #0E1D61;
   margin: 0;
 }
 
@@ -1409,10 +1408,10 @@ body {
 .project-live-btn {
   font-family: var(--font-cute);
   font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--ivory-terminal);
-  background: rgba(224, 188, 92, 0.14);
-  border: 1px solid rgba(224, 188, 92, 0.4);
+  font-weight: 650;
+  color: #070F33;
+  background: rgba(255, 255, 255, 0.35);
+  border: 1.5px solid #0E1D61;
   padding: 5px 13px;
   border-radius: 6px;
   text-decoration: none;
@@ -1424,9 +1423,8 @@ body {
 }
 
 .project-live-btn:hover {
-  background: var(--gold-accent);
-  border-color: var(--gold-accent);
-  color: #070F33;
+  background: #0E1D61;
+  color: #FAF7F2;
 }
 
 .live-link-label {
@@ -1458,7 +1456,7 @@ body {
   gap: 16px;
   padding: 20px 24px;
   text-decoration: none;
-  color: var(--ivory-terminal);
+  color: #070F33;
   cursor: pointer;
 }
 
@@ -1472,8 +1470,8 @@ body {
 .contact-type-label {
   font-family: var(--font-cute);
   font-size: 0.74rem;
-  font-weight: 700;
-  color: var(--gold-accent);
+  font-weight: 750;
+  color: #070F33;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -1481,12 +1479,12 @@ body {
 .contact-main-text {
   font-family: var(--font-cute);
   font-size: 1.02rem;
-  font-weight: 600;
-  color: var(--ivory-terminal);
+  font-weight: 700;
+  color: #070F33;
 }
 
 .contact-hover-arrow {
-  color: var(--gold-accent);
+  color: #0E1D61;
   transition: all 0.2s ease;
 }
 
@@ -1506,18 +1504,18 @@ body {
 
 .contact-footer-note {
   background: var(--mac-card-bg);
-  border: 1px solid rgba(224, 188, 92, 0.28);
-  border-left: 3px solid var(--gold-accent);
+  border: 1.5px solid rgba(14, 29, 97, 0.25);
+  border-left: 3.5px solid #0E1D61;
   padding: 12px 20px;
   border-radius: 6px;
   font-size: 0.86rem;
-  color: var(--ivory-soft);
+  color: #0E1D61;
 }
 
 /* Window Footer Bar */
 .mac-window-footer {
-  background: #070F33;
-  border-top: 1px solid rgba(224, 188, 92, 0.25);
+  background: #A3843C;
+  border-top: 1.5px solid rgba(14, 29, 97, 0.22);
   padding: 12px 22px;
   display: flex;
   align-items: center;
@@ -1560,44 +1558,42 @@ body {
 
 /* Prominently Highlighted NEXT Button */
 .footer-btn.next-btn {
-  background: var(--gold-accent);
-  color: #070F33;
-  border: 1px solid var(--gold-accent);
-  box-shadow: 0 2px 10px rgba(224, 188, 92, 0.25);
+  background: #0E1D61;
+  color: #FAF7F2;
+  border: 1px solid #0E1D61;
+  box-shadow: 0 2px 10px rgba(14, 29, 97, 0.35);
 }
 
 .footer-btn.next-btn:hover {
-  background: #F0D07E;
-  border-color: #F0D07E;
-  color: #040921;
+  background: #1B339A;
+  color: #FAF7F2;
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(224, 188, 92, 0.35);
+  box-shadow: 0 4px 14px rgba(14, 29, 97, 0.45);
 }
 
 /* High-Contrast PREVIOUS Button */
 .footer-btn.prev-btn {
-  background: #142470;
-  border: 1px solid rgba(224, 188, 92, 0.38);
-  color: var(--ivory-terminal);
+  background: rgba(255, 255, 255, 0.3);
+  border: 1.5px solid #0E1D61;
+  color: #070F33;
 }
 
 .footer-btn.prev-btn:hover {
-  background: #1C3090;
-  border-color: var(--gold-accent);
-  color: var(--ivory-terminal);
+  background: rgba(255, 255, 255, 0.5);
+  color: #000000;
   transform: translateY(-1px);
 }
 
 /* Restart Button on Final Step */
 .footer-btn.restart-btn {
-  background: rgba(224, 188, 92, 0.16);
-  border: 1px solid var(--gold-accent);
-  color: var(--gold-accent);
+  background: rgba(14, 29, 97, 0.12);
+  border: 1.5px solid #0E1D61;
+  color: #070F33;
 }
 
 .footer-btn.restart-btn:hover {
-  background: var(--gold-accent);
-  color: #070F33;
+  background: #0E1D61;
+  color: #FAF7F2;
   transform: translateY(-1px);
 }
 
@@ -1611,7 +1607,7 @@ body {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: rgba(224, 188, 92, 0.35);
+  background: rgba(14, 29, 97, 0.25);
   border: none;
   cursor: pointer;
   padding: 0;
@@ -1619,11 +1615,11 @@ body {
 }
 
 .pagination-circle:hover {
-  background: rgba(224, 188, 92, 0.7);
+  background: rgba(14, 29, 97, 0.5);
 }
 
 .pagination-circle.active {
-  background: var(--gold-accent);
+  background: #0E1D61;
   transform: scale(1.3);
 }
 
