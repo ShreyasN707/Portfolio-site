@@ -2,13 +2,32 @@ import { useState, useEffect, useRef } from 'react';
 import { Volume2, VolumeX, ArrowRight } from 'lucide-react';
 import CyberBoot from './components/CyberBoot';
 import ModelViewer from './components/ModelViewer';
-import { playHoverTick, playSelectClick, setMuted } from './utils/audio';
+import PortfolioView from './components/PortfolioView';
+import AdminEditView from './components/AdminEditView';
+import { playHoverTick, playSelectClick, playAccessGranted, setMuted } from './utils/audio';
 
 const ROLES = ["ML", "COMPUTER VISION", "BACKEND ENGINEERING"];
 const CYBER_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
 
 export default function App() {
-  const [isBooted, setIsBooted] = useState(false);
+  const [route, setRoute] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.location.pathname.startsWith('/edit') || window.location.hash === '#edit'
+        ? 'edit'
+        : 'portfolio_or_landing';
+    }
+    return 'portfolio_or_landing';
+  });
+
+  const [isBooted, setIsBooted] = useState(() => {
+    // If starting directly on /edit, bypass the boot animation directly to editor
+    if (typeof window !== 'undefined') {
+      return window.location.pathname.startsWith('/edit') || window.location.hash === '#edit';
+    }
+    return false;
+  });
+
+  const [currentView, setCurrentView] = useState('landing'); // 'landing' | 'transitioning' | 'portfolio'
   const [mutedState, setMutedState] = useState(false);
   const [roleIndex, setRoleIndex] = useState(0);
   const [scrambledRole, setScrambledRole] = useState(ROLES[0]);
@@ -17,9 +36,32 @@ export default function App() {
   // Scramble animation ref to prevent overlapping intervals
   const intervalRef = useRef(null);
 
+  // Listen to browser Back/Forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      const isEdit = window.location.pathname.startsWith('/edit') || window.location.hash === '#edit';
+      setRoute(isEdit ? 'edit' : 'portfolio_or_landing');
+      if (isEdit) setIsBooted(true);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigateToEdit = () => {
+    window.history.pushState({}, '', '/edit');
+    setRoute('edit');
+    setIsBooted(true);
+  };
+
+  const navigateToHome = () => {
+    window.history.pushState({}, '', '/');
+    setRoute('portfolio_or_landing');
+    setCurrentView('portfolio');
+  };
+
   // Smooth Scramble / Decrypt Animation when Role changes
   useEffect(() => {
-    if (!isBooted) return;
+    if (!isBooted || route === 'edit') return;
 
     const targetText = ROLES[roleIndex];
     let iteration = 0;
@@ -49,16 +91,24 @@ export default function App() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [roleIndex, isBooted]);
+  }, [roleIndex, isBooted, route]);
 
   // Cycle through roles every 3.8 seconds
   useEffect(() => {
-    if (!isBooted) return;
+    if (!isBooted || route === 'edit') return;
     const cycleInterval = setInterval(() => {
       setRoleIndex((prev) => (prev + 1) % ROLES.length);
     }, 3800);
     return () => clearInterval(cycleInterval);
-  }, [isBooted]);
+  }, [isBooted, route]);
+
+  // Keep window locked / non-scrollable as requested
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'hidden';
+    };
+  }, []);
 
   const toggleMute = () => {
     const newState = !mutedState;
@@ -68,16 +118,45 @@ export default function App() {
   };
 
   const handleStart = () => {
-    playSelectClick();
+    playAccessGranted();
+    setCurrentView('transitioning');
+    setTimeout(() => {
+      setCurrentView('portfolio');
+    }, 450);
   };
+
+  const handleBackToLanding = () => {
+    playSelectClick();
+    setCurrentView('transitioning');
+    setTimeout(() => {
+      setCurrentView('landing');
+    }, 350);
+  };
+
+  // Dedicated Route: /edit (Admin / Owner Page)
+  if (route === 'edit') {
+    return <AdminEditView onNavigateHome={navigateToHome} />;
+  }
 
   return (
     <>
       {/* Initial Loading Page (Kept exactly as requested) */}
       {!isBooted && <CyberBoot onComplete={() => setIsBooted(true)} />}
 
+      {/* Clean Mac Terminal Transition Shutter */}
+      {isBooted && currentView === 'transitioning' && (
+        <div className="anime-transition-screen">
+          <div className="transition-shutter top"></div>
+          <div className="transition-shutter bottom"></div>
+          <div className="transition-hud-label">
+            <span className="hud-kanji">OPENING TERMINAL</span>
+            <span className="hud-metric">LOADING PORTFOLIO...</span>
+          </div>
+        </div>
+      )}
+
       {/* Clean Dark Landing Page */}
-      {isBooted && (
+      {isBooted && currentView === 'landing' && (
         <div className="landing-viewport">
           {/* Subtle Audio Toggle */}
           <button
@@ -130,6 +209,16 @@ export default function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Clean Anime-Style Modular Portfolio View */}
+      {isBooted && currentView === 'portfolio' && (
+        <PortfolioView
+          onBackToLanding={handleBackToLanding}
+          mutedState={mutedState}
+          onToggleMute={toggleMute}
+          onNavigateEdit={navigateToEdit}
+        />
       )}
     </>
   );
