@@ -14,7 +14,11 @@ export const FONT_SIZES = [
   { label: 'Normal (16px)', size: '1rem' },
   { label: 'Medium (19px)', size: '1.2rem' },
   { label: 'Large (24px)', size: '1.5rem' },
-  { label: 'Huge (30px)', size: '1.85rem' }
+  { label: 'X-Large (28px)', size: '1.75rem' },
+  { label: 'Huge (34px)', size: '2.1rem' },
+  { label: 'Jumbo (42px)', size: '2.6rem' },
+  { label: 'Display (52px)', size: '3.25rem' },
+  { label: 'Titan (64px)', size: '4rem' }
 ];
 
 export const FONT_FAMILIES = [

@@ -72,13 +72,14 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const deletedTabs = data.deletedTabs || [];
   const unorderedTabs = [
     { id: 'about', label: 'About' },
     { id: 'skills', label: 'Skills' },
     { id: 'projects', label: 'Projects' },
     { id: 'contact', label: 'Contact' },
     ...(data.customSections || []).map((s) => ({ id: s.id, label: s.label }))
-  ];
+  ].filter((t) => !deletedTabs.includes(t.id));
 
   const tabOrder = data.tabOrder || ['about', 'skills', 'projects', 'contact'];
   const allTabs = [...unorderedTabs].sort((a, b) => {
@@ -89,7 +90,11 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
     return idxA - idxB;
   });
 
-  const currentTabIdx = allTabs.findIndex((t) => t.id === activeTab);
+  const effectiveActiveTab = allTabs.some((t) => t.id === activeTab)
+    ? activeTab
+    : (allTabs[0]?.id || 'about');
+
+  const currentTabIdx = allTabs.findIndex((t) => t.id === effectiveActiveTab);
   const prevTab = currentTabIdx > 0 ? allTabs[currentTabIdx - 1] : null;
   const nextTab = currentTabIdx < allTabs.length - 1 ? allTabs[currentTabIdx + 1] : null;
 
@@ -183,292 +188,327 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
           {/* ==========================================
               TAB 1: ABOUT
               ========================================== */}
-          {activeTab === 'about' && (
+          {effectiveActiveTab === 'about' && (
             <div className="mac-pane fade-in">
-              <div className="about-hero-section">
-                <div className="badge-cute">
-                  <span>{data.profile?.roleTag || 'Machine Learning & Computer Vision'}</span>
+              {!data.hiddenSections?.profileHero && (
+                <div className="about-hero-section">
+                  <div className="badge-cute">
+                    <span>{data.profile?.roleTag || 'Machine Learning & Computer Vision'}</span>
+                  </div>
+                  <h1 className="about-name-title">
+                    Hi, I'm <span className="highlight-cute">{data.profile?.name || 'Shreyas Naik'}</span>
+                  </h1>
+                  <p
+                    className="about-description"
+                    dangerouslySetInnerHTML={{ __html: data.profile?.bio || '' }}
+                  />
                 </div>
-                <h1 className="about-name-title">
-                  Hi, I'm <span className="highlight-cute">{data.profile?.name || 'Shreyas Naik'}</span>
-                </h1>
-                <p
-                  className="about-description"
-                  dangerouslySetInnerHTML={{ __html: data.profile?.bio || '' }}
-                />
-              </div>
+              )}
 
               {/* Information Cards */}
-              <div className="about-triplet-grid">
-                {(data.aboutCards || []).map((card) => {
-                  const Icon = ICON_MAP[card.iconName] || Layers;
-                  return (
-                    <div key={card.id} className="mac-card">
-                      <div className="card-header-cute">
-                        <div className="cute-icon-box">
-                          <Icon size={17} />
+              {!data.hiddenSections?.aboutCards && (
+                <div className="about-triplet-grid">
+                  {(data.aboutCards || []).map((card) => {
+                    const Icon = ICON_MAP[card.iconName] || Layers;
+                    return (
+                      <div key={card.id} className="mac-card">
+                        <div className="card-header-cute">
+                          {card.image ? (
+                            <img src={card.image} alt={card.title} className="cute-card-custom-img" />
+                          ) : (
+                            <div className="cute-icon-box">
+                              <Icon size={17} />
+                            </div>
+                          )}
+                          <h2 className="cute-card-title">{card.title}</h2>
                         </div>
-                        <h2 className="cute-card-title">{card.title}</h2>
+                        <p
+                          className="cute-card-desc"
+                          dangerouslySetInnerHTML={{ __html: card.desc || '' }}
+                        />
+                        <div className="cute-tags-row">
+                          {(card.tags || []).map((tag, i) => (
+                            <span key={i} className="tag-pill">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                      <p
-                        className="cute-card-desc"
-                        dangerouslySetInnerHTML={{ __html: card.desc || '' }}
-                      />
-                      <div className="cute-tags-row">
-                        {(card.tags || []).map((tag, i) => (
-                          <span key={i} className="tag-pill">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
 
               {/* Status Footer Pill */}
-              <div className="mac-status-strip">
-                <div className="status-segment">
-                  <span className="status-label-cute">Location:</span>
-                  <span className="status-value-cute">{data.profile?.location || 'Bengaluru, India'}</span>
+              {!data.hiddenSections?.statusStrip && (
+                <div className="mac-status-strip">
+                  <div className="status-segment">
+                    <span className="status-label-cute">Location:</span>
+                    <span className="status-value-cute">{data.profile?.location || 'Bengaluru, India'}</span>
+                  </div>
+                  <div className="status-segment">
+                    <span className="status-label-cute">Focus:</span>
+                    <span className="status-value-cute">{data.profile?.focus || 'Computer Vision & Edge ML'}</span>
+                  </div>
+                  <div className="status-segment status-available">
+                    <span className="live-dot"></span>
+                    <span>{data.profile?.availability || 'Available for Engineering Roles'}</span>
+                  </div>
                 </div>
-                <div className="status-segment">
-                  <span className="status-label-cute">Focus:</span>
-                  <span className="status-value-cute">{data.profile?.focus || 'Computer Vision & Edge ML'}</span>
-                </div>
-                <div className="status-segment status-available">
-                  <span className="live-dot"></span>
-                  <span>{data.profile?.availability || 'Available for Engineering Roles'}</span>
-                </div>
-              </div>
+              )}
             </div>
           )}
 
           {/* ==========================================
               TAB 2: SKILLS
               ========================================== */}
-          {activeTab === 'skills' && (
+          {effectiveActiveTab === 'skills' && (
             <div className="mac-pane fade-in">
-              <div className="pane-intro">
-                <h1 className="pane-heading">{data.sectionTitles?.skillsHeading || 'Technical Skills'}</h1>
-                <p
-                  className="pane-subtitle"
-                  dangerouslySetInnerHTML={{
-                    __html: data.sectionTitles?.skillsSubtitle || 'Technologies and tools I use to build intelligent applications.'
-                  }}
-                />
-              </div>
+              {!data.hiddenSections?.skillsHeader && (
+                <div className="pane-intro">
+                  <h1 className="pane-heading">{data.sectionTitles?.skillsHeading || 'Technical Skills'}</h1>
+                  <p
+                    className="pane-subtitle"
+                    dangerouslySetInnerHTML={{
+                      __html: data.sectionTitles?.skillsSubtitle || 'Technologies and tools I use to build intelligent applications.'
+                    }}
+                  />
+                </div>
+              )}
 
-              <div className="skills-grid-compact">
-                {(data.skillGroups || []).map((group, idx) => {
-                  const Icon = ICON_MAP[group.iconName] || Wrench;
-                  return (
-                    <div key={group.id || idx} className="mac-card skill-card-clean">
-                      <div className="skill-card-top">
-                        <div className="cute-icon-box">
-                          <Icon size={16} />
+              {!data.hiddenSections?.skillsCards && (
+                <div className="skills-grid-compact">
+                  {(data.skillGroups || []).map((group, idx) => {
+                    const Icon = ICON_MAP[group.iconName] || Wrench;
+                    return (
+                      <div key={group.id || idx} className="mac-card skill-card-clean">
+                        <div className="skill-card-top">
+                          {group.image ? (
+                            <img src={group.image} alt={group.title} className="skill-card-custom-img" />
+                          ) : (
+                            <div className="cute-icon-box">
+                              <Icon size={16} />
+                            </div>
+                          )}
+                          <h2 className="skill-card-heading">{group.title}</h2>
                         </div>
-                        <h2 className="skill-card-heading">{group.title}</h2>
+                        <div className="skill-tags-wrap">
+                          {(group.items || []).map((item, i) => (
+                            <span key={i} className="skill-tag-cute" onMouseEnter={playHoverTick}>
+                              {item}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                      <div className="skill-tags-wrap">
-                        {(group.items || []).map((item, i) => (
-                          <span key={i} className="skill-tag-cute" onMouseEnter={playHoverTick}>
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
           {/* ==========================================
               TAB 3: PROJECTS
               ========================================== */}
-          {activeTab === 'projects' && (
+          {effectiveActiveTab === 'projects' && (
             <div className="mac-pane fade-in">
-              <div className="pane-intro">
-                <h1 className="pane-heading">{data.sectionTitles?.projectsHeading || 'Featured Projects'}</h1>
-                <p
-                  className="pane-subtitle"
-                  dangerouslySetInnerHTML={{
-                    __html: data.sectionTitles?.projectsSubtitle || 'Practical systems built with computer vision, edge machine learning, and web services.'
-                  }}
-                />
-              </div>
+              {!data.hiddenSections?.projectsHeader && (
+                <div className="pane-intro">
+                  <h1 className="pane-heading">{data.sectionTitles?.projectsHeading || 'Featured Projects'}</h1>
+                  <p
+                    className="pane-subtitle"
+                    dangerouslySetInnerHTML={{
+                      __html: data.sectionTitles?.projectsSubtitle || 'Practical systems built with computer vision, edge machine learning, and web services.'
+                    }}
+                  />
+                </div>
+              )}
 
-              <div className="projects-grid-compact">
-                {(data.projects || []).map((proj) => (
-                  <div key={proj.id} className="mac-card project-card-compact">
-                    {/* Header format: [project name] | [ tech stack used ] ........... repo link */}
-                    <div className="project-header-row">
-                      <div className="project-header-info">
-                        <span className="project-name-text">{proj.title}</span>
-                        <span className="project-pipe-divider">|</span>
-                        <span className="project-tech-text">
-                          {Array.isArray(proj.tech) ? proj.tech.join(', ') : proj.tech}
-                        </span>
-                      </div>
+              {!data.hiddenSections?.projectsCards && (
+                <div className="projects-grid-compact">
+                  {(data.projects || []).map((proj) => (
+                    <div key={proj.id} className="mac-card project-card-compact">
+                      {/* Header format: [project name] | [ tech stack used ] ........... repo link */}
+                      <div className="project-header-row">
+                        <div className="project-header-info">
+                          <span className="project-name-text">{proj.title}</span>
+                          <span className="project-pipe-divider">|</span>
+                          <span className="project-tech-text">
+                            {Array.isArray(proj.tech) ? proj.tech.join(', ') : proj.tech}
+                          </span>
+                        </div>
 
-                      <a
-                        href={proj.repoLink || proj.link || '#'}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="project-repo-link"
-                        onMouseEnter={playHoverTick}
-                        title={`View ${proj.title} on GitHub`}
-                      >
-                        <GithubIcon size={14} />
-                        <span>Repository</span>
-                        <ExternalLink size={13} />
-                      </a>
-                    </div>
-
-                    {/* Description of the project */}
-                    <p
-                      className="project-desc-cute"
-                      dangerouslySetInnerHTML={{ __html: proj.desc || '' }}
-                    />
-
-                    {/* Below: Live link (if present) */}
-                    {proj.liveLink && (
-                      <div className="project-live-container">
                         <a
-                          href={proj.liveLink}
+                          href={proj.repoLink || proj.link || '#'}
                           target="_blank"
                           rel="noreferrer"
-                          className="project-live-btn"
+                          className="project-repo-link"
                           onMouseEnter={playHoverTick}
-                          title={`Open Live Demo for ${proj.title}`}
+                          title={`View ${proj.title} on GitHub`}
                         >
+                          <GithubIcon size={14} />
+                          <span>Repository</span>
                           <ExternalLink size={13} />
-                          <span className="live-link-label">Live Link:</span>
-                          <span className="live-link-url">{proj.liveLink}</span>
                         </a>
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+
+                      {/* Project Preview Banner if available */}
+                      {proj.image && (
+                        <div className="project-banner-wrap">
+                          <img src={proj.image} alt={proj.title} className="project-banner-img" />
+                        </div>
+                      )}
+
+                      {/* Description of the project */}
+                      <p
+                        className="project-desc-cute"
+                        dangerouslySetInnerHTML={{ __html: proj.desc || '' }}
+                      />
+
+                      {/* Below: Live link (if present) */}
+                      {proj.liveLink && (
+                        <div className="project-live-container">
+                          <a
+                            href={proj.liveLink}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="project-live-btn"
+                            onMouseEnter={playHoverTick}
+                            title={`Open Live Demo for ${proj.title}`}
+                          >
+                            <ExternalLink size={13} />
+                            <span className="live-link-label">Live Link:</span>
+                            <span className="live-link-url">{proj.liveLink}</span>
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
           {/* ==========================================
               TAB 4: CONTACT
               ========================================== */}
-          {activeTab === 'contact' && (
+          {effectiveActiveTab === 'contact' && (
             <div className="mac-pane fade-in">
-              <div className="pane-intro">
-                <h1 className="pane-heading">{data.sectionTitles?.contactHeading || 'Get in Touch'}</h1>
-                <p
-                  className="pane-subtitle"
-                  dangerouslySetInnerHTML={{
-                    __html: data.sectionTitles?.contactSubtitle || 'Looking for an ML engineer or want to discuss a project? I would love to hear from you.'
-                  }}
-                />
-              </div>
-
-              <div className="contact-grid-compact">
-                {/* Email */}
-                <a
-                  href={`mailto:${data.contact?.email || 'shreyasnaik81@gmail.com'}`}
-                  className="mac-card contact-card-clean"
-                  onMouseEnter={playHoverTick}
-                >
-                  <div className="cute-icon-box">
-                    <Mail size={18} />
-                  </div>
-                  <div className="contact-details">
-                    <span className="contact-type-label">Email</span>
-                    <span className="contact-main-text">{data.contact?.email || 'shreyasnaik81@gmail.com'}</span>
-                  </div>
-                  <ArrowRight size={15} className="contact-hover-arrow" />
-                </a>
-
-                {/* Copy Email */}
-                <div
-                  className="mac-card contact-card-clean copy-action-card"
-                  onClick={copyEmail}
-                  onMouseEnter={playHoverTick}
-                  role="button"
-                  tabIndex={0}
-                  title="Click to copy email address"
-                >
-                  <div className={`cute-icon-box ${copied ? 'copied-box' : ''}`}>
-                    {copied ? <Check size={18} className="check-mark-icon" /> : <Copy size={18} />}
-                  </div>
-                  <div className="contact-details">
-                    <span className="contact-type-label">Quick Copy</span>
-                    <span className="contact-main-text">{copied ? 'Copied to clipboard!' : 'Click to copy email'}</span>
-                  </div>
+              {!data.hiddenSections?.contactHeader && (
+                <div className="pane-intro">
+                  <h1 className="pane-heading">{data.sectionTitles?.contactHeading || 'Get in Touch'}</h1>
+                  <p
+                    className="pane-subtitle"
+                    dangerouslySetInnerHTML={{
+                      __html: data.sectionTitles?.contactSubtitle || 'Looking for an ML engineer or want to discuss a project? I would love to hear from you.'
+                    }}
+                  />
                 </div>
+              )}
 
-                {/* GitHub */}
-                <a
-                  href={data.contact?.github || "https://github.com/ShreyasN707"}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mac-card contact-card-clean"
-                  onMouseEnter={playHoverTick}
-                >
-                  <div className="cute-icon-box">
-                    <GithubIcon size={18} />
-                  </div>
-                  <div className="contact-details">
-                    <span className="contact-type-label">GitHub</span>
-                    <span className="contact-main-text">
-                      {(data.contact?.github || 'https://github.com/ShreyasN707').replace('https://', '')}
-                    </span>
-                  </div>
-                  <ExternalLink size={15} className="contact-hover-arrow" />
-                </a>
+              {!data.hiddenSections?.contactCards && (
+                <div className="contact-grid-compact">
+                  {/* Email */}
+                  <a
+                    href={`mailto:${data.contact?.email || 'shreyasnaik81@gmail.com'}`}
+                    className="mac-card contact-card-clean"
+                    onMouseEnter={playHoverTick}
+                  >
+                    <div className="cute-icon-box">
+                      <Mail size={18} />
+                    </div>
+                    <div className="contact-details">
+                      <span className="contact-type-label">Email</span>
+                      <span className="contact-main-text">{data.contact?.email || 'shreyasnaik81@gmail.com'}</span>
+                    </div>
+                    <ArrowRight size={15} className="contact-hover-arrow" />
+                  </a>
 
-                {/* LinkedIn */}
-                <a
-                  href={data.contact?.linkedin || "https://linkedin.com/in/shreyasnaik"}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mac-card contact-card-clean"
-                  onMouseEnter={playHoverTick}
-                >
-                  <div className="cute-icon-box">
-                    <LinkedinIcon size={18} />
+                  {/* Copy Email */}
+                  <div
+                    className="mac-card contact-card-clean copy-action-card"
+                    onClick={copyEmail}
+                    onMouseEnter={playHoverTick}
+                    role="button"
+                    tabIndex={0}
+                    title="Click to copy email address"
+                  >
+                    <div className={`cute-icon-box ${copied ? 'copied-box' : ''}`}>
+                      {copied ? <Check size={18} className="check-mark-icon" /> : <Copy size={18} />}
+                    </div>
+                    <div className="contact-details">
+                      <span className="contact-type-label">Quick Copy</span>
+                      <span className="contact-main-text">{copied ? 'Copied to clipboard!' : 'Click to copy email'}</span>
+                    </div>
                   </div>
-                  <div className="contact-details">
-                    <span className="contact-type-label">LinkedIn</span>
-                    <span className="contact-main-text">
-                      {(data.contact?.linkedin || 'https://linkedin.com/in/shreyasnaik').replace('https://', '')}
-                    </span>
-                  </div>
-                  <ExternalLink size={15} className="contact-hover-arrow" />
-                </a>
-              </div>
+
+                  {/* GitHub */}
+                  <a
+                    href={data.contact?.github || "https://github.com/ShreyasN707"}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mac-card contact-card-clean"
+                    onMouseEnter={playHoverTick}
+                  >
+                    <div className="cute-icon-box">
+                      <GithubIcon size={18} />
+                    </div>
+                    <div className="contact-details">
+                      <span className="contact-type-label">GitHub</span>
+                      <span className="contact-main-text">
+                        {(data.contact?.github || 'https://github.com/ShreyasN707').replace('https://', '')}
+                      </span>
+                    </div>
+                    <ExternalLink size={15} className="contact-hover-arrow" />
+                  </a>
+
+                  {/* LinkedIn */}
+                  <a
+                    href={data.contact?.linkedin || "https://linkedin.com/in/shreyasnaik"}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mac-card contact-card-clean"
+                    onMouseEnter={playHoverTick}
+                  >
+                    <div className="cute-icon-box">
+                      <LinkedinIcon size={18} />
+                    </div>
+                    <div className="contact-details">
+                      <span className="contact-type-label">LinkedIn</span>
+                      <span className="contact-main-text">
+                        {(data.contact?.linkedin || 'https://linkedin.com/in/shreyasnaik').replace('https://', '')}
+                      </span>
+                    </div>
+                    <ExternalLink size={15} className="contact-hover-arrow" />
+                  </a>
+                </div>
+              )}
 
               {/* Availability Note */}
-              <div className="contact-footer-note">
-                <span className="status-label-cute">Note: </span>
-                <span
-                  dangerouslySetInnerHTML={{
-                    __html: data.contact?.note || 'Always open to discuss machine learning systems, edge optimization, and interesting engineering projects.'
-                  }}
-                />
-              </div>
+              {!data.hiddenSections?.contactNote && (
+                <div className="contact-footer-note">
+                  <span className="status-label-cute">Note: </span>
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: data.contact?.note || 'Always open to discuss machine learning systems, edge optimization, and interesting engineering projects.'
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
 
           {/* ==========================================
               CUSTOM SECTIONS
               ========================================== */}
-          {data.customSections && data.customSections.find((s) => s.id === activeTab) && (
+          {data.customSections && data.customSections.find((s) => s.id === effectiveActiveTab) && (
             (() => {
-              const sec = data.customSections.find((s) => s.id === activeTab);
+              const sec = data.customSections.find((s) => s.id === effectiveActiveTab);
               return (
                 <div className="mac-pane fade-in">
                   <div className="pane-intro">
                     <h1 className="pane-heading">{sec.heading || sec.label}</h1>
-                    {sec.desc && (
+                    {!data.hiddenSections?.[`customOverview_${sec.id}`] && sec.desc && (
                       <p
                         className="pane-subtitle"
                         dangerouslySetInnerHTML={{ __html: sec.desc }}
@@ -477,7 +517,7 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
                   </div>
 
                   {/* Render Custom Section Items: Cards, Images, PDFs, Notes */}
-                  {sec.items && sec.items.length > 0 && (
+                  {!data.hiddenSections?.[`customItems_${sec.id}`] && sec.items && sec.items.length > 0 && (
                     <div className="custom-items-container">
                       <div className="custom-items-grid">
                         {sec.items.map((item, idx) => {

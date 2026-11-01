@@ -226,7 +226,8 @@ export default function AdminEditView({ onNavigateHome }) {
       title: 'New Focus Area',
       desc: 'Description of this engineering domain and what you build.',
       tagsInput: 'Tool1, Tool2, Tool3',
-      iconName: 'Cpu'
+      iconName: 'Cpu',
+      image: ''
     });
     setModalType('aboutCard');
     setIsNewItem(true);
@@ -239,7 +240,8 @@ export default function AdminEditView({ onNavigateHome }) {
       title: card.title || '',
       desc: card.desc || '',
       tagsInput: Array.isArray(card.tags) ? card.tags.join(', ') : '',
-      iconName: card.iconName || 'Eye'
+      iconName: card.iconName || 'Eye',
+      image: card.image || ''
     });
     setModalType('aboutCard');
     setIsNewItem(false);
@@ -255,7 +257,8 @@ export default function AdminEditView({ onNavigateHome }) {
       title: (formFields.title || '').trim() || 'Focus Area',
       desc: (formFields.desc || '').trim(),
       tags: parsedTags,
-      iconName: formFields.iconName || 'Eye'
+      iconName: formFields.iconName || 'Eye',
+      image: (formFields.image || '').trim() || null
     };
 
     if (isNewItem) {
@@ -287,6 +290,7 @@ export default function AdminEditView({ onNavigateHome }) {
       ...card,
       id: `about-${Date.now()}`,
       title: `${card.title} (Copy)`,
+      image: card.image || null,
       tags: Array.isArray(card.tags) ? [...card.tags] : []
     };
     setData((prev) => ({
@@ -342,6 +346,7 @@ export default function AdminEditView({ onNavigateHome }) {
       id: `skill-${Date.now()}`,
       title: 'New Skill Category',
       iconName: 'Wrench',
+      image: '',
       itemsInput: 'Python, PyTorch, YOLOv8, OpenCV'
     });
     setModalType('skillGroup');
@@ -354,6 +359,7 @@ export default function AdminEditView({ onNavigateHome }) {
       id: group.id,
       title: group.title || '',
       iconName: group.iconName || 'Wrench',
+      image: group.image || '',
       itemsInput: Array.isArray(group.items) ? group.items.join(', ') : ''
     });
     setModalType('skillGroup');
@@ -369,6 +375,7 @@ export default function AdminEditView({ onNavigateHome }) {
       id: formFields.id || `skill-${Date.now()}`,
       title: formFields.title.trim() || 'Skill Category',
       iconName: formFields.iconName || 'Wrench',
+      image: (formFields.image || '').trim() || null,
       items: parsedItems
     };
 
@@ -401,6 +408,7 @@ export default function AdminEditView({ onNavigateHome }) {
       ...group,
       id: `skill-${Date.now()}`,
       title: `${group.title} (Copy)`,
+      image: group.image || null,
       items: Array.isArray(group.items) ? [...group.items] : []
     };
     setData((prev) => ({
@@ -458,6 +466,7 @@ export default function AdminEditView({ onNavigateHome }) {
       techInput: 'Python, YOLOv8, OpenCV, CUDA',
       repoLink: 'https://github.com/ShreyasN707',
       liveLink: '',
+      image: '',
       desc: 'Clear summary of what this project does and key technologies used.'
     });
     setModalType('project');
@@ -472,6 +481,7 @@ export default function AdminEditView({ onNavigateHome }) {
       techInput: Array.isArray(proj.tech) ? proj.tech.join(', ') : (proj.tech || ''),
       repoLink: proj.repoLink || proj.link || '',
       liveLink: proj.liveLink || '',
+      image: proj.image || '',
       desc: proj.desc || '',
       focusLive
     });
@@ -490,6 +500,7 @@ export default function AdminEditView({ onNavigateHome }) {
       tech: parsedTech,
       repoLink: (formFields.repoLink || '').trim() || 'https://github.com/ShreyasN707',
       liveLink: (formFields.liveLink || '').trim() || null,
+      image: (formFields.image || '').trim() || null,
       desc: (formFields.desc || '').trim()
     };
 
@@ -522,7 +533,8 @@ export default function AdminEditView({ onNavigateHome }) {
       ...proj,
       id: `proj-${Date.now()}`,
       title: `${proj.title} (Copy)`,
-      tech: Array.isArray(proj.tech) ? [...proj.tech] : []
+      tech: Array.isArray(proj.tech) ? [...proj.tech] : [],
+      image: proj.image || null
     };
     setData((prev) => ({
       ...prev,
@@ -647,19 +659,79 @@ export default function AdminEditView({ onNavigateHome }) {
     setActiveTab(secId);
   };
 
-  const deleteCustomSection = (id) => {
+  const deleteAnyTab = (tabId) => {
     playSelectClick();
-    if (window.confirm('Delete this custom section?')) {
-      setData((prev) => {
-        const nextSections = (prev.customSections || []).filter((s) => s.id !== id);
-        const nextTabOrder = (prev.tabOrder || []).filter((tabId) => tabId !== id);
-        const updated = { ...prev, customSections: nextSections, tabOrder: nextTabOrder };
-        savePortfolioData(updated);
-        return updated;
-      });
-      setHasUnsavedChanges(true);
-      setActiveTab('about');
+    const tabObj = allTabs.find((t) => t.id === tabId);
+    const tabName = tabObj?.label || tabId;
+    if (!window.confirm(`Delete the "${tabName}" tab from your portfolio? You can restore it anytime from the Reorder Tabs menu.`)) {
+      return;
     }
+
+    setData((prev) => {
+      const nextDeleted = Array.isArray(prev.deletedTabs) ? [...prev.deletedTabs] : [];
+      if (!nextDeleted.includes(tabId)) {
+        nextDeleted.push(tabId);
+      }
+      const nextTabOrder = (prev.tabOrder || []).filter((id) => id !== tabId);
+      const nextCustomSections = (prev.customSections || []).filter((s) => s.id !== tabId);
+      const updated = {
+        ...prev,
+        deletedTabs: nextDeleted,
+        tabOrder: nextTabOrder,
+        customSections: nextCustomSections
+      };
+      savePortfolioData(updated);
+      return updated;
+    });
+
+    setHasUnsavedChanges(true);
+
+    const remainingTabs = allTabs.filter((t) => t.id !== tabId);
+    if (remainingTabs.length > 0) {
+      setActiveTab(remainingTabs[0].id);
+    }
+  };
+
+  const restoreTab = (tabId) => {
+    playAccessGranted();
+    setData((prev) => {
+      const nextDeleted = (prev.deletedTabs || []).filter((id) => id !== tabId);
+      const nextTabOrder = prev.tabOrder ? [...prev.tabOrder] : [];
+      if (!nextTabOrder.includes(tabId)) {
+        nextTabOrder.push(tabId);
+      }
+      const updated = {
+        ...prev,
+        deletedTabs: nextDeleted,
+        tabOrder: nextTabOrder
+      };
+      savePortfolioData(updated);
+      return updated;
+    });
+    setHasUnsavedChanges(true);
+    setActiveTab(tabId);
+  };
+
+  const toggleSectionVisibility = (sectionKey, sectionName) => {
+    playSelectClick();
+    const isCurrentlyHidden = Boolean(data.hiddenSections?.[sectionKey]);
+    if (!isCurrentlyHidden) {
+      if (!window.confirm(`Delete/hide the "${sectionName}" section? You can restore it anytime.`)) {
+        return;
+      }
+    }
+    setData((prev) => {
+      const updated = {
+        ...prev,
+        hiddenSections: {
+          ...(prev.hiddenSections || {}),
+          [sectionKey]: !isCurrentlyHidden
+        }
+      };
+      savePortfolioData(updated);
+      return updated;
+    });
+    setHasUnsavedChanges(true);
   };
 
   const openAddCustomItem = (secId, itemType) => {
@@ -826,13 +898,14 @@ export default function AdminEditView({ onNavigateHome }) {
     savePortfolioData(updated);
   };
 
+  const deletedTabs = data.deletedTabs || [];
   const unorderedTabs = [
     { id: 'about', label: 'About' },
     { id: 'skills', label: 'Skills' },
     { id: 'projects', label: 'Projects' },
     { id: 'contact', label: 'Contact' },
     ...(data.customSections || []).map((s) => ({ id: s.id, label: s.label }))
-  ];
+  ].filter((t) => !deletedTabs.includes(t.id));
 
   const tabOrder = data.tabOrder || DEFAULT_TAB_ORDER;
   const allTabs = [...unorderedTabs].sort((a, b) => {
@@ -843,7 +916,11 @@ export default function AdminEditView({ onNavigateHome }) {
     return idxA - idxB;
   });
 
-  const currentTabIdx = allTabs.findIndex((t) => t.id === activeTab);
+  const effectiveActiveTab = allTabs.some((t) => t.id === activeTab)
+    ? activeTab
+    : (allTabs[0]?.id || 'about');
+
+  const currentTabIdx = allTabs.findIndex((t) => t.id === effectiveActiveTab);
   const prevTab = currentTabIdx > 0 ? allTabs[currentTabIdx - 1] : null;
   const nextTab = currentTabIdx < allTabs.length - 1 ? allTabs[currentTabIdx + 1] : null;
 
@@ -1000,43 +1077,99 @@ export default function AdminEditView({ onNavigateHome }) {
           {/* ==========================================
               TAB 1: ABOUT (EDITABLE)
               ========================================== */}
-          {activeTab === 'about' && (
+          {effectiveActiveTab === 'about' && (
             <div className="mac-pane fade-in">
-              {/* Hero Section with Direct Edit Trigger */}
-              <div className="admin-editable-block hero-block" onClick={openEditProfile}>
-                <div className="editable-hover-banner">
-                  <Edit3 size={14} />
-                  <span>Click to Edit Profile Header & Bio</span>
+              <div className="admin-section-subheader" style={{ marginBottom: '14px' }}>
+                <div className="section-title-wrap">
+                  <h1 className="pane-heading">Profile & Overview</h1>
+                  <p className="pane-subtitle">Core introduction, bio, and focus area cards.</p>
                 </div>
-
-                <div className="about-hero-section">
-                  <div className="badge-cute">
-                    <span>{data.profile?.roleTag || 'Machine Learning & Computer Vision'}</span>
-                  </div>
-                  <h1 className="about-name-title">
-                    Hi, I'm <span className="highlight-cute">{data.profile?.name || 'Shreyas Naik'}</span>
-                  </h1>
-                  <div
-                    className="about-description rich-inline-editable"
-                    contentEditable
-                    suppressContentEditableWarning
-                    data-rich-editable="true"
-                    data-rich-field="profile.bio"
-                    title="Highlight words with mouse to style color, font, and size!"
-                    onBlur={(e) => handleInlineSave('profile.bio', e.currentTarget.innerHTML)}
-                    dangerouslySetInnerHTML={{ __html: data.profile?.bio || '' }}
-                  />
+                <div className="subheader-actions-row">
+                  <button
+                    className="admin-add-item-btn delete-sec"
+                    onClick={() => deleteAnyTab('about')}
+                    title="Delete the About tab from your portfolio"
+                  >
+                    <Trash2 size={13} />
+                    <span>Delete Tab</span>
+                  </button>
                 </div>
               </div>
+
+              {/* Hero Section with Direct Edit Trigger */}
+              {!data.hiddenSections?.profileHero ? (
+                <div className="admin-editable-block hero-block" onClick={openEditProfile} style={{ position: 'relative' }}>
+                  <div className="editable-hover-banner">
+                    <Edit3 size={14} />
+                    <span>Click to Edit Profile Header & Bio</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="card-mini-btn delete section-delete-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSectionVisibility('profileHero', 'Profile Header & Bio');
+                    }}
+                    title="Delete Profile Header & Bio section"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+
+                  <div className="about-hero-section">
+                    <div className="badge-cute">
+                      <span>{data.profile?.roleTag || 'Machine Learning & Computer Vision'}</span>
+                    </div>
+                    <h1 className="about-name-title">
+                      Hi, I'm <span className="highlight-cute">{data.profile?.name || 'Shreyas Naik'}</span>
+                    </h1>
+                    <div
+                      className="about-description rich-inline-editable"
+                      contentEditable
+                      suppressContentEditableWarning
+                      data-rich-editable="true"
+                      data-rich-field="profile.bio"
+                      title="Highlight words with mouse to style color, font, and size!"
+                      onBlur={(e) => handleInlineSave('profile.bio', e.currentTarget.innerHTML)}
+                      dangerouslySetInnerHTML={{ __html: data.profile?.bio || '' }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="section-deleted-placeholder">
+                  <span>"Profile Header & Bio" section is currently deleted/hidden.</span>
+                  <button
+                    type="button"
+                    className="restore-placeholder-btn"
+                    onClick={() => toggleSectionVisibility('profileHero', 'Profile Header & Bio')}
+                  >
+                    <RotateCcw size={12} />
+                    <span>Restore Section</span>
+                  </button>
+                </div>
+              )}
 
               {/* Focus Areas & Cards */}
-              <div className="admin-section-subheader">
-                <span className="subheader-title">Focus Areas & Domain Cards ({data.aboutCards?.length || 0})</span>
-                <button className="admin-add-item-btn" onClick={openAddAboutCard} onMouseEnter={playHoverTick}>
-                  <Plus size={14} />
-                  <span>Add Focus Card</span>
-                </button>
-              </div>
+              {!data.hiddenSections?.aboutCards ? (
+                <>
+                  <div className="admin-section-subheader" style={{ marginTop: '18px' }}>
+                    <span className="subheader-title">Focus Areas & Domain Cards ({data.aboutCards?.length || 0})</span>
+                    <div className="subheader-actions-row">
+                      <button className="admin-add-item-btn" onClick={openAddAboutCard} onMouseEnter={playHoverTick}>
+                        <Plus size={14} />
+                        <span>Add Focus Card</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-add-item-btn delete-sec"
+                        onClick={() => toggleSectionVisibility('aboutCards', 'Focus Areas')}
+                        title="Delete Focus Areas Section"
+                      >
+                        <Trash2 size={13} />
+                        <span>Delete Section</span>
+                      </button>
+                    </div>
+                  </div>
 
               <div className="about-triplet-grid">
                 {(data.aboutCards || []).map((card) => {
@@ -1077,9 +1210,13 @@ export default function AdminEditView({ onNavigateHome }) {
                       </div>
 
                       <div className="card-header-cute" onClick={() => openEditAboutCard(card)}>
-                        <div className="cute-icon-box">
-                          <Icon size={17} />
-                        </div>
+                        {card.image ? (
+                          <img src={card.image} alt={card.title} className="cute-card-custom-img" />
+                        ) : (
+                          <div className="cute-icon-box">
+                            <Icon size={17} />
+                          </div>
+                        )}
                         <h2 className="cute-card-title">{card.title}</h2>
                       </div>
                       <div
@@ -1151,328 +1288,631 @@ export default function AdminEditView({ onNavigateHome }) {
                 })}
               </div>
 
-              {/* Status Footer Pill */}
-              <div className="admin-editable-block status-block" onClick={openEditProfile} style={{ marginTop: '16px' }}>
-                <div className="mac-status-strip">
-                  <div className="status-segment">
-                    <span className="status-label-cute">Location:</span>
-                    <span className="status-value-cute">{data.profile?.location || 'Bengaluru, India'}</span>
-                  </div>
-                  <div className="status-segment">
-                    <span className="status-label-cute">Focus:</span>
-                    <span className="status-value-cute">{data.profile?.focus || 'Computer Vision & Edge ML'}</span>
-                  </div>
-                  <div className="status-segment status-available">
-                    <span className="live-dot"></span>
-                    <span>{data.profile?.availability || 'Available for Engineering Roles'}</span>
-                  </div>
-                  <span className="mini-edit-hint">Click to edit location & status</span>
+                </>
+              ) : (
+                <div className="section-deleted-placeholder">
+                  <span>"Focus Areas" cards section is currently deleted/hidden.</span>
+                  <button
+                    type="button"
+                    className="restore-placeholder-btn"
+                    onClick={() => toggleSectionVisibility('aboutCards', 'Focus Areas')}
+                  >
+                    <RotateCcw size={12} />
+                    <span>Restore Section</span>
+                  </button>
                 </div>
-              </div>
+              )}
+
+              {/* Status Footer Pill */}
+              {!data.hiddenSections?.statusStrip ? (
+                <div className="admin-editable-block status-block" onClick={openEditProfile} style={{ marginTop: '16px', position: 'relative' }}>
+                  <button
+                    type="button"
+                    className="card-mini-btn delete section-delete-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSectionVisibility('statusStrip', 'Location & Availability Status');
+                    }}
+                    title="Delete Status & Location footer strip"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                  <div className="mac-status-strip">
+                    <div className="status-segment">
+                      <span className="status-label-cute">Location:</span>
+                      <span className="status-value-cute">{data.profile?.location || 'Bengaluru, India'}</span>
+                    </div>
+                    <div className="status-segment">
+                      <span className="status-label-cute">Focus:</span>
+                      <span className="status-value-cute">{data.profile?.focus || 'Computer Vision & Edge ML'}</span>
+                    </div>
+                    <div className="status-segment status-available">
+                      <span className="live-dot"></span>
+                      <span>{data.profile?.availability || 'Available for Engineering Roles'}</span>
+                    </div>
+                    <span className="mini-edit-hint">Click to edit location & status</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="section-deleted-placeholder">
+                  <span>"Location & Availability Status" footer is currently deleted/hidden.</span>
+                  <button
+                    type="button"
+                    className="restore-placeholder-btn"
+                    onClick={() => toggleSectionVisibility('statusStrip', 'Location & Availability Status')}
+                  >
+                    <RotateCcw size={12} />
+                    <span>Restore Section</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
           {/* ==========================================
               TAB 2: SKILLS (WITH FLAWLESS COMMA & INLINE ADD)
               ========================================== */}
-          {activeTab === 'skills' && (
+          {effectiveActiveTab === 'skills' && (
             <div className="mac-pane fade-in">
-              <div className="admin-section-subheader">
-                <div className="section-title-wrap">
-                  <h1 className="pane-heading">
-                    {data.sectionTitles?.skillsHeading || 'Technical Skills'}
+              {!data.hiddenSections?.skillsHeader ? (
+                <div className="admin-section-subheader">
+                  <div className="section-title-wrap">
+                    <h1 className="pane-heading">
+                      {data.sectionTitles?.skillsHeading || 'Technical Skills'}
+                      <button
+                        className="inline-header-edit-btn"
+                        onClick={() => openEditSectionTitles('skills')}
+                        title="Edit Section Title & Subtitle"
+                      >
+                        <Edit3 size={13} />
+                      </button>
+                    </h1>
+                    <p className="pane-subtitle">
+                      {data.sectionTitles?.skillsSubtitle || 'Technologies and tools I use to build intelligent applications.'}
+                    </p>
+                  </div>
+                  <div className="subheader-actions-row">
                     <button
-                      className="inline-header-edit-btn"
-                      onClick={() => openEditSectionTitles('skills')}
-                      title="Edit Section Title & Subtitle"
+                      type="button"
+                      className="admin-add-item-btn delete-sec"
+                      onClick={() => toggleSectionVisibility('skillsHeader', 'Skills Header & Intro')}
+                      title="Delete Skills Header & Intro section"
                     >
-                      <Edit3 size={13} />
+                      <Trash2 size={13} />
+                      <span>Delete Header</span>
                     </button>
-                  </h1>
-                  <p className="pane-subtitle">
-                    {data.sectionTitles?.skillsSubtitle || 'Technologies and tools I use to build intelligent applications.'}
-                  </p>
+                    <button
+                      className="admin-add-item-btn delete-sec"
+                      onClick={() => deleteAnyTab('skills')}
+                      title="Delete the Skills tab from your portfolio"
+                    >
+                      <Trash2 size={13} />
+                      <span>Delete Tab</span>
+                    </button>
+                  </div>
                 </div>
-                <button className="admin-add-item-btn" onClick={openAddSkillGroup} onMouseEnter={playHoverTick}>
-                  <Plus size={14} />
-                  <span>Add Skill Category</span>
-                </button>
-              </div>
+              ) : (
+                <div className="section-deleted-placeholder">
+                  <span>"Skills Header & Intro" section is currently deleted/hidden.</span>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      className="restore-placeholder-btn"
+                      onClick={() => toggleSectionVisibility('skillsHeader', 'Skills Header & Intro')}
+                    >
+                      <RotateCcw size={12} />
+                      <span>Restore Header</span>
+                    </button>
+                    <button
+                      className="admin-add-item-btn delete-sec"
+                      onClick={() => deleteAnyTab('skills')}
+                      title="Delete the entire Skills tab"
+                      style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                    >
+                      <Trash2 size={12} />
+                      <span>Delete Tab</span>
+                    </button>
+                  </div>
+                </div>
+              )}
 
-              <div className="skills-grid-compact" style={{ marginTop: '16px' }}>
-                {(data.skillGroups || []).map((group) => {
-                  const Icon = ICON_MAP[group.iconName] || Wrench;
-                  return (
-                    <div key={group.id} className="mac-card skill-card-clean admin-editable-card">
-                      <div className="card-admin-action-row">
-                        <button
-                          className="card-mini-btn edit"
-                          onClick={() => openEditSkillGroup(group)}
-                          title="Edit Category & Skills"
-                        >
-                          <Edit3 size={13} />
-                        </button>
-                        <button
-                          className="card-mini-btn copy"
-                          onClick={() => duplicateSkillGroup(group)}
-                          title="Duplicate Category"
-                        >
-                          <Copy size={13} />
-                        </button>
-                        <button
-                          className="card-mini-btn delete"
-                          onClick={() => deleteSkillGroup(group.id)}
-                          title="Delete Category"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
+              {!data.hiddenSections?.skillsCards ? (
+                <div style={{ position: 'relative' }}>
+                  <div className="admin-section-subheader" style={{ marginTop: '16px' }}>
+                    <span className="subheader-title">Skill Categories & Cards ({(data.skillGroups || []).length})</span>
+                    <div className="subheader-actions-row">
+                      <button className="admin-add-item-btn" onClick={openAddSkillGroup} onMouseEnter={playHoverTick}>
+                        <Plus size={14} />
+                        <span>Add Skill Category</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-add-item-btn delete-sec"
+                        onClick={() => toggleSectionVisibility('skillsCards', 'Skill Cards Grid')}
+                        title="Delete Skill Cards Grid Section"
+                      >
+                        <Trash2 size={13} />
+                        <span>Delete Section</span>
+                      </button>
+                    </div>
+                  </div>
 
-                      <div className="skill-card-top" onClick={() => openEditSkillGroup(group)}>
-                        <div className="cute-icon-box">
-                          <Icon size={16} />
-                        </div>
-                        <h2 className="skill-card-heading">{group.title}</h2>
-                        <span className="card-badge-count">{(group.items || []).length} skills</span>
-                      </div>
-
-                      <div className="skill-tags-wrap">
-                        {(group.items || []).map((item, i) => (
-                          <span key={i} className="skill-tag-cute skill-tag-interactive">
-                            <span>{item}</span>
+                  <div className="skills-grid-compact" style={{ marginTop: '14px' }}>
+                    {(data.skillGroups || []).map((group) => {
+                      const Icon = ICON_MAP[group.iconName] || Wrench;
+                      return (
+                        <div key={group.id} className="mac-card skill-card-clean admin-editable-card">
+                          <div className="card-admin-action-row">
                             <button
-                              className="pill-quick-remove"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleQuickRemoveSkill(group.id, i);
-                              }}
-                              title={`Remove ${item}`}
+                              className="card-mini-btn edit"
+                              onClick={() => openEditSkillGroup(group)}
+                              title="Edit Category & Skills"
                             >
-                              <X size={11} />
+                              <Edit3 size={13} />
                             </button>
-                          </span>
-                        ))}
-
-                        {/* Inline Quick Add Skill Input */}
-                        {quickSkillInputGroup === group.id ? (
-                          <div className="inline-quick-add-form" onClick={(e) => e.stopPropagation()}>
-                            <input
-                              className="inline-quick-input"
-                              placeholder="e.g. TensorRT, PyTorch..."
-                              autoFocus
-                              value={quickSkillText}
-                              onChange={(e) => setQuickSkillText(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleQuickAddSkill(group.id);
-                                if (e.key === 'Escape') setQuickSkillInputGroup(null);
-                              }}
-                            />
-                            <button className="inline-quick-confirm" onClick={() => handleQuickAddSkill(group.id)}>
-                              Add
+                            <button
+                              className="card-mini-btn copy"
+                              onClick={() => duplicateSkillGroup(group)}
+                              title="Duplicate Category"
+                            >
+                              <Copy size={13} />
                             </button>
-                            <button className="inline-quick-cancel" onClick={() => setQuickSkillInputGroup(null)}>
-                              <X size={12} />
+                            <button
+                              className="card-mini-btn delete"
+                              onClick={() => deleteSkillGroup(group.id)}
+                              title="Delete Category"
+                            >
+                              <Trash2 size={13} />
                             </button>
                           </div>
-                        ) : (
-                          <button
-                            className="inline-add-pill-trigger skill-add-trigger"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setQuickSkillInputGroup(group.id);
-                              setQuickSkillText('');
-                            }}
-                            title="Quickly add a skill to this card"
-                          >
-                            <Plus size={12} />
-                            <span>Add Skill</span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+
+                          <div className="skill-card-top" onClick={() => openEditSkillGroup(group)}>
+                            {group.image ? (
+                              <img src={group.image} alt={group.title} className="skill-card-custom-img" />
+                            ) : (
+                              <div className="cute-icon-box">
+                                <Icon size={16} />
+                              </div>
+                            )}
+                            <h2 className="skill-card-heading">{group.title}</h2>
+                            <span className="card-badge-count">{(group.items || []).length} skills</span>
+                          </div>
+
+                          <div className="skill-tags-wrap">
+                            {(group.items || []).map((item, i) => (
+                              <span key={i} className="skill-tag-cute skill-tag-interactive">
+                                <span>{item}</span>
+                                <button
+                                  className="pill-quick-remove"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleQuickRemoveSkill(group.id, i);
+                                  }}
+                                  title={`Remove ${item}`}
+                                >
+                                  <X size={11} />
+                                </button>
+                              </span>
+                            ))}
+
+                            {/* Inline Quick Add Skill Input */}
+                            {quickSkillInputGroup === group.id ? (
+                              <div className="inline-quick-add-form" onClick={(e) => e.stopPropagation()}>
+                                <input
+                                  className="inline-quick-input"
+                                  placeholder="e.g. TensorRT, PyTorch..."
+                                  autoFocus
+                                  value={quickSkillText}
+                                  onChange={(e) => setQuickSkillText(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleQuickAddSkill(group.id);
+                                    if (e.key === 'Escape') setQuickSkillInputGroup(null);
+                                  }}
+                                />
+                                <button className="inline-quick-confirm" onClick={() => handleQuickAddSkill(group.id)}>
+                                  Add
+                                </button>
+                                <button className="inline-quick-cancel" onClick={() => setQuickSkillInputGroup(null)}>
+                                  <X size={12} />
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                className="inline-add-pill-trigger skill-add-trigger"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setQuickSkillInputGroup(group.id);
+                                  setQuickSkillText('');
+                                }}
+                                title="Quickly add a skill to this card"
+                              >
+                                <Plus size={12} />
+                                <span>Add Skill</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="section-deleted-placeholder">
+                  <span>"Skill Cards Grid" section is currently deleted/hidden.</span>
+                  <button
+                    type="button"
+                    className="restore-placeholder-btn"
+                    onClick={() => toggleSectionVisibility('skillsCards', 'Skill Cards Grid')}
+                  >
+                    <RotateCcw size={12} />
+                    <span>Restore Section</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
           {/* ==========================================
               TAB 3: PROJECTS (WITH FLAWLESS COMMA & LIVE LINK)
               ========================================== */}
-          {activeTab === 'projects' && (
+          {effectiveActiveTab === 'projects' && (
             <div className="mac-pane fade-in">
-              <div className="admin-section-subheader">
-                <div className="section-title-wrap">
-                  <h1 className="pane-heading">
-                    {data.sectionTitles?.projectsHeading || 'Featured Projects'}
-                    <button
-                      className="inline-header-edit-btn"
-                      onClick={() => openEditSectionTitles('projects')}
-                      title="Edit Section Title & Subtitle"
-                    >
-                      <Edit3 size={13} />
-                    </button>
-                  </h1>
-                  <p className="pane-subtitle">
-                    {data.sectionTitles?.projectsSubtitle || 'Practical systems built with computer vision, edge machine learning, and web services.'}
-                  </p>
-                </div>
-                <button className="admin-add-item-btn" onClick={openAddProject} onMouseEnter={playHoverTick}>
-                  <Plus size={14} />
-                  <span>Add New Project</span>
-                </button>
-              </div>
-
-              <div className="projects-grid-compact" style={{ marginTop: '16px' }}>
-                {(data.projects || []).map((proj) => (
-                  <div key={proj.id} className="mac-card project-card-compact admin-editable-card">
-                    <div className="card-admin-action-row">
+              {!data.hiddenSections?.projectsHeader ? (
+                <div className="admin-section-subheader">
+                  <div className="section-title-wrap">
+                    <h1 className="pane-heading">
+                      {data.sectionTitles?.projectsHeading || 'Featured Projects'}
                       <button
-                        className="card-mini-btn edit"
-                        onClick={() => openEditProject(proj)}
-                        title="Edit Project"
+                        className="inline-header-edit-btn"
+                        onClick={() => openEditSectionTitles('projects')}
+                        title="Edit Section Title & Subtitle"
                       >
                         <Edit3 size={13} />
                       </button>
-                      <button
-                        className="card-mini-btn copy"
-                        onClick={() => duplicateProject(proj)}
-                        title="Duplicate Project"
-                      >
-                        <Copy size={13} />
+                    </h1>
+                    <p className="pane-subtitle">
+                      {data.sectionTitles?.projectsSubtitle || 'Practical systems built with computer vision, edge machine learning, and web services.'}
+                    </p>
+                  </div>
+                  <div className="subheader-actions-row">
+                    <button
+                      type="button"
+                      className="admin-add-item-btn delete-sec"
+                      onClick={() => toggleSectionVisibility('projectsHeader', 'Projects Header & Intro')}
+                      title="Delete Projects Header & Intro section"
+                    >
+                      <Trash2 size={13} />
+                      <span>Delete Header</span>
+                    </button>
+                    <button
+                      className="admin-add-item-btn delete-sec"
+                      onClick={() => deleteAnyTab('projects')}
+                      title="Delete the Projects tab from your portfolio"
+                    >
+                      <Trash2 size={13} />
+                      <span>Delete Tab</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="section-deleted-placeholder">
+                  <span>"Projects Header & Intro" section is currently deleted/hidden.</span>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      className="restore-placeholder-btn"
+                      onClick={() => toggleSectionVisibility('projectsHeader', 'Projects Header & Intro')}
+                    >
+                      <RotateCcw size={12} />
+                      <span>Restore Header</span>
+                    </button>
+                    <button
+                      className="admin-add-item-btn delete-sec"
+                      onClick={() => deleteAnyTab('projects')}
+                      title="Delete the entire Projects tab"
+                      style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                    >
+                      <Trash2 size={12} />
+                      <span>Delete Tab</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {!data.hiddenSections?.projectsCards ? (
+                <div style={{ position: 'relative' }}>
+                  <div className="admin-section-subheader" style={{ marginTop: '16px' }}>
+                    <span className="subheader-title">Project Cards ({(data.projects || []).length})</span>
+                    <div className="subheader-actions-row">
+                      <button className="admin-add-item-btn" onClick={openAddProject} onMouseEnter={playHoverTick}>
+                        <Plus size={14} />
+                        <span>Add New Project</span>
                       </button>
                       <button
-                        className="card-mini-btn delete"
-                        onClick={() => deleteProject(proj.id)}
-                        title="Delete Project"
+                        type="button"
+                        className="admin-add-item-btn delete-sec"
+                        onClick={() => toggleSectionVisibility('projectsCards', 'Projects Grid')}
+                        title="Delete Projects Grid Section"
                       >
                         <Trash2 size={13} />
+                        <span>Delete Section</span>
                       </button>
                     </div>
-
-                    {/* Header format: [project name] | [ tech stack used ] ........... repo link */}
-                    <div className="project-header-row" onClick={() => openEditProject(proj)}>
-                      <div className="project-header-info">
-                        <span className="project-name-text">{proj.title}</span>
-                        <span className="project-pipe-divider">|</span>
-                        <span className="project-tech-text">
-                          {Array.isArray(proj.tech) ? proj.tech.join(', ') : proj.tech}
-                        </span>
-                      </div>
-
-                      <div className="project-repo-link" style={{ pointerEvents: 'none' }}>
-                        <GithubIcon size={14} />
-                        <span>Repository</span>
-                        <ExternalLink size={13} />
-                      </div>
-                    </div>
-
-                    {/* Description of the project */}
-                    <div
-                      className="project-desc-cute rich-inline-editable"
-                      contentEditable
-                      suppressContentEditableWarning
-                      data-rich-editable="true"
-                      data-rich-field={`project.${proj.id}`}
-                      title="Highlight words with mouse to style color, font, and size!"
-                      onBlur={(e) => handleInlineSave(`project.${proj.id}`, e.currentTarget.innerHTML)}
-                      dangerouslySetInnerHTML={{ __html: proj.desc || '' }}
-                    />
-
-                    {/* Below: Live link (if present) or add trigger */}
-                    {proj.liveLink ? (
-                      <div className="project-live-container" onClick={() => openEditProject(proj, true)}>
-                        <div className="project-live-btn" style={{ pointerEvents: 'none' }}>
-                          <ExternalLink size={13} />
-                          <span className="live-link-label">Live Link:</span>
-                          <span className="live-link-url">{proj.liveLink}</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="project-live-container">
-                        <button
-                          className="no-live-link-trigger"
-                          onClick={() => openEditProject(proj, true)}
-                          title="Add a live demo website link to this project"
-                        >
-                          <Plus size={12} />
-                          <span>Add Live Demo Link</span>
-                        </button>
-                      </div>
-                    )}
                   </div>
-                ))}
-              </div>
+
+                  <div className="projects-grid-compact" style={{ marginTop: '14px' }}>
+                    {(data.projects || []).map((proj) => (
+                      <div key={proj.id} className="mac-card project-card-compact admin-editable-card">
+                        <div className="card-admin-action-row">
+                          <button
+                            className="card-mini-btn edit"
+                            onClick={() => openEditProject(proj)}
+                            title="Edit Project"
+                          >
+                            <Edit3 size={13} />
+                          </button>
+                          <button
+                            className="card-mini-btn copy"
+                            onClick={() => duplicateProject(proj)}
+                            title="Duplicate Project"
+                          >
+                            <Copy size={13} />
+                          </button>
+                          <button
+                            className="card-mini-btn delete"
+                            onClick={() => deleteProject(proj.id)}
+                            title="Delete Project"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+
+                        {/* Header format: [project name] | [ tech stack used ] ........... repo link */}
+                        <div className="project-header-row" onClick={() => openEditProject(proj)}>
+                          <div className="project-header-info">
+                            <span className="project-name-text">{proj.title}</span>
+                            <span className="project-pipe-divider">|</span>
+                            <span className="project-tech-text">
+                              {Array.isArray(proj.tech) ? proj.tech.join(', ') : proj.tech}
+                            </span>
+                          </div>
+
+                          <div className="project-repo-link" style={{ pointerEvents: 'none' }}>
+                            <GithubIcon size={14} />
+                            <span>Repository</span>
+                            <ExternalLink size={13} />
+                          </div>
+                        </div>
+
+                        {/* Banner Image Preview in Admin if available */}
+                        {proj.image && (
+                          <div className="project-banner-wrap" onClick={() => openEditProject(proj)} title="Click to edit project image">
+                            <img src={proj.image} alt={proj.title} className="project-banner-img" />
+                          </div>
+                        )}
+
+                        {/* Description of the project */}
+                        <div
+                          className="project-desc-cute rich-inline-editable"
+                          contentEditable
+                          suppressContentEditableWarning
+                          data-rich-editable="true"
+                          data-rich-field={`project.${proj.id}`}
+                          title="Highlight words with mouse to style color, font, and size!"
+                          onBlur={(e) => handleInlineSave(`project.${proj.id}`, e.currentTarget.innerHTML)}
+                          dangerouslySetInnerHTML={{ __html: proj.desc || '' }}
+                        />
+
+                        {/* Below: Live link (if present) or add trigger */}
+                        {proj.liveLink ? (
+                          <div className="project-live-container" onClick={() => openEditProject(proj, true)}>
+                            <div className="project-live-btn" style={{ pointerEvents: 'none' }}>
+                              <ExternalLink size={13} />
+                              <span className="live-link-label">Live Link:</span>
+                              <span className="live-link-url">{proj.liveLink}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="project-live-container">
+                            <button
+                              className="no-live-link-trigger"
+                              onClick={() => openEditProject(proj, true)}
+                              title="Add a live demo website link to this project"
+                            >
+                              <Plus size={12} />
+                              <span>Add Live Demo Link</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="section-deleted-placeholder">
+                  <span>"Projects Grid" section is currently deleted/hidden.</span>
+                  <button
+                    type="button"
+                    className="restore-placeholder-btn"
+                    onClick={() => toggleSectionVisibility('projectsCards', 'Projects Grid')}
+                  >
+                    <RotateCcw size={12} />
+                    <span>Restore Section</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
           {/* ==========================================
               TAB 4: CONTACT (EDITABLE)
               ========================================== */}
-          {activeTab === 'contact' && (
+          {effectiveActiveTab === 'contact' && (
             <div className="mac-pane fade-in">
-              <div className="admin-section-subheader">
-                <div className="section-title-wrap">
-                  <h1 className="pane-heading">
-                    {data.sectionTitles?.contactHeading || 'Get in Touch'}
+              {!data.hiddenSections?.contactHeader ? (
+                <div className="admin-section-subheader">
+                  <div className="section-title-wrap">
+                    <h1 className="pane-heading">
+                      {data.sectionTitles?.contactHeading || 'Get in Touch'}
+                      <button
+                        className="inline-header-edit-btn"
+                        onClick={() => openEditSectionTitles('contact')}
+                        title="Edit Section Title & Subtitle"
+                      >
+                        <Edit3 size={13} />
+                      </button>
+                    </h1>
+                    <p className="pane-subtitle">
+                      {data.sectionTitles?.contactSubtitle || 'Looking for an ML engineer or want to discuss a project? I would love to hear from you.'}
+                    </p>
+                  </div>
+                  <div className="subheader-actions-row">
                     <button
-                      className="inline-header-edit-btn"
-                      onClick={() => openEditSectionTitles('contact')}
-                      title="Edit Section Title & Subtitle"
+                      type="button"
+                      className="admin-add-item-btn delete-sec"
+                      onClick={() => toggleSectionVisibility('contactHeader', 'Contact Header & Intro')}
+                      title="Delete Contact Header & Intro section"
                     >
-                      <Edit3 size={13} />
+                      <Trash2 size={13} />
+                      <span>Delete Header</span>
                     </button>
-                  </h1>
-                  <p className="pane-subtitle">
-                    {data.sectionTitles?.contactSubtitle || 'Looking for an ML engineer or want to discuss a project? I would love to hear from you.'}
-                  </p>
+                    <button
+                      className="admin-add-item-btn delete-sec"
+                      onClick={() => deleteAnyTab('contact')}
+                      title="Delete the Contact tab from your portfolio"
+                    >
+                      <Trash2 size={13} />
+                      <span>Delete Tab</span>
+                    </button>
+                  </div>
                 </div>
-                <button className="admin-add-item-btn" onClick={openEditContact} onMouseEnter={playHoverTick}>
-                  <Edit3 size={14} />
-                  <span>Edit Contact Details</span>
-                </button>
-              </div>
-
-              <div className="contact-grid-compact" style={{ marginTop: '16px' }}>
-                <div className="mac-card contact-card-clean admin-editable-card" onClick={openEditContact}>
-                  <div className="cute-icon-box">
-                    <Mail size={18} />
+              ) : (
+                <div className="section-deleted-placeholder">
+                  <span>"Contact Header & Intro" section is currently deleted/hidden.</span>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      className="restore-placeholder-btn"
+                      onClick={() => toggleSectionVisibility('contactHeader', 'Contact Header & Intro')}
+                    >
+                      <RotateCcw size={12} />
+                      <span>Restore Header</span>
+                    </button>
+                    <button
+                      className="admin-add-item-btn delete-sec"
+                      onClick={() => deleteAnyTab('contact')}
+                      title="Delete the entire Contact tab"
+                      style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                    >
+                      <Trash2 size={12} />
+                      <span>Delete Tab</span>
+                    </button>
                   </div>
-                  <div className="contact-details">
-                    <span className="contact-type-label">Email Address</span>
-                    <span className="contact-main-text">{data.contact?.email || 'shreyasnaik81@gmail.com'}</span>
-                  </div>
-                  <Edit3 size={15} className="contact-hover-arrow" />
                 </div>
+              )}
 
-                <div className="mac-card contact-card-clean admin-editable-card" onClick={openEditContact}>
-                  <div className="cute-icon-box">
-                    <LinkedinIcon size={18} />
+              {!data.hiddenSections?.contactCards ? (
+                <div style={{ position: 'relative' }}>
+                  <div className="admin-section-subheader" style={{ marginTop: '16px' }}>
+                    <span className="subheader-title">Contact Channels & Info</span>
+                    <div className="subheader-actions-row">
+                      <button className="admin-add-item-btn" onClick={openEditContact} onMouseEnter={playHoverTick}>
+                        <Edit3 size={14} />
+                        <span>Edit Details</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-add-item-btn delete-sec"
+                        onClick={() => toggleSectionVisibility('contactCards', 'Contact Channels')}
+                        title="Delete Contact Channels Section"
+                      >
+                        <Trash2 size={13} />
+                        <span>Delete Section</span>
+                      </button>
+                    </div>
                   </div>
-                  <div className="contact-details">
-                    <span className="contact-type-label">LinkedIn Profile</span>
-                    <span className="contact-main-text">
-                      {data.contact?.linkedin ? data.contact.linkedin.replace('https://', '') : 'Not configured'}
-                    </span>
+
+                  <div className="contact-grid-compact" style={{ marginTop: '14px' }}>
+                    <div className="mac-card contact-card-clean admin-editable-card" onClick={openEditContact}>
+                      <div className="cute-icon-box">
+                        <Mail size={18} />
+                      </div>
+                      <div className="contact-details">
+                        <span className="contact-type-label">Email Address</span>
+                        <span className="contact-main-text">{data.contact?.email || 'shreyasnaik81@gmail.com'}</span>
+                      </div>
+                      <Edit3 size={15} className="contact-hover-arrow" />
+                    </div>
+
+                    <div className="mac-card contact-card-clean admin-editable-card" onClick={openEditContact}>
+                      <div className="cute-icon-box">
+                        <LinkedinIcon size={18} />
+                      </div>
+                      <div className="contact-details">
+                        <span className="contact-type-label">LinkedIn Profile</span>
+                        <span className="contact-main-text">
+                          {data.contact?.linkedin ? data.contact.linkedin.replace('https://', '') : 'Not configured'}
+                        </span>
+                      </div>
+                      <Edit3 size={15} className="contact-hover-arrow" />
+                    </div>
                   </div>
-                  <Edit3 size={15} className="contact-hover-arrow" />
                 </div>
-              </div>
+              ) : (
+                <div className="section-deleted-placeholder">
+                  <span>"Contact Channels" section is currently deleted/hidden.</span>
+                  <button
+                    type="button"
+                    className="restore-placeholder-btn"
+                    onClick={() => toggleSectionVisibility('contactCards', 'Contact Channels')}
+                  >
+                    <RotateCcw size={12} />
+                    <span>Restore Section</span>
+                  </button>
+                </div>
+              )}
 
-              <div className="contact-footer-note admin-editable-card" onClick={openEditContact} style={{ marginTop: '16px', cursor: 'pointer' }}>
-                <span className="status-label-cute">Availability Note: </span>
-                <span>{data.contact?.note || 'Always open to discuss machine learning systems, edge optimization, and interesting engineering projects.'}</span>
-                <span className="mini-edit-hint" style={{ marginLeft: '10px' }}>(Click to edit)</span>
-              </div>
+              {!data.hiddenSections?.contactNote ? (
+                <div className="admin-editable-block" style={{ marginTop: '16px', position: 'relative' }}>
+                  <button
+                    type="button"
+                    className="card-mini-btn delete section-delete-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSectionVisibility('contactNote', 'Availability Note');
+                    }}
+                    title="Delete Availability Note section"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                  <div className="contact-footer-note admin-editable-card" onClick={openEditContact} style={{ cursor: 'pointer' }}>
+                    <span className="status-label-cute">Availability Note: </span>
+                    <span>{data.contact?.note || 'Always open to discuss machine learning systems, edge optimization, and interesting engineering projects.'}</span>
+                    <span className="mini-edit-hint" style={{ marginLeft: '10px' }}>(Click to edit)</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="section-deleted-placeholder">
+                  <span>"Availability Note" section is currently deleted/hidden.</span>
+                  <button
+                    type="button"
+                    className="restore-placeholder-btn"
+                    onClick={() => toggleSectionVisibility('contactNote', 'Availability Note')}
+                  >
+                    <RotateCcw size={12} />
+                    <span>Restore Section</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
           {/* ==========================================
               CUSTOM USER-CREATED SECTIONS
               ========================================== */}
-          {data.customSections && data.customSections.find((s) => s.id === activeTab) && (
+          {data.customSections && data.customSections.find((s) => s.id === effectiveActiveTab) && (
             (() => {
-              const sec = data.customSections.find((s) => s.id === activeTab);
+              const sec = data.customSections.find((s) => s.id === effectiveActiveTab);
               return (
                 <div className="mac-pane fade-in">
                   <div className="admin-section-subheader">
@@ -1500,7 +1940,7 @@ export default function AdminEditView({ onNavigateHome }) {
                       </button>
                       <button
                         className="admin-add-item-btn delete-sec"
-                        onClick={() => deleteCustomSection(sec.id)}
+                        onClick={() => deleteAnyTab(sec.id)}
                         onMouseEnter={playHoverTick}
                       >
                         <Trash2 size={13} />
@@ -1510,175 +1950,227 @@ export default function AdminEditView({ onNavigateHome }) {
                   </div>
 
                   {/* Intro Overview Box */}
-                  <div className="mac-card admin-editable-card" style={{ marginTop: '14px', padding: '16px 20px' }}>
-                    <div style={{ fontSize: '0.74rem', color: 'var(--honey-yellow)', fontFamily: 'var(--font-mono)', marginBottom: '6px', textTransform: 'uppercase' }}>
-                      Tab Overview (Select text with mouse to style):
-                    </div>
-                    <div
-                      className="rich-inline-editable"
-                      style={{ fontSize: '0.98rem', lineHeight: '1.6', color: '#cbd5e1' }}
-                      contentEditable
-                      suppressContentEditableWarning
-                      data-rich-editable="true"
-                      data-rich-field={`customSection.${sec.id}`}
-                      title="Highlight words with mouse to style color, font, and size!"
-                      onBlur={(e) => handleInlineSave(`customSection.${sec.id}`, e.currentTarget.innerHTML)}
-                      dangerouslySetInnerHTML={{ __html: sec.desc || '' }}
-                    />
-                  </div>
-
-                  {/* Builder Bar: Cards, Images, PDFs, Notes */}
-                  <div className="custom-tab-builder-bar">
-                    <span className="builder-bar-label">Add Content to "{sec.label}":</span>
-                    <div className="builder-btns-group">
+                  {!data.hiddenSections?.[`customOverview_${sec.id}`] ? (
+                    <div className="mac-card admin-editable-card" style={{ marginTop: '14px', padding: '16px 20px', position: 'relative' }}>
                       <button
-                        className="builder-add-btn"
-                        onClick={() => openAddCustomItem(sec.id, 'card')}
-                        onMouseEnter={playHoverTick}
-                        title="Add a domain card with title, icon, tags"
+                        type="button"
+                        className="card-mini-btn delete section-delete-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSectionVisibility(`customOverview_${sec.id}`, `"${sec.label}" Overview Box`);
+                        }}
+                        title="Delete Overview Box section"
                       >
-                        <Plus size={13} />
-                        <span>Add Focus Card</span>
+                        <Trash2 size={13} />
                       </button>
-
-                      <button
-                        className="builder-add-btn"
-                        onClick={() => openAddCustomItem(sec.id, 'image')}
-                        onMouseEnter={playHoverTick}
-                        title="Upload an image or paste image link"
-                      >
-                        <ImageIcon size={13} />
-                        <span>Upload Image</span>
-                      </button>
-
-                      <button
-                        className="builder-add-btn"
-                        onClick={() => openAddCustomItem(sec.id, 'pdf')}
-                        onMouseEnter={playHoverTick}
-                        title="Upload a PDF file or document link"
-                      >
-                        <FileText size={13} />
-                        <span>Upload / Link PDF</span>
-                      </button>
-
-                      <button
-                        className="builder-add-btn"
-                        onClick={() => openAddCustomItem(sec.id, 'text')}
-                        onMouseEnter={playHoverTick}
-                        title="Add formatted rich text note block"
-                      >
-                        <Edit3 size={13} />
-                        <span>Add Rich Note</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Grid of Custom Items */}
-                  {sec.items && sec.items.length > 0 ? (
-                    <div className="custom-items-grid-admin">
-                      {sec.items.map((item, idx) => {
-                        const Icon = ICON_MAP[item.iconName] || Sparkles;
-                        return (
-                          <div key={item.id || idx} className="mac-card custom-admin-item-card">
-                            <div className="card-admin-action-row">
-                              <button
-                                className="card-mini-btn"
-                                disabled={idx === 0}
-                                onClick={() => moveCustomItem(sec.id, item.id, -1)}
-                                title="Move Up"
-                              >
-                                <ArrowUp size={12} />
-                              </button>
-                              <button
-                                className="card-mini-btn"
-                                disabled={idx === sec.items.length - 1}
-                                onClick={() => moveCustomItem(sec.id, item.id, 1)}
-                                title="Move Down"
-                              >
-                                <ArrowDown size={12} />
-                              </button>
-                              <button
-                                className="card-mini-btn edit"
-                                onClick={() => openEditCustomItem(sec.id, item)}
-                                title="Edit Item"
-                              >
-                                <Edit3 size={12} />
-                              </button>
-                              <button
-                                className="card-mini-btn delete"
-                                onClick={() => deleteCustomItem(sec.id, item.id)}
-                                title="Delete Item"
-                              >
-                                <Trash2 size={12} />
-                              </button>
-                            </div>
-
-                            {item.type === 'card' && (
-                              <>
-                                <div className="card-header-cute" onClick={() => openEditCustomItem(sec.id, item)}>
-                                  <div className="cute-icon-box">
-                                    <Icon size={17} />
-                                  </div>
-                                  <h2 className="cute-card-title">{item.title}</h2>
-                                </div>
-                                <div
-                                  className="cute-card-desc rich-inline-editable"
-                                  dangerouslySetInnerHTML={{ __html: item.desc || '' }}
-                                />
-                                {item.tags && item.tags.length > 0 && (
-                                  <div className="cute-tags-row">
-                                    {item.tags.map((t, i) => (
-                                      <span key={i} className="tag-pill">
-                                        <span>{t}</span>
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
-                              </>
-                            )}
-
-                            {item.type === 'image' && (
-                              <div className="custom-image-preview-block">
-                                <img src={item.url} alt={item.title || 'Preview'} className="custom-admin-thumb" />
-                                {item.caption && <p className="custom-img-caption-text">{item.caption}</p>}
-                              </div>
-                            )}
-
-                            {item.type === 'pdf' && (
-                              <div className="custom-pdf-preview-block">
-                                <div className="pdf-block-header">
-                                  <div className="pdf-icon-badge">
-                                    <FileText size={20} />
-                                  </div>
-                                  <div className="pdf-info-wrap">
-                                    <span className="pdf-title">{item.title}</span>
-                                    <span className="pdf-filename">{item.fileName || 'document.pdf'}</span>
-                                  </div>
-                                  {item.fileSize && <span className="pdf-size-badge">{item.fileSize}</span>}
-                                </div>
-                                {item.desc && (
-                                  <p className="pdf-desc" dangerouslySetInnerHTML={{ __html: item.desc }} />
-                                )}
-                              </div>
-                            )}
-
-                            {item.type === 'text' && (
-                              <div className="custom-text-preview-block">
-                                {item.title && <h3 className="custom-block-title">{item.title}</h3>}
-                                <div
-                                  className="custom-text-content"
-                                  dangerouslySetInnerHTML={{ __html: item.content || '' }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                      <div style={{ fontSize: '0.74rem', color: 'var(--honey-yellow)', fontFamily: 'var(--font-mono)', marginBottom: '6px', textTransform: 'uppercase' }}>
+                        Tab Overview (Select text with mouse to style):
+                      </div>
+                      <div
+                        className="rich-inline-editable"
+                        style={{ fontSize: '0.98rem', lineHeight: '1.6', color: '#cbd5e1' }}
+                        contentEditable
+                        suppressContentEditableWarning
+                        data-rich-editable="true"
+                        data-rich-field={`customSection.${sec.id}`}
+                        title="Highlight words with mouse to style color, font, and size!"
+                        onBlur={(e) => handleInlineSave(`customSection.${sec.id}`, e.currentTarget.innerHTML)}
+                        dangerouslySetInnerHTML={{ __html: sec.desc || '' }}
+                      />
                     </div>
                   ) : (
-                    <div className="custom-empty-notice">
-                      <Sparkles size={20} />
-                      <p>No content widgets added to this tab yet. Click any button above to add Focus Cards, upload Images, or attach PDFs!</p>
+                    <div className="section-deleted-placeholder">
+                      <span>"Tab Overview" section is currently deleted/hidden.</span>
+                      <button
+                        type="button"
+                        className="restore-placeholder-btn"
+                        onClick={() => toggleSectionVisibility(`customOverview_${sec.id}`, `"${sec.label}" Overview Box`)}
+                      >
+                        <RotateCcw size={12} />
+                        <span>Restore Overview</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Builder Bar: Cards, Images, PDFs, Notes */}
+                  {!data.hiddenSections?.[`customItems_${sec.id}`] ? (
+                    <div style={{ position: 'relative' }}>
+                      <div className="custom-tab-builder-bar">
+                        <span className="builder-bar-label">Add Content to "{sec.label}":</span>
+                        <div className="builder-btns-group">
+                          <button
+                            className="builder-add-btn"
+                            onClick={() => openAddCustomItem(sec.id, 'card')}
+                            onMouseEnter={playHoverTick}
+                            title="Add a domain card with title, icon, tags"
+                          >
+                            <Plus size={13} />
+                            <span>Add Focus Card</span>
+                          </button>
+
+                          <button
+                            className="builder-add-btn"
+                            onClick={() => openAddCustomItem(sec.id, 'image')}
+                            onMouseEnter={playHoverTick}
+                            title="Upload an image or paste image link"
+                          >
+                            <ImageIcon size={13} />
+                            <span>Upload Image</span>
+                          </button>
+
+                          <button
+                            className="builder-add-btn"
+                            onClick={() => openAddCustomItem(sec.id, 'pdf')}
+                            onMouseEnter={playHoverTick}
+                            title="Upload a PDF file or document link"
+                          >
+                            <FileText size={13} />
+                            <span>Upload / Link PDF</span>
+                          </button>
+
+                          <button
+                            className="builder-add-btn"
+                            onClick={() => openAddCustomItem(sec.id, 'text')}
+                            onMouseEnter={playHoverTick}
+                            title="Add formatted rich text note block"
+                          >
+                            <Edit3 size={13} />
+                            <span>Add Rich Note</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="admin-add-item-btn delete-sec"
+                            onClick={() => toggleSectionVisibility(`customItems_${sec.id}`, `"${sec.label}" Content Items`)}
+                            title="Delete Content Items Section"
+                            style={{ marginLeft: '6px' }}
+                          >
+                            <Trash2 size={12} />
+                            <span>Delete Section</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Grid of Custom Items */}
+                      {sec.items && sec.items.length > 0 ? (
+                        <div className="custom-items-grid-admin">
+                          {sec.items.map((item, idx) => {
+                            const Icon = ICON_MAP[item.iconName] || Sparkles;
+                            return (
+                              <div key={item.id || idx} className="mac-card custom-admin-item-card">
+                                <div className="card-admin-action-row">
+                                  <button
+                                    className="card-mini-btn"
+                                    disabled={idx === 0}
+                                    onClick={() => moveCustomItem(sec.id, item.id, -1)}
+                                    title="Move Up"
+                                  >
+                                    <ArrowUp size={12} />
+                                  </button>
+                                  <button
+                                    className="card-mini-btn"
+                                    disabled={idx === sec.items.length - 1}
+                                    onClick={() => moveCustomItem(sec.id, item.id, 1)}
+                                    title="Move Down"
+                                  >
+                                    <ArrowDown size={12} />
+                                  </button>
+                                  <button
+                                    className="card-mini-btn edit"
+                                    onClick={() => openEditCustomItem(sec.id, item)}
+                                    title="Edit Item"
+                                  >
+                                    <Edit3 size={12} />
+                                  </button>
+                                  <button
+                                    className="card-mini-btn delete"
+                                    onClick={() => deleteCustomItem(sec.id, item.id)}
+                                    title="Delete Item"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
+
+                                {item.type === 'card' && (
+                                  <>
+                                    <div className="card-header-cute" onClick={() => openEditCustomItem(sec.id, item)}>
+                                      <div className="cute-icon-box">
+                                        <Icon size={17} />
+                                      </div>
+                                      <h2 className="cute-card-title">{item.title}</h2>
+                                    </div>
+                                    <div
+                                      className="cute-card-desc rich-inline-editable"
+                                      dangerouslySetInnerHTML={{ __html: item.desc || '' }}
+                                    />
+                                    {item.tags && item.tags.length > 0 && (
+                                      <div className="cute-tags-row">
+                                        {item.tags.map((t, i) => (
+                                          <span key={i} className="tag-pill">
+                                            <span>{t}</span>
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+
+                                {item.type === 'image' && (
+                                  <div className="custom-image-preview-block">
+                                    <img src={item.url} alt={item.title || 'Preview'} className="custom-admin-thumb" />
+                                    {item.caption && <p className="custom-img-caption-text">{item.caption}</p>}
+                                  </div>
+                                )}
+
+                                {item.type === 'pdf' && (
+                                  <div className="custom-pdf-preview-block">
+                                    <div className="pdf-block-header">
+                                      <div className="pdf-icon-badge">
+                                        <FileText size={20} />
+                                      </div>
+                                      <div className="pdf-info-wrap">
+                                        <span className="pdf-title">{item.title}</span>
+                                        <span className="pdf-filename">{item.fileName || 'document.pdf'}</span>
+                                      </div>
+                                      {item.fileSize && <span className="pdf-size-badge">{item.fileSize}</span>}
+                                    </div>
+                                    {item.desc && (
+                                      <p className="pdf-desc" dangerouslySetInnerHTML={{ __html: item.desc }} />
+                                    )}
+                                  </div>
+                                )}
+
+                                {item.type === 'text' && (
+                                  <div className="custom-text-preview-block">
+                                    {item.title && <h3 className="custom-block-title">{item.title}</h3>}
+                                    <div
+                                      className="custom-text-content"
+                                      dangerouslySetInnerHTML={{ __html: item.content || '' }}
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="custom-empty-notice">
+                          <Sparkles size={20} />
+                          <p>No content widgets added to this tab yet. Click any button above to add Focus Cards, upload Images, or attach PDFs!</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="section-deleted-placeholder">
+                      <span>"Tab Content Items" section is currently deleted/hidden.</span>
+                      <button
+                        type="button"
+                        className="restore-placeholder-btn"
+                        onClick={() => toggleSectionVisibility(`customItems_${sec.id}`, `"${sec.label}" Content Items`)}
+                      >
+                        <RotateCcw size={12} />
+                        <span>Restore Content Items</span>
+                      </button>
                     </div>
                   )}
                 </div>
@@ -1847,6 +2339,33 @@ export default function AdminEditView({ onNavigateHome }) {
                 <option value="Sparkles">Sparkles (Special / Innovation)</option>
               </select>
 
+              <label className="modal-field-label">Custom Logo / Image (Optional, replaces default icon)</label>
+              <input
+                type="file"
+                accept="image/*"
+                className="modal-input file-input"
+                onChange={(e) => handleFileUpload(e, 'image')}
+              />
+              <div className="url-or-divider"><span>OR PASTE IMAGE URL</span></div>
+              <input
+                className="modal-input"
+                placeholder="https://... or image link"
+                value={formFields.image || ''}
+                onChange={(e) => setFormFields({ ...formFields, image: e.target.value })}
+              />
+              {formFields.image && (
+                <div className="modal-image-preview-box" style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <img src={formFields.image} alt="Card Icon Preview" className="cute-card-custom-img" style={{ width: '40px', height: '40px' }} />
+                  <button
+                    type="button"
+                    style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.75rem', cursor: 'pointer' }}
+                    onClick={() => setFormFields((prev) => ({ ...prev, image: '' }))}
+                  >
+                    Remove Custom Image
+                  </button>
+                </div>
+              )}
+
               <label className="modal-field-label">Description (Highlight text with mouse to style)</label>
               <RichTextEditorBox
                 initialHtml={formFields.desc || ''}
@@ -1916,6 +2435,33 @@ export default function AdminEditView({ onNavigateHome }) {
                 <option value="Wrench">Wrench (Tools / DevOps)</option>
                 <option value="Globe">Globe (Cloud / APIs)</option>
               </select>
+
+              <label className="modal-field-label">Custom Logo / Image (Optional, replaces default icon)</label>
+              <input
+                type="file"
+                accept="image/*"
+                className="modal-input file-input"
+                onChange={(e) => handleFileUpload(e, 'image')}
+              />
+              <div className="url-or-divider"><span>OR PASTE IMAGE URL</span></div>
+              <input
+                className="modal-input"
+                placeholder="https://... or logo link"
+                value={formFields.image || ''}
+                onChange={(e) => setFormFields({ ...formFields, image: e.target.value })}
+              />
+              {formFields.image && (
+                <div className="modal-image-preview-box" style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <img src={formFields.image} alt="Skill Logo Preview" className="skill-card-custom-img" style={{ width: '40px', height: '40px' }} />
+                  <button
+                    type="button"
+                    style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.75rem', cursor: 'pointer' }}
+                    onClick={() => setFormFields((prev) => ({ ...prev, image: '' }))}
+                  >
+                    Remove Custom Image
+                  </button>
+                </div>
+              )}
 
               <label className="modal-field-label">
                 Skills / Technologies (Type freely separated by commas)
@@ -2014,6 +2560,38 @@ export default function AdminEditView({ onNavigateHome }) {
                 value={formFields.liveLink || ''}
                 onChange={(e) => setFormFields({ ...formFields, liveLink: e.target.value })}
               />
+
+              <label className="modal-field-label">Project Image / Banner (Optional)</label>
+              <input
+                type="file"
+                accept="image/*"
+                className="modal-input file-input"
+                onChange={(e) => handleFileUpload(e, 'image')}
+              />
+              <div className="url-or-divider"><span>OR PASTE IMAGE URL</span></div>
+              <input
+                className="modal-input"
+                placeholder="https://images.unsplash.com/... or image link"
+                value={formFields.image || ''}
+                onChange={(e) => setFormFields({ ...formFields, image: e.target.value })}
+              />
+              {formFields.image && (
+                <div className="modal-image-preview-box" style={{ marginTop: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <span className="preview-label" style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                      Project Image Preview:
+                    </span>
+                    <button
+                      type="button"
+                      style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.72rem', cursor: 'pointer', padding: '2px 4px' }}
+                      onClick={() => setFormFields((prev) => ({ ...prev, image: '' }))}
+                    >
+                      Remove Image
+                    </button>
+                  </div>
+                  <img src={formFields.image} alt="Project Preview" className="modal-preview-img" style={{ maxHeight: '140px', objectFit: 'cover', borderRadius: '6px' }} />
+                </div>
+              )}
 
               <label className="modal-field-label">Project Description (Highlight text with mouse to style)</label>
               <RichTextEditorBox
@@ -2199,10 +2777,47 @@ export default function AdminEditView({ onNavigateHome }) {
                         <ArrowDown size={13} />
                         <span>Down</span>
                       </button>
+                      <button
+                        type="button"
+                        className="reorder-action-btn delete-btn"
+                        onClick={() => deleteAnyTab(tab.id)}
+                        title={`Delete ${tab.label} Tab`}
+                      >
+                        <Trash2 size={13} />
+                        <span>Delete</span>
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
+
+              {/* Deleted / Inactive Tabs Recovery Box */}
+              {(data.deletedTabs || []).length > 0 && (
+                <div className="deleted-tabs-recovery-box">
+                  <h3 className="deleted-tabs-heading">Deleted / Inactive Tabs</h3>
+                  <div className="deleted-tabs-list">
+                    {(data.deletedTabs || []).map((id) => {
+                      const label = ['about', 'skills', 'projects', 'contact'].includes(id)
+                        ? id.charAt(0).toUpperCase() + id.slice(1)
+                        : (data.customSections?.find((s) => s.id === id)?.label || id);
+                      return (
+                        <div key={id} className="deleted-tab-restore-row">
+                          <span className="deleted-tab-name">{label} Tab</span>
+                          <button
+                            type="button"
+                            className="restore-tab-btn"
+                            onClick={() => restoreTab(id)}
+                            title="Restore this tab to your portfolio"
+                          >
+                            <Plus size={12} />
+                            <span>Restore Tab</span>
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
             <div className="modal-footer">
               <button className="modal-btn primary" onClick={() => setShowReorderModal(false)}>

@@ -11,6 +11,8 @@ export const DEFAULT_PORTFOLIO_DATA = {
     availability: 'Available for Engineering Roles'
   },
   tabOrder: ['about', 'skills', 'projects', 'contact'],
+  deletedTabs: [],
+  hiddenSections: {},
   sectionTitles: {
     skillsHeading: 'Technical Skills',
     skillsSubtitle: 'Technologies and tools I use to build intelligent applications.',
@@ -121,21 +123,26 @@ export function getPortfolioData() {
         }))
       : [];
 
-    // Ensure tabOrder contains base tabs and all customSections
-    let tabOrder = Array.isArray(parsed.tabOrder) && parsed.tabOrder.length > 0
-      ? parsed.tabOrder
-      : [...DEFAULT_TAB_ORDER];
+    const deletedTabs = Array.isArray(parsed.deletedTabs) ? parsed.deletedTabs : [];
+    const hiddenSections = parsed.hiddenSections && typeof parsed.hiddenSections === 'object'
+      ? parsed.hiddenSections
+      : {};
 
-    // Make sure all default tabs are present
+    // Ensure tabOrder contains base tabs and all customSections, omitting deleted tabs
+    let tabOrder = Array.isArray(parsed.tabOrder) && parsed.tabOrder.length > 0
+      ? parsed.tabOrder.filter((id) => !deletedTabs.includes(id))
+      : [...DEFAULT_TAB_ORDER].filter((id) => !deletedTabs.includes(id));
+
+    // Make sure non-deleted default tabs are present
     DEFAULT_TAB_ORDER.forEach((id) => {
-      if (!tabOrder.includes(id)) {
+      if (!tabOrder.includes(id) && !deletedTabs.includes(id)) {
         tabOrder.push(id);
       }
     });
 
-    // Make sure all custom section IDs are present
+    // Make sure non-deleted custom section IDs are present
     customSections.forEach((sec) => {
-      if (!tabOrder.includes(sec.id)) {
+      if (!tabOrder.includes(sec.id) && !deletedTabs.includes(sec.id)) {
         tabOrder.push(sec.id);
       }
     });
@@ -144,6 +151,8 @@ export function getPortfolioData() {
       ...DEFAULT_PORTFOLIO_DATA,
       ...parsed,
       tabOrder,
+      deletedTabs,
+      hiddenSections,
       profile: { ...DEFAULT_PORTFOLIO_DATA.profile, ...(parsed.profile || {}) },
       sectionTitles: { ...DEFAULT_PORTFOLIO_DATA.sectionTitles, ...(parsed.sectionTitles || {}) },
       contact: { ...DEFAULT_PORTFOLIO_DATA.contact, ...(parsed.contact || {}) },

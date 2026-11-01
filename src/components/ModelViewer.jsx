@@ -15,14 +15,21 @@ export default function ModelViewer() {
     // Scene Setup
     const scene = new THREE.Scene();
 
-    // Perspective Camera
+    // Perspective Camera with dynamic FOV preserving full horizontal span across all aspect ratios
+    const baseFov = 48;
+    const initialAspect = container.clientWidth / container.clientHeight;
+    const initialFov = initialAspect < 1.0
+      ? (2 * Math.atan(Math.tan((baseFov * Math.PI) / 360) / initialAspect) * 180) / Math.PI
+      : baseFov;
+
     const camera = new THREE.PerspectiveCamera(
-      42,
-      container.clientWidth / container.clientHeight,
+      initialFov,
+      initialAspect,
       0.1,
       100
     );
-    camera.position.set(0, 0.1, 4.4);
+    camera.position.set(0, 0.55, 4.8);
+    camera.lookAt(0, 0.12, 0);
 
     // High-performance WebGL Renderer with Alpha (transparent background)
     const renderer = new THREE.WebGLRenderer({
@@ -34,27 +41,32 @@ export default function ModelViewer() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    renderer.toneMappingExposure = 1.05;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-    // Calibrated Studio Lighting setup (natural contrast, zero blowout)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+    // Calibrated Studio Lighting: perfectly balanced to render all diffuse texture details without washout
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.72);
     scene.add(ambientLight);
 
-    // Key Light (balanced from front-right)
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
-    keyLight.position.set(3, 5, 5);
+    // Warm Key Light (reveals casing contours, badges, and keys without blowing out highlights)
+    const keyLight = new THREE.DirectionalLight(0xfff6ea, 1.1);
+    keyLight.position.set(3.5, 4.5, 3.5);
     scene.add(keyLight);
 
-    // Soft Fill Light (from front-left)
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.9);
-    fillLight.position.set(-4, 2, 4);
+    // Soft Cool Fill Light (front-left)
+    const fillLight = new THREE.DirectionalLight(0xd5e5ff, 0.55);
+    fillLight.position.set(-3.5, 2.5, 2.5);
     scene.add(fillLight);
 
-    // Top Overhead Light
-    const topLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    topLight.position.set(0, 6, 2);
+    // Subtle Overhead Rim Light
+    const topLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    topLight.position.set(0, 5, 1);
     scene.add(topLight);
+
+    // Direct Front Eye Light: illuminates Windows 98 screen, keyboard keys, and LED indicators
+    const frontFill = new THREE.DirectionalLight(0xfff8ee, 0.45);
+    frontFill.position.set(0, 1.2, 4.2);
+    scene.add(frontFill);
 
     // Model Root Group
     const modelGroup = new THREE.Group();
@@ -64,94 +76,88 @@ export default function ModelViewer() {
     const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
     let isDragging = false;
     let previousMouseX = 0;
-    let dragRotationY = 0;
+    let dragRotationY = -0.35;
+
+    // High-Resolution 2048x2048 Authentic Retro Diffuse Texture
+    const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+    const textureLoader = new THREE.TextureLoader();
+    const retroTexture = textureLoader.load(
+      '/retro_computer_diffuse.png',
+      (tex) => {
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.anisotropy = maxAnisotropy;
+        tex.generateMipmaps = true;
+        tex.minFilter = THREE.LinearMipmapLinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+        tex.flipY = false;
+        tex.needsUpdate = true;
+
+        if (modelGroup) {
+          modelGroup.traverse((child) => {
+            if (child.isMesh && child.material) {
+              child.material.map = tex;
+              child.material.needsUpdate = true;
+            }
+          });
+        }
+      }
+    );
+    retroTexture.colorSpace = THREE.SRGBColorSpace;
+    retroTexture.flipY = false;
+    retroTexture.anisotropy = maxAnisotropy;
 
     // Load .GLB Model
     const loader = new GLTFLoader();
     loader.load(
-      '/star_wars_shiny_bb8.glb',
+      '/retro_computer.glb',
       (gltf) => {
         const model = gltf.scene;
 
-        // Compute Bounding Box to center pivot and ground to floor
+        // Restore prominent, original large model size as requested by user
         const box = new THREE.Box3().setFromObject(model);
-        const center = new THREE.Vector3();
-        box.getCenter(center);
+        const size = new THREE.Vector3();
+        box.getSize(size);
+        const maxDim = Math.max(size.x, size.y, size.z);
 
-        // Center X & Z, place base at Y = 0
+        // Scaled to full grand size (increased for impressive presence)
+        const scale = 3.10 / (maxDim || 1);
+        model.scale.setScalar(scale);
+
+        // Recompute center after scale and center geometry strictly at (0, 0, 0)
+        const scaledBox = new THREE.Box3().setFromObject(model);
+        const center = new THREE.Vector3();
+        scaledBox.getCenter(center);
+
+        // Center on all 3 axes so rotation pivots around true geometric centroid
         model.position.x = -center.x;
-        model.position.y = -box.min.y;
+        model.position.y = -center.y;
         model.position.z = -center.z;
 
-        // Position the model group so base is aligned with the bottom of view
-        modelGroup.position.set(0, -1.5, 0);
+        // Position modelGroup elevated in view (well above the bottom)
+        modelGroup.position.set(0, 0.12, 0);
 
-        // Restore authentic Star Wars BB-8 materials (Pure White Body, Orange Rings, Black Eye Lens)
+        // Configure shadows & guarantee crisp, complete texture rendering on all meshes
         model.traverse((child) => {
-          if (child.isMesh && child.material) {
-            const matName = (child.material.name || '').toLowerCase();
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            if (child.material) {
+              const targetMap = child.material.map || retroTexture;
+              targetMap.colorSpace = THREE.SRGBColorSpace;
+              targetMap.anisotropy = maxAnisotropy;
+              targetMap.flipY = false;
+              targetMap.generateMipmaps = true;
+              targetMap.minFilter = THREE.LinearMipmapLinearFilter;
+              targetMap.magFilter = THREE.LinearFilter;
+              targetMap.needsUpdate = true;
 
-            if (matName.includes('shinywhite')) {
-              // Main Body: Ceramic Studio White (balanced specular, no glare)
-              child.material = new THREE.MeshStandardMaterial({
-                color: 0xf0f2f5,
-                roughness: 0.22,
-                metalness: 0.02,
-              });
-            } else if (matName.includes('oranje')) {
-              // Iconic Robot Yellow Rings (High-vibrancy pure yellow)
-              child.material = new THREE.MeshStandardMaterial({
-                color: new THREE.Color('#ffee00'),
-                roughness: 0.2,
-                metalness: 0.04,
-              });
-            } else if (matName.includes('zwart')) {
-              // Deep Glossy Black Eye Lens
-              child.material = new THREE.MeshStandardMaterial({
-                color: 0x080808,
-                roughness: 0.1,
-                metalness: 0.15,
-              });
-            } else if (matName.includes('grijsvak')) {
-              // Silver/Gray Maintenance Panels
-              child.material = new THREE.MeshStandardMaterial({
-                color: 0x8a919c,
-                roughness: 0.3,
-                metalness: 0.6,
-              });
-            } else if (matName.includes('knoop')) {
-              // Metallic Antennas and Dials
-              child.material = new THREE.MeshStandardMaterial({
-                color: 0xbcc2cb,
-                roughness: 0.25,
-                metalness: 0.75,
-              });
-            } else if (matName.includes('bluelight')) {
-              // Blue Optical Indicator
-              child.material = new THREE.MeshStandardMaterial({
-                color: 0x0088ff,
-                emissive: 0x0088ff,
-                emissiveIntensity: 1.2,
-                roughness: 0.2,
-              });
-            } else if (matName.includes('redlight')) {
-              // Red Optical Indicator
-              child.material = new THREE.MeshStandardMaterial({
-                color: 0xff2222,
-                emissive: 0xff2222,
-                emissiveIntensity: 1.2,
-                roughness: 0.2,
-              });
-            } else {
-              // Default to Pristine White
-              child.material = new THREE.MeshStandardMaterial({
-                color: 0xffffff,
-                roughness: 0.2,
-                metalness: 0.02,
-              });
+              child.material.map = targetMap;
+              child.material.roughness = 0.82;
+              child.material.metalness = 0.04;
+              child.material.color.setHex(0xffffff);
+              child.material.side = THREE.DoubleSide;
+              child.material.needsUpdate = true;
             }
-
-            child.material.needsUpdate = true;
           }
         });
 
@@ -215,12 +221,20 @@ export default function ModelViewer() {
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     window.addEventListener('touchend', handleTouchEnd);
 
-    // Resize Handler
+    // Resize Handler with dynamic FOV ensuring no parts get cut when window is resized
     const handleResize = () => {
       if (!container || !renderer) return;
       const width = container.clientWidth;
       const height = container.clientHeight;
-      camera.aspect = width / height;
+      const aspect = width / height;
+      camera.aspect = aspect;
+
+      // Keep horizontal viewing span locked so large 3D model never clips on narrow viewports
+      if (aspect < 1.0) {
+        camera.fov = (2 * Math.atan(Math.tan((baseFov * Math.PI) / 360) / aspect) * 180) / Math.PI;
+      } else {
+        camera.fov = baseFov;
+      }
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
     };
@@ -240,14 +254,14 @@ export default function ModelViewer() {
       mouse.x += (mouse.targetX - mouse.x) * 0.05;
       mouse.y += (mouse.targetY - mouse.y) * 0.05;
 
-      // Subtle breathing float
-      const floatOffset = Math.sin(elapsedTime * 1.5) * 0.04;
-      modelGroup.position.y = -1.5 + floatOffset;
+      // Subtle breathing float elevated comfortably above bottom
+      const floatOffset = Math.sin(elapsedTime * 1.5) * 0.025;
+      modelGroup.position.y = 0.12 + floatOffset;
 
       // Combined rotation: mouse parallax + user drag + gentle idle drift
-      const baseRotationY = dragRotationY + Math.sin(elapsedTime * 0.4) * 0.15;
-      modelGroup.rotation.y = baseRotationY + mouse.x * 0.4;
-      modelGroup.rotation.x = -mouse.y * 0.15 + Math.sin(elapsedTime * 1.2) * 0.02;
+      const baseRotationY = dragRotationY + Math.sin(elapsedTime * 0.4) * 0.12;
+      modelGroup.rotation.y = baseRotationY + mouse.x * 0.35;
+      modelGroup.rotation.x = -mouse.y * 0.08 + Math.sin(elapsedTime * 1.2) * 0.015;
 
       renderer.render(scene, camera);
     };
@@ -275,6 +289,7 @@ export default function ModelViewer() {
           }
         }
       });
+      retroTexture.dispose();
       renderer.dispose();
     };
   }, []);
@@ -283,7 +298,7 @@ export default function ModelViewer() {
     <div
       ref={containerRef}
       className={`model-3d-container ${loaded ? 'is-loaded' : ''}`}
-      title="Interactive 3D BB-8 Model // Drag to rotate"
+      title="Interactive 3D Retro Computer // Drag to rotate"
     >
       <canvas ref={canvasRef} className="model-3d-canvas" />
     </div>
