@@ -158,20 +158,6 @@ export default function App() {
       {/* Clean Dark Landing Page */}
       {isBooted && currentView === 'landing' && (
         <div className="landing-viewport">
-          {/* Top-Left Corner Brand / Funny Logo Badge */}
-          <div
-            className="landing-brand-badge"
-            title="Retro Cyber PC // 99% Bug-Free (the other 1% are features 💾)"
-            onClick={playSelectClick}
-            onMouseEnter={playHoverTick}
-          >
-            <img src="/favicon.svg" alt="Derpy Retro PC Logo" className="landing-logo-icon" />
-            <div className="landing-logo-labels">
-              <span className="landing-logo-title">shreyas.exe</span>
-              <span className="landing-logo-status"><span className="status-ping"></span>99% bug-free</span>
-            </div>
-          </div>
-
           {/* Subtle Audio Toggle */}
           <button
             className={`audio-btn ${mutedState ? 'muted' : ''}`}
