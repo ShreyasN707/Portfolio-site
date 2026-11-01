@@ -16,7 +16,7 @@ export default function ModelViewer() {
     const scene = new THREE.Scene();
 
     // Perspective Camera with dynamic FOV preserving full horizontal span across all aspect ratios
-    const baseFov = 48;
+    const baseFov = 52;
     const initialAspect = container.clientWidth / container.clientHeight;
     const initialFov = initialAspect < 1.0
       ? (2 * Math.atan(Math.tan((baseFov * Math.PI) / 360) / initialAspect) * 180) / Math.PI
@@ -120,7 +120,7 @@ export default function ModelViewer() {
         const maxDim = Math.max(size.x, size.y, size.z);
 
         // Scaled to full grand size (increased for impressive presence)
-        const scale = 3.10 / (maxDim || 1);
+        const scale = 3.45 / (maxDim || 1);
         model.scale.setScalar(scale);
 
         // Recompute center after scale and center geometry strictly at (0, 0, 0)
