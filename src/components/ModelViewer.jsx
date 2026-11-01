@@ -19,7 +19,7 @@ export default function ModelViewer() {
     const baseFov = 52;
     const initialAspect = container.clientWidth / container.clientHeight;
     const initialFov = initialAspect < 1.0
-      ? (2 * Math.atan(Math.tan((baseFov * Math.PI) / 360) / initialAspect) * 180) / Math.PI
+      ? Math.min((2 * Math.atan(Math.tan((baseFov * Math.PI) / 360) / initialAspect) * 180) / Math.PI, 68)
       : baseFov;
 
     const camera = new THREE.PerspectiveCamera(
@@ -231,7 +231,7 @@ export default function ModelViewer() {
 
       // Keep horizontal viewing span locked so large 3D model never clips on narrow viewports
       if (aspect < 1.0) {
-        camera.fov = (2 * Math.atan(Math.tan((baseFov * Math.PI) / 360) / aspect) * 180) / Math.PI;
+        camera.fov = Math.min((2 * Math.atan(Math.tan((baseFov * Math.PI) / 360) / aspect) * 180) / Math.PI, 68);
       } else {
         camera.fov = baseFov;
       }

@@ -175,6 +175,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background-color: var(--obsidian-black);
   display: flex;
   align-items: flex-end;
@@ -220,6 +221,7 @@ body {
   width: 100%;
   max-width: 1600px;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   align-items: center; /* Balanced vertical centering */
   justify-content: center;
@@ -459,91 +461,142 @@ body {
 }
 
 /* Mobile Devices */
+/* Mobile Devices (Smartphones & Handhelds) */
 @media (max-width: 768px) {
-  .landing-container {
-    flex-direction: column-reverse; /* Text on top, Robot below */
+  .landing-viewport {
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px 20px 20px;
-    gap: 16px;
+  }
+
+  .landing-container {
+    height: 100dvh;
+    min-height: 100dvh;
+    flex-direction: column-reverse; /* Text on top, 3D PC below */
+    align-items: center;
+    justify-content: space-evenly;
+    padding: clamp(16px, 3vh, 28px) 16px;
+    gap: 8px;
+    box-sizing: border-box;
   }
 
   .intro-wrapper {
     flex: 0 0 auto;
     max-width: 100%;
+    width: 100%;
     height: auto;
-    padding-bottom: 0;
+    padding: 0;
     align-items: center;
     text-align: center;
   }
 
   .intro-content {
     align-items: center;
+    width: 100%;
   }
 
   .intro-hi {
-    font-size: clamp(2.2rem, 9vw, 3.2rem);
+    font-size: clamp(2rem, 8vw, 2.8rem);
+    line-height: 1.1;
   }
 
   .intro-name {
-    font-size: clamp(1.8rem, 7vw, 2.6rem);
-    margin-bottom: 16px;
+    font-size: clamp(1.6rem, 6.5vw, 2.3rem);
+    margin-bottom: 10px;
+    line-height: 1.15;
   }
 
   .dynamic-role-container {
     justify-content: center;
-    height: 3rem;
-    margin-bottom: 16px;
+    height: 2.5rem;
+    margin-bottom: 12px;
   }
 
   .role-viewport {
     justify-content: center;
-    width: 270px;
+    width: min(290px, 85vw);
   }
 
   .role-text {
     left: 50%;
     transform: translate(-50%, -50%);
+    font-size: clamp(0.74rem, 3.4vw, 0.95rem);
+    white-space: nowrap;
+  }
+
+  .start-btn-container {
+    margin-top: 4px;
+  }
+
+  .start-btn {
+    padding: 10px 24px;
+    font-size: 0.92rem;
   }
 
   .robot-wrapper {
     flex: 1 1 auto;
     max-width: 100%;
     width: 100%;
-    height: 48vh;
-    min-height: 260px;
-    max-height: 440px;
+    height: 42vh;
+    min-height: 210px;
+    max-height: 340px;
+    display: flex;
     justify-content: center;
-    align-items: flex-end;
+    align-items: center;
+    overflow: visible;
   }
 
   .model-3d-container {
+    width: 100%;
     height: 100%;
-    max-height: 440px;
+    max-height: 340px;
   }
 
   .audio-btn {
-    top: 20px;
-    right: 20px;
+    top: 14px;
+    right: 14px;
+    padding: 6px;
   }
 }
 
 /* Small Handheld Screens (e.g. iPhone SE / < 380px) */
 @media (max-width: 380px) {
+  .landing-container {
+    padding: 12px 10px;
+    gap: 6px;
+  }
+
   .intro-hi {
-    font-size: 2rem;
+    font-size: 1.85rem;
   }
 
   .intro-name {
-    font-size: 1.5rem;
+    font-size: 1.45rem;
+    margin-bottom: 8px;
+  }
+
+  .dynamic-role-container {
+    height: 2.2rem;
+    margin-bottom: 8px;
   }
 
   .role-viewport {
-    width: 230px;
+    width: 240px;
   }
 
-  .robot-image {
-    height: clamp(200px, 40vh, 320px);
+  .start-btn {
+    padding: 8px 20px;
+    font-size: 0.88rem;
+  }
+
+  .robot-wrapper {
+    height: 38vh;
+    min-height: 190px;
+    max-height: 280px;
   }
 }
 
@@ -705,91 +758,7 @@ body {
   transform: rotate(180deg) scale(1.1);
 }
 
-.landing-brand-badge {
-  position: absolute;
-  top: 24px;
-  left: 28px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 14px 8px 10px;
-  background: rgba(18, 18, 26, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  backdrop-filter: blur(12px);
-  z-index: 50;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-}
 
-.landing-brand-badge:hover {
-  transform: translateY(-2px) scale(1.02);
-  border-color: rgba(252, 211, 77, 0.4);
-  box-shadow: 0 6px 24px rgba(252, 211, 77, 0.18);
-}
-
-.landing-logo-icon {
-  width: 34px;
-  height: 34px;
-  filter: drop-shadow(0 2px 8px rgba(14, 165, 233, 0.45));
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.landing-brand-badge:hover .landing-logo-icon {
-  transform: rotate(-12deg) scale(1.18);
-}
-
-.landing-logo-labels {
-  display: flex;
-  flex-direction: column;
-}
-
-.landing-logo-title {
-  font-family: var(--font-mono);
-  font-size: 0.86rem;
-  font-weight: 700;
-  color: #fcd34d;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-}
-
-.landing-logo-status {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  color: #94a3b8;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  line-height: 1.2;
-}
-
-.status-ping {
-  width: 6px;
-  height: 6px;
-  background: #22c55e;
-  border-radius: 50%;
-  box-shadow: 0 0 8px #22c55e;
-  display: inline-block;
-  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-
-@media (max-width: 640px) {
-  .landing-brand-badge {
-    top: 16px;
-    left: 16px;
-    padding: 6px 10px;
-    gap: 8px;
-  }
-  .landing-logo-icon {
-    width: 26px;
-    height: 26px;
-  }
-  .landing-logo-status {
-    display: none;
-  }
-}
 
 .window-title-name-yellow {
   color: var(--honey-yellow);
@@ -1511,11 +1480,12 @@ body {
 }
 
 /* Responsive adjustments */
+/* Responsive adjustments for Tablets & Medium Screens */
 @media (max-width: 960px) {
   .mac-terminal-page {
     padding: 12px;
     height: auto;
-    min-height: 100vh;
+    min-height: 100dvh;
     overflow-y: auto;
   }
 
@@ -1544,6 +1514,258 @@ body {
   .mac-content-body {
     padding: 20px 18px;
     min-height: auto;
+  }
+}
+
+/* Mobile Devices (iPhones, Android, Handhelds) */
+@media (max-width: 768px) {
+  .mac-terminal-page {
+    padding: 8px 6px;
+    min-height: 100dvh;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    align-items: flex-start;
+  }
+
+  .mac-window {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    min-height: calc(100dvh - 16px);
+  }
+
+  /* Titlebar: clean unconstrained layout so buttons & title never overlap */
+  .mac-titlebar {
+    padding: 8px 12px;
+    min-height: 44px;
+    gap: 8px;
+    position: relative;
+  }
+
+  .mac-window-title {
+    position: static;
+    transform: none;
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .window-title-name-yellow {
+    font-size: 0.88rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .titlebar-funny-logo {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .mac-header-actions {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .mac-action-btn {
+    padding: 4px 8px;
+    font-size: 0.74rem;
+    height: 28px;
+  }
+
+  .admin-portal-btn span {
+    display: none; /* Icon only on mobile to preserve clean bar */
+  }
+
+  /* Swipeable Tab Navigation on Mobile */
+  .mac-tabbar {
+    padding: 6px 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .mac-tabbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-pills-wrap {
+    display: flex;
+    gap: 4px;
+    width: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+    padding: 3px;
+  }
+
+  .tab-pills-wrap::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mac-tab-btn {
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Content Body */
+  .mac-content-body {
+    padding: 16px 12px 24px 12px;
+  }
+
+  .pane-intro {
+    margin-bottom: 14px;
+  }
+
+  .pane-heading {
+    font-size: clamp(1.35rem, 5vw, 1.65rem);
+  }
+
+  .pane-subtitle {
+    font-size: 0.86rem;
+    line-height: 1.45;
+  }
+
+  .about-name-title {
+    font-size: clamp(1.45rem, 5.5vw, 1.95rem);
+    line-height: 1.2;
+  }
+
+  .about-description {
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .mac-card {
+    padding: 14px 14px;
+  }
+
+  .cute-card-title {
+    font-size: 1.02rem;
+  }
+
+  .cute-card-desc {
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+
+  /* Status Strip on About Tab */
+  .mac-status-strip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+  }
+
+  .status-divider-dot {
+    display: none;
+  }
+
+  /* Project Cards on Mobile */
+  .project-card-compact {
+    padding: 16px 14px;
+    gap: 8px;
+  }
+
+  .project-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .project-header-info {
+    width: 100%;
+    gap: 6px;
+  }
+
+  .project-name-text {
+    font-size: 1.05rem;
+  }
+
+  .project-tech-text {
+    font-size: 0.76rem;
+    padding: 2px 8px;
+  }
+
+  .project-repo-link {
+    align-self: flex-start;
+    font-size: 0.76rem;
+  }
+
+  .project-live-btn {
+    max-width: 100%;
+    flex-wrap: wrap;
+    word-break: break-all;
+    font-size: 0.78rem;
+    padding: 6px 10px;
+  }
+
+  /* Contact Channels */
+  .contact-card-clean {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .contact-footer-note {
+    font-size: 0.82rem;
+    padding: 10px 14px;
+    line-height: 1.45;
+  }
+
+  /* Footer bar */
+  .mac-window-footer {
+    padding: 8px 12px;
+    min-height: 44px;
+  }
+
+  .footer-btn {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+  }
+
+  /* Admin Titlebar on Mobile */
+  .admin-titlebar-layout {
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: auto;
+    padding: 8px 12px !important;
+  }
+
+  .admin-titlebar-left {
+    gap: 8px;
+  }
+
+  .admin-titlebar-actions {
+    gap: 6px;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .admin-section-subheader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .subheader-actions-row {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .admin-modal-card {
+    width: min(500px, 94vw);
+    max-height: 90vh;
+    padding: 16px 14px;
   }
 }
 
