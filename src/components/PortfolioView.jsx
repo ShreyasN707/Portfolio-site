@@ -15,7 +15,10 @@ import {
   Globe,
   Sparkles,
   RotateCcw,
-  Edit3
+  Edit3,
+  FileText,
+  Image as ImageIcon,
+  Download
 } from 'lucide-react';
 import { playHoverTick, playSelectClick } from '../utils/audio';
 import { getPortfolioData } from '../utils/portfolioData';
@@ -69,17 +72,22 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const baseTabs = [
+  const unorderedTabs = [
     { id: 'about', label: 'About' },
     { id: 'skills', label: 'Skills' },
     { id: 'projects', label: 'Projects' },
-    { id: 'contact', label: 'Contact' }
-  ];
-
-  const allTabs = [
-    ...baseTabs,
+    { id: 'contact', label: 'Contact' },
     ...(data.customSections || []).map((s) => ({ id: s.id, label: s.label }))
   ];
+
+  const tabOrder = data.tabOrder || ['about', 'skills', 'projects', 'contact'];
+  const allTabs = [...unorderedTabs].sort((a, b) => {
+    let idxA = tabOrder.indexOf(a.id);
+    let idxB = tabOrder.indexOf(b.id);
+    if (idxA === -1) idxA = 999;
+    if (idxB === -1) idxB = 999;
+    return idxA - idxB;
+  });
 
   const currentTabIdx = allTabs.findIndex((t) => t.id === activeTab);
   const prevTab = currentTabIdx > 0 ? allTabs[currentTabIdx - 1] : null;
@@ -184,9 +192,10 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
                 <h1 className="about-name-title">
                   Hi, I'm <span className="highlight-cute">{data.profile?.name || 'Shreyas Naik'}</span>
                 </h1>
-                <p className="about-description">
-                  {data.profile?.bio}
-                </p>
+                <p
+                  className="about-description"
+                  dangerouslySetInnerHTML={{ __html: data.profile?.bio || '' }}
+                />
               </div>
 
               {/* Information Cards */}
@@ -201,7 +210,10 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
                         </div>
                         <h2 className="cute-card-title">{card.title}</h2>
                       </div>
-                      <p className="cute-card-desc">{card.desc}</p>
+                      <p
+                        className="cute-card-desc"
+                        dangerouslySetInnerHTML={{ __html: card.desc || '' }}
+                      />
                       <div className="cute-tags-row">
                         {(card.tags || []).map((tag, i) => (
                           <span key={i} className="tag-pill">
@@ -238,8 +250,13 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
           {activeTab === 'skills' && (
             <div className="mac-pane fade-in">
               <div className="pane-intro">
-                <h1 className="pane-heading">Technical Skills</h1>
-                <p className="pane-subtitle">Technologies and tools I use to build intelligent applications.</p>
+                <h1 className="pane-heading">{data.sectionTitles?.skillsHeading || 'Technical Skills'}</h1>
+                <p
+                  className="pane-subtitle"
+                  dangerouslySetInnerHTML={{
+                    __html: data.sectionTitles?.skillsSubtitle || 'Technologies and tools I use to build intelligent applications.'
+                  }}
+                />
               </div>
 
               <div className="skills-grid-compact">
@@ -273,8 +290,13 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
           {activeTab === 'projects' && (
             <div className="mac-pane fade-in">
               <div className="pane-intro">
-                <h1 className="pane-heading">Featured Projects</h1>
-                <p className="pane-subtitle">Practical systems built with computer vision, edge machine learning, and web services.</p>
+                <h1 className="pane-heading">{data.sectionTitles?.projectsHeading || 'Featured Projects'}</h1>
+                <p
+                  className="pane-subtitle"
+                  dangerouslySetInnerHTML={{
+                    __html: data.sectionTitles?.projectsSubtitle || 'Practical systems built with computer vision, edge machine learning, and web services.'
+                  }}
+                />
               </div>
 
               <div className="projects-grid-compact">
@@ -305,7 +327,10 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
                     </div>
 
                     {/* Description of the project */}
-                    <p className="project-desc-cute">{proj.desc}</p>
+                    <p
+                      className="project-desc-cute"
+                      dangerouslySetInnerHTML={{ __html: proj.desc || '' }}
+                    />
 
                     {/* Below: Live link (if present) */}
                     {proj.liveLink && (
@@ -336,8 +361,13 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
           {activeTab === 'contact' && (
             <div className="mac-pane fade-in">
               <div className="pane-intro">
-                <h1 className="pane-heading">Get in Touch</h1>
-                <p className="pane-subtitle">Looking for an ML engineer or want to discuss a project? I would love to hear from you.</p>
+                <h1 className="pane-heading">{data.sectionTitles?.contactHeading || 'Get in Touch'}</h1>
+                <p
+                  className="pane-subtitle"
+                  dangerouslySetInnerHTML={{
+                    __html: data.sectionTitles?.contactSubtitle || 'Looking for an ML engineer or want to discuss a project? I would love to hear from you.'
+                  }}
+                />
               </div>
 
               <div className="contact-grid-compact">
@@ -419,7 +449,11 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
               {/* Availability Note */}
               <div className="contact-footer-note">
                 <span className="status-label-cute">Note: </span>
-                <span>{data.contact?.note || 'Always open to discuss machine learning systems, edge optimization, and interesting engineering projects.'}</span>
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: data.contact?.note || 'Always open to discuss machine learning systems, edge optimization, and interesting engineering projects.'
+                  }}
+                />
               </div>
             </div>
           )}
@@ -434,12 +468,135 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
                 <div className="mac-pane fade-in">
                   <div className="pane-intro">
                     <h1 className="pane-heading">{sec.heading || sec.label}</h1>
+                    {sec.desc && (
+                      <p
+                        className="pane-subtitle"
+                        dangerouslySetInnerHTML={{ __html: sec.desc }}
+                      />
+                    )}
                   </div>
-                  <div className="mac-card" style={{ padding: '24px' }}>
-                    <p style={{ fontSize: '1.02rem', lineHeight: '1.7', color: '#cbd5e1', whiteSpace: 'pre-wrap' }}>
-                      {sec.desc}
-                    </p>
-                  </div>
+
+                  {/* Render Custom Section Items: Cards, Images, PDFs, Notes */}
+                  {sec.items && sec.items.length > 0 && (
+                    <div className="custom-items-container">
+                      <div className="custom-items-grid">
+                        {sec.items.map((item, idx) => {
+                          if (item.type === 'card') {
+                            const Icon = ICON_MAP[item.iconName] || Layers;
+                            return (
+                              <div key={item.id || idx} className="mac-card custom-card-block">
+                                <div className="card-header-cute">
+                                  <div className="cute-icon-box">
+                                    <Icon size={17} />
+                                  </div>
+                                  <h2 className="cute-card-title">{item.title}</h2>
+                                </div>
+                                <p
+                                  className="cute-card-desc"
+                                  dangerouslySetInnerHTML={{ __html: item.desc || '' }}
+                                />
+                                {item.tags && item.tags.length > 0 && (
+                                  <div className="cute-tags-row">
+                                    {item.tags.map((t, i) => (
+                                      <span key={i} className="tag-pill">
+                                        <span>{t}</span>
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          }
+
+                          if (item.type === 'image') {
+                            return (
+                              <div key={item.id || idx} className="mac-card custom-image-block">
+                                <div className="custom-img-wrap">
+                                  <img
+                                    src={item.url}
+                                    alt={item.alt || item.title || 'Portfolio media'}
+                                    className="custom-img-media"
+                                  />
+                                </div>
+                                {item.caption && (
+                                  <div className="custom-img-caption">
+                                    <ImageIcon size={14} />
+                                    <span>{item.caption}</span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          }
+
+                          if (item.type === 'pdf') {
+                            return (
+                              <div key={item.id || idx} className="mac-card custom-pdf-block">
+                                <div className="pdf-block-header">
+                                  <div className="pdf-icon-badge">
+                                    <FileText size={20} />
+                                  </div>
+                                  <div className="pdf-info-wrap">
+                                    <span className="pdf-title">{item.title || 'Document.pdf'}</span>
+                                    {item.fileName && <span className="pdf-filename">{item.fileName}</span>}
+                                  </div>
+                                  {item.fileSize && <span className="pdf-size-badge">{item.fileSize}</span>}
+                                </div>
+                                {item.desc && (
+                                  <p
+                                    className="pdf-desc"
+                                    dangerouslySetInnerHTML={{ __html: item.desc }}
+                                  />
+                                )}
+                                <div className="pdf-actions-row">
+                                  <a
+                                    href={item.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    download={item.fileName || 'document.pdf'}
+                                    className="pdf-download-btn"
+                                    onMouseEnter={playHoverTick}
+                                  >
+                                    <Download size={14} />
+                                    <span>Download PDF</span>
+                                  </a>
+                                  <a
+                                    href={item.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="pdf-preview-btn"
+                                    onMouseEnter={playHoverTick}
+                                  >
+                                    <ExternalLink size={14} />
+                                    <span>View Document</span>
+                                  </a>
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          if (item.type === 'text') {
+                            return (
+                              <div key={item.id || idx} className="mac-card custom-text-block">
+                                {item.title && <h3 className="custom-block-title">{item.title}</h3>}
+                                <div
+                                  className="custom-text-content"
+                                  dangerouslySetInnerHTML={{ __html: item.content || '' }}
+                                />
+                              </div>
+                            );
+                          }
+
+                          return null;
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {(!sec.items || sec.items.length === 0) && !sec.desc && (
+                    <div className="mac-card empty-custom-section" style={{ padding: '28px', textAlign: 'center', color: '#94a3b8' }}>
+                      <p>This custom section is currently empty.</p>
+                    </div>
+                  )}
                 </div>
               );
             })()

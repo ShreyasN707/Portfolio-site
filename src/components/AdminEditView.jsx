@@ -15,15 +15,27 @@ import {
   Sparkles,
   ArrowRight,
   ArrowLeft,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
   Mail,
-  Upload
+  Upload,
+  Image as ImageIcon,
+  FileText,
+  X
 } from 'lucide-react';
 import {
   getPortfolioData,
   savePortfolioData,
-  resetPortfolioData
+  resetPortfolioData,
+  DEFAULT_TAB_ORDER
 } from '../utils/portfolioData';
 import { playHoverTick, playSelectClick, playAccessGranted } from '../utils/audio';
+import RichTextFloatingBar from './RichTextFloatingBar';
+import RichTextEditorBox from './RichTextEditorBox';
+import AdminDocsToolbar from './AdminDocsToolbar';
 
 function GithubIcon({ size = 16, className = '' }) {
   return (
@@ -60,10 +72,19 @@ export default function AdminEditView({ onNavigateHome }) {
   const [publishMessage, setPublishMessage] = useState('');
   const contentBodyRef = useRef(null);
 
-  // Modal State
-  const [modalType, setModalType] = useState(null); // 'profile' | 'aboutCard' | 'skillGroup' | 'project' | 'contact' | 'customSection'
-  const [editingItem, setEditingItem] = useState(null);
+  // Quick Inline Add State for Skill Cards
+  const [quickSkillInputGroup, setQuickSkillInputGroup] = useState(null); // groupId
+  const [quickSkillText, setQuickSkillText] = useState('');
+
+  // Quick Inline Add State for About Focus Cards
+  const [quickTagInputCard, setQuickTagInputCard] = useState(null); // cardId
+  const [quickTagText, setQuickTagText] = useState('');
+
+  // Modal State with Dedicated String Buffers for Flawless Comma Typing
+  const [modalType, setModalType] = useState(null); // 'profile' | 'aboutCard' | 'skillGroup' | 'project' | 'contact' | 'customSection' | 'sectionTitles' | 'customItem'
+  const [formFields, setFormFields] = useState({});
   const [isNewItem, setIsNewItem] = useState(false);
+  const [showReorderModal, setShowReorderModal] = useState(false);
 
   const switchTab = (tabId) => {
     playSelectClick();
@@ -92,28 +113,119 @@ export default function AdminEditView({ onNavigateHome }) {
     }
   };
 
-  // Profile Edit
+  const handleInlineSave = (field, newHtml) => {
+    if (!field) return;
+    setData((prev) => {
+      let updated = prev;
+      if (field === 'profile.bio') {
+        updated = { ...prev, profile: { ...prev.profile, bio: newHtml } };
+      } else if (field === 'profile.name') {
+        updated = { ...prev, profile: { ...prev.profile, name: newHtml } };
+      } else if (field === 'profile.roleTag') {
+        updated = { ...prev, profile: { ...prev.profile, roleTag: newHtml } };
+      } else if (field.startsWith('aboutCardTitle.')) {
+        const cardId = field.split('.')[1];
+        updated = { ...prev, aboutCards: prev.aboutCards.map((c) => (c.id === cardId ? { ...c, title: newHtml } : c)) };
+      } else if (field.startsWith('aboutCard.')) {
+        const cardId = field.split('.')[1];
+        updated = { ...prev, aboutCards: prev.aboutCards.map((c) => (c.id === cardId ? { ...c, desc: newHtml } : c)) };
+      } else if (field.startsWith('projectTitle.')) {
+        const projId = field.split('.')[1];
+        updated = { ...prev, projects: prev.projects.map((p) => (p.id === projId ? { ...p, title: newHtml } : p)) };
+      } else if (field.startsWith('project.')) {
+        const projId = field.split('.')[1];
+        updated = { ...prev, projects: prev.projects.map((p) => (p.id === projId ? { ...p, desc: newHtml } : p)) };
+      } else if (field.startsWith('customSection.')) {
+        const secId = field.split('.')[1];
+        updated = { ...prev, customSections: (prev.customSections || []).map((s) => (s.id === secId ? { ...s, desc: newHtml } : s)) };
+      } else if (field.startsWith('customSectionHeading.')) {
+        const secId = field.split('.')[1];
+        updated = { ...prev, customSections: (prev.customSections || []).map((s) => (s.id === secId ? { ...s, heading: newHtml } : s)) };
+      } else if (field === 'contact.note') {
+        updated = { ...prev, contact: { ...prev.contact, note: newHtml } };
+      }
+      savePortfolioData(updated);
+      return updated;
+    });
+    setHasUnsavedChanges(true);
+  };
+
+  const handleFloatingFormat = (editableParent, element) => {
+    const target = editableParent || element?.closest('[data-rich-field]');
+    if (!target) return;
+    const field = target.getAttribute('data-rich-field');
+    if (field) {
+      handleInlineSave(field, target.innerHTML);
+    }
+  };
+
+  const handleMoveTab = (tabId, direction) => {
+    playSelectClick();
+    setData((prev) => {
+      const currentOrder = [...(prev.tabOrder || DEFAULT_TAB_ORDER)];
+      const currentIndex = currentOrder.indexOf(tabId);
+      if (currentIndex === -1) return prev;
+      const targetIndex = currentIndex + direction;
+      if (targetIndex < 0 || targetIndex >= currentOrder.length) return prev;
+
+      // Swap
+      const temp = currentOrder[currentIndex];
+      currentOrder[currentIndex] = currentOrder[targetIndex];
+      currentOrder[targetIndex] = temp;
+
+      const updated = { ...prev, tabOrder: currentOrder };
+      savePortfolioData(updated);
+      return updated;
+    });
+    setHasUnsavedChanges(true);
+  };
+
+  // ==========================================
+  // PROFILE / HERO
+  // ==========================================
   const openEditProfile = () => {
     playSelectClick();
-    setEditingItem({ ...data.profile });
+    setFormFields({
+      name: data.profile?.name || '',
+      displayName: data.profile?.displayName || '',
+      roleTag: data.profile?.roleTag || '',
+      bio: data.profile?.bio || '',
+      location: data.profile?.location || '',
+      focus: data.profile?.focus || '',
+      availability: data.profile?.availability || ''
+    });
     setModalType('profile');
     setIsNewItem(false);
   };
 
-  const saveProfile = (updatedProfile) => {
-    setData((prev) => ({ ...prev, profile: updatedProfile }));
+  const saveProfile = () => {
+    setData((prev) => ({
+      ...prev,
+      profile: {
+        ...prev.profile,
+        name: (formFields.name || '').trim(),
+        displayName: (formFields.displayName || '').trim() || 'Shreyas N',
+        roleTag: (formFields.roleTag || '').trim(),
+        bio: (formFields.bio || '').trim(),
+        location: (formFields.location || '').trim(),
+        focus: (formFields.focus || '').trim(),
+        availability: (formFields.availability || '').trim()
+      }
+    }));
     setHasUnsavedChanges(true);
     setModalType(null);
   };
 
-  // About Cards
+  // ==========================================
+  // ABOUT CARDS
+  // ==========================================
   const openAddAboutCard = () => {
     playSelectClick();
-    setEditingItem({
+    setFormFields({
       id: `about-${Date.now()}`,
       title: 'New Focus Area',
       desc: 'Description of this engineering domain and what you build.',
-      tags: ['Tool1', 'Tool2'],
+      tagsInput: 'Tool1, Tool2, Tool3',
       iconName: 'Cpu'
     });
     setModalType('aboutCard');
@@ -122,14 +234,45 @@ export default function AdminEditView({ onNavigateHome }) {
 
   const openEditAboutCard = (card) => {
     playSelectClick();
-    setEditingItem({ ...card, tags: Array.isArray(card.tags) ? [...card.tags] : [] });
+    setFormFields({
+      id: card.id,
+      title: card.title || '',
+      desc: card.desc || '',
+      tagsInput: Array.isArray(card.tags) ? card.tags.join(', ') : '',
+      iconName: card.iconName || 'Eye'
+    });
     setModalType('aboutCard');
     setIsNewItem(false);
   };
 
+  const saveAboutCard = () => {
+    const parsedTags = formFields.tagsInput
+      ? formFields.tagsInput.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+
+    const newCard = {
+      id: formFields.id || `about-${Date.now()}`,
+      title: (formFields.title || '').trim() || 'Focus Area',
+      desc: (formFields.desc || '').trim(),
+      tags: parsedTags,
+      iconName: formFields.iconName || 'Eye'
+    };
+
+    if (isNewItem) {
+      setData((prev) => ({ ...prev, aboutCards: [...prev.aboutCards, newCard] }));
+    } else {
+      setData((prev) => ({
+        ...prev,
+        aboutCards: prev.aboutCards.map((c) => (c.id === newCard.id ? newCard : c))
+      }));
+    }
+    setHasUnsavedChanges(true);
+    setModalType(null);
+  };
+
   const deleteAboutCard = (id) => {
     playSelectClick();
-    if (window.confirm('Delete this info card?')) {
+    if (window.confirm('Delete this focus card?')) {
       setData((prev) => ({
         ...prev,
         aboutCards: prev.aboutCards.filter((c) => c.id !== id)
@@ -143,7 +286,8 @@ export default function AdminEditView({ onNavigateHome }) {
     const newCard = {
       ...card,
       id: `about-${Date.now()}`,
-      title: `${card.title} (Copy)`
+      title: `${card.title} (Copy)`,
+      tags: Array.isArray(card.tags) ? [...card.tags] : []
     };
     setData((prev) => ({
       ...prev,
@@ -152,27 +296,53 @@ export default function AdminEditView({ onNavigateHome }) {
     setHasUnsavedChanges(true);
   };
 
-  const saveAboutCard = (card) => {
-    if (isNewItem) {
-      setData((prev) => ({ ...prev, aboutCards: [...prev.aboutCards, card] }));
-    } else {
-      setData((prev) => ({
-        ...prev,
-        aboutCards: prev.aboutCards.map((c) => (c.id === card.id ? card : c))
-      }));
+  // Inline Quick-Add Tag to About Card
+  const handleQuickAddTag = (cardId) => {
+    const trimmed = quickTagText.trim();
+    if (!trimmed) {
+      setQuickTagInputCard(null);
+      return;
     }
+    setData((prev) => ({
+      ...prev,
+      aboutCards: prev.aboutCards.map((c) => {
+        if (c.id === cardId) {
+          const existing = Array.isArray(c.tags) ? c.tags : [];
+          return { ...c, tags: [...existing, trimmed] };
+        }
+        return c;
+      })
+    }));
+    setQuickTagText('');
+    setQuickTagInputCard(null);
     setHasUnsavedChanges(true);
-    setModalType(null);
   };
 
-  // Skills
+  const handleQuickRemoveTag = (cardId, tagIndex) => {
+    setData((prev) => ({
+      ...prev,
+      aboutCards: prev.aboutCards.map((c) => {
+        if (c.id === cardId) {
+          const tags = [...(c.tags || [])];
+          tags.splice(tagIndex, 1);
+          return { ...c, tags };
+        }
+        return c;
+      })
+    }));
+    setHasUnsavedChanges(true);
+  };
+
+  // ==========================================
+  // SKILLS (WITH FLAWLESS COMMA TYPING & INLINE ADD)
+  // ==========================================
   const openAddSkillGroup = () => {
     playSelectClick();
-    setEditingItem({
+    setFormFields({
       id: `skill-${Date.now()}`,
       title: 'New Skill Category',
       iconName: 'Wrench',
-      items: ['Skill A', 'Skill B', 'Skill C']
+      itemsInput: 'Python, PyTorch, YOLOv8, OpenCV'
     });
     setModalType('skillGroup');
     setIsNewItem(true);
@@ -180,9 +350,38 @@ export default function AdminEditView({ onNavigateHome }) {
 
   const openEditSkillGroup = (group) => {
     playSelectClick();
-    setEditingItem({ ...group, items: Array.isArray(group.items) ? [...group.items] : [] });
+    setFormFields({
+      id: group.id,
+      title: group.title || '',
+      iconName: group.iconName || 'Wrench',
+      itemsInput: Array.isArray(group.items) ? group.items.join(', ') : ''
+    });
     setModalType('skillGroup');
     setIsNewItem(false);
+  };
+
+  const saveSkillGroup = () => {
+    const parsedItems = formFields.itemsInput
+      ? formFields.itemsInput.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+
+    const newGroup = {
+      id: formFields.id || `skill-${Date.now()}`,
+      title: formFields.title.trim() || 'Skill Category',
+      iconName: formFields.iconName || 'Wrench',
+      items: parsedItems
+    };
+
+    if (isNewItem) {
+      setData((prev) => ({ ...prev, skillGroups: [...prev.skillGroups, newGroup] }));
+    } else {
+      setData((prev) => ({
+        ...prev,
+        skillGroups: prev.skillGroups.map((g) => (g.id === newGroup.id ? newGroup : g))
+      }));
+    }
+    setHasUnsavedChanges(true);
+    setModalType(null);
   };
 
   const deleteSkillGroup = (id) => {
@@ -201,7 +400,8 @@ export default function AdminEditView({ onNavigateHome }) {
     const newGroup = {
       ...group,
       id: `skill-${Date.now()}`,
-      title: `${group.title} (Copy)`
+      title: `${group.title} (Copy)`,
+      items: Array.isArray(group.items) ? [...group.items] : []
     };
     setData((prev) => ({
       ...prev,
@@ -210,43 +410,99 @@ export default function AdminEditView({ onNavigateHome }) {
     setHasUnsavedChanges(true);
   };
 
-  const saveSkillGroup = (group) => {
-    if (isNewItem) {
-      setData((prev) => ({ ...prev, skillGroups: [...prev.skillGroups, group] }));
-    } else {
-      setData((prev) => ({
-        ...prev,
-        skillGroups: prev.skillGroups.map((g) => (g.id === group.id ? group : g))
-      }));
+  // Inline Quick-Add Skill to Group
+  const handleQuickAddSkill = (groupId) => {
+    const trimmed = quickSkillText.trim();
+    if (!trimmed) {
+      setQuickSkillInputGroup(null);
+      return;
     }
+    setData((prev) => ({
+      ...prev,
+      skillGroups: prev.skillGroups.map((g) => {
+        if (g.id === groupId) {
+          const existing = Array.isArray(g.items) ? g.items : [];
+          return { ...g, items: [...existing, trimmed] };
+        }
+        return g;
+      })
+    }));
+    setQuickSkillText('');
+    setQuickSkillInputGroup(null);
     setHasUnsavedChanges(true);
-    setModalType(null);
   };
 
-  // Projects
+  const handleQuickRemoveSkill = (groupId, itemIndex) => {
+    setData((prev) => ({
+      ...prev,
+      skillGroups: prev.skillGroups.map((g) => {
+        if (g.id === groupId) {
+          const items = [...(g.items || [])];
+          items.splice(itemIndex, 1);
+          return { ...g, items };
+        }
+        return g;
+      })
+    }));
+    setHasUnsavedChanges(true);
+  };
+
+  // ==========================================
+  // PROJECTS (WITH FLAWLESS COMMA TYPING)
+  // ==========================================
   const openAddProject = () => {
     playSelectClick();
-    setEditingItem({
+    setFormFields({
       id: `proj-${Date.now()}`,
       title: 'New Featured Project',
-      tag: 'Engineering',
-      desc: 'Clear summary of what this project does and key technologies used.',
-      tech: ['Python', 'FastAPI'],
+      techInput: 'Python, YOLOv8, OpenCV, CUDA',
       repoLink: 'https://github.com/ShreyasN707',
-      liveLink: ''
+      liveLink: '',
+      desc: 'Clear summary of what this project does and key technologies used.'
     });
     setModalType('project');
     setIsNewItem(true);
   };
 
-  const openEditProject = (proj) => {
+  const openEditProject = (proj, focusLive = false) => {
     playSelectClick();
-    setEditingItem({
-      ...proj,
-      tech: Array.isArray(proj.tech) ? [...proj.tech] : [proj.tech]
+    setFormFields({
+      id: proj.id,
+      title: proj.title || '',
+      techInput: Array.isArray(proj.tech) ? proj.tech.join(', ') : (proj.tech || ''),
+      repoLink: proj.repoLink || proj.link || '',
+      liveLink: proj.liveLink || '',
+      desc: proj.desc || '',
+      focusLive
     });
     setModalType('project');
     setIsNewItem(false);
+  };
+
+  const saveProject = () => {
+    const parsedTech = formFields.techInput
+      ? formFields.techInput.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+
+    const newProj = {
+      id: formFields.id || `proj-${Date.now()}`,
+      title: (formFields.title || '').trim() || 'Project Title',
+      tech: parsedTech,
+      repoLink: (formFields.repoLink || '').trim() || 'https://github.com/ShreyasN707',
+      liveLink: (formFields.liveLink || '').trim() || null,
+      desc: (formFields.desc || '').trim()
+    };
+
+    if (isNewItem) {
+      setData((prev) => ({ ...prev, projects: [...prev.projects, newProj] }));
+    } else {
+      setData((prev) => ({
+        ...prev,
+        projects: prev.projects.map((p) => (p.id === newProj.id ? newProj : p))
+      }));
+    }
+    setHasUnsavedChanges(true);
+    setModalType(null);
   };
 
   const deleteProject = (id) => {
@@ -265,7 +521,8 @@ export default function AdminEditView({ onNavigateHome }) {
     const newProj = {
       ...proj,
       id: `proj-${Date.now()}`,
-      title: `${proj.title} (Copy)`
+      title: `${proj.title} (Copy)`,
+      tech: Array.isArray(proj.tech) ? [...proj.tech] : []
     };
     setData((prev) => ({
       ...prev,
@@ -274,79 +531,317 @@ export default function AdminEditView({ onNavigateHome }) {
     setHasUnsavedChanges(true);
   };
 
-  const saveProject = (proj) => {
-    if (isNewItem) {
-      setData((prev) => ({ ...prev, projects: [...prev.projects, proj] }));
-    } else {
-      setData((prev) => ({
-        ...prev,
-        projects: prev.projects.map((p) => (p.id === proj.id ? proj : p))
-      }));
-    }
-    setHasUnsavedChanges(true);
-    setModalType(null);
-  };
-
-  // Contact Edit
+  // ==========================================
+  // CONTACT
+  // ==========================================
   const openEditContact = () => {
     playSelectClick();
-    setEditingItem({ ...data.contact });
+    setFormFields({
+      email: data.contact?.email || '',
+      linkedin: data.contact?.linkedin || '',
+      github: data.contact?.github || '',
+      note: data.contact?.note || ''
+    });
     setModalType('contact');
     setIsNewItem(false);
   };
 
-  const saveContact = (contact) => {
-    setData((prev) => ({ ...prev, contact }));
+  const saveContact = () => {
+    setData((prev) => ({
+      ...prev,
+      contact: {
+        email: formFields.email.trim(),
+        linkedin: formFields.linkedin.trim(),
+        github: formFields.github.trim(),
+        note: formFields.note.trim()
+      }
+    }));
     setHasUnsavedChanges(true);
     setModalType(null);
   };
 
-  // Custom Section
+  // ==========================================
+  // SECTION TITLES / HEADINGS
+  // ==========================================
+  const openEditSectionTitles = (sectionKey) => {
+    playSelectClick();
+    setFormFields({
+      sectionKey,
+      heading: data.sectionTitles?.[`${sectionKey}Heading`] || '',
+      subtitle: data.sectionTitles?.[`${sectionKey}Subtitle`] || ''
+    });
+    setModalType('sectionTitles');
+  };
+
+  const saveSectionTitles = () => {
+    const key = formFields.sectionKey;
+    setData((prev) => ({
+      ...prev,
+      sectionTitles: {
+        ...(prev.sectionTitles || {}),
+        [`${key}Heading`]: formFields.heading.trim(),
+        [`${key}Subtitle`]: formFields.subtitle.trim()
+      }
+    }));
+    setHasUnsavedChanges(true);
+    setModalType(null);
+  };
+
+  // ==========================================
+  // CUSTOM SECTIONS & MEDIA BUILDER (Cards, Images, PDFs, Notes)
+  // ==========================================
   const openAddCustomSection = () => {
     playSelectClick();
-    setEditingItem({
+    setFormFields({
       id: `sec-${Date.now()}`,
       label: 'Experience',
-      heading: 'Work & Research Experience',
-      desc: 'Summary of roles, achievements, and technical contributions.'
+      heading: 'Work & Engineering Experience',
+      desc: 'Summary of roles, achievements, and technical contributions.',
+      items: []
     });
     setModalType('customSection');
     setIsNewItem(true);
   };
 
-  const saveCustomSection = (sec) => {
-    setData((prev) => ({
-      ...prev,
-      customSections: [...(prev.customSections || []), sec]
-    }));
+  const openEditCustomSection = (sec) => {
+    playSelectClick();
+    setFormFields({
+      id: sec.id,
+      label: sec.label || '',
+      heading: sec.heading || '',
+      desc: sec.desc || '',
+      items: sec.items || []
+    });
+    setModalType('customSection');
+    setIsNewItem(false);
+  };
+
+  const saveCustomSection = () => {
+    const secId = formFields.id || `sec-${Date.now()}`;
+    const newSec = {
+      id: secId,
+      label: (formFields.label || '').trim() || 'New Tab',
+      heading: (formFields.heading || '').trim() || (formFields.label || '').trim(),
+      desc: (formFields.desc || '').trim(),
+      items: formFields.items || []
+    };
+
+    setData((prev) => {
+      let nextSections;
+      if (isNewItem) {
+        nextSections = [...(prev.customSections || []), newSec];
+      } else {
+        nextSections = (prev.customSections || []).map((s) => (s.id === secId ? { ...s, ...newSec, items: s.items || [] } : s));
+      }
+      let nextTabOrder = prev.tabOrder ? [...prev.tabOrder] : [...DEFAULT_TAB_ORDER];
+      if (!nextTabOrder.includes(secId)) {
+        nextTabOrder.push(secId);
+      }
+      const updated = { ...prev, customSections: nextSections, tabOrder: nextTabOrder };
+      savePortfolioData(updated);
+      return updated;
+    });
+
     setHasUnsavedChanges(true);
     setModalType(null);
-    setActiveTab(sec.id);
+    setActiveTab(secId);
   };
 
   const deleteCustomSection = (id) => {
     playSelectClick();
     if (window.confirm('Delete this custom section?')) {
-      setData((prev) => ({
-        ...prev,
-        customSections: (prev.customSections || []).filter((s) => s.id !== id)
-      }));
+      setData((prev) => {
+        const nextSections = (prev.customSections || []).filter((s) => s.id !== id);
+        const nextTabOrder = (prev.tabOrder || []).filter((tabId) => tabId !== id);
+        const updated = { ...prev, customSections: nextSections, tabOrder: nextTabOrder };
+        savePortfolioData(updated);
+        return updated;
+      });
       setHasUnsavedChanges(true);
       setActiveTab('about');
     }
   };
 
-  const baseTabs = [
+  const openAddCustomItem = (secId, itemType) => {
+    playSelectClick();
+    setFormFields({
+      secId,
+      itemType,
+      title: '',
+      desc: '',
+      tagsInput: '',
+      iconName: 'Sparkles',
+      url: '',
+      caption: '',
+      fileName: '',
+      fileSize: '',
+      content: ''
+    });
+    setModalType('customItem');
+    setIsNewItem(true);
+  };
+
+  const openEditCustomItem = (secId, item) => {
+    playSelectClick();
+    setFormFields({
+      secId,
+      id: item.id,
+      itemType: item.type,
+      title: item.title || '',
+      desc: item.desc || '',
+      tagsInput: (item.tags || []).join(', '),
+      iconName: item.iconName || 'Sparkles',
+      url: item.url || '',
+      caption: item.caption || '',
+      fileName: item.fileName || '',
+      fileSize: item.fileSize || '',
+      content: item.content || ''
+    });
+    setModalType('customItem');
+    setIsNewItem(false);
+  };
+
+  const handleFileUpload = (e, targetField) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const sizeInKb = (file.size / 1024).toFixed(1);
+    const sizeText = file.size > 1024 * 1024
+      ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
+      : `${sizeInKb} KB`;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target.result;
+      setFormFields((prev) => ({
+        ...prev,
+        [targetField]: dataUrl,
+        fileName: file.name,
+        fileSize: sizeText,
+        title: prev.title || file.name.replace(/\.[^/.]+$/, "")
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const saveCustomItem = () => {
+    playAccessGranted();
+    const secId = formFields.secId;
+    const itemType = formFields.itemType;
+
+    let newItem = {
+      id: formFields.id || `item-${Date.now()}`,
+      type: itemType
+    };
+
+    if (itemType === 'card') {
+      const parsedTags = formFields.tagsInput
+        ? formFields.tagsInput.split(',').map((s) => s.trim()).filter(Boolean)
+        : [];
+      newItem = {
+        ...newItem,
+        title: (formFields.title || '').trim() || 'Focus Card',
+        desc: (formFields.desc || '').trim(),
+        tags: parsedTags,
+        iconName: formFields.iconName || 'Sparkles'
+      };
+    } else if (itemType === 'image') {
+      newItem = {
+        ...newItem,
+        title: (formFields.title || '').trim(),
+        caption: (formFields.caption || formFields.title || '').trim(),
+        url: (formFields.url || '').trim() || 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+        alt: (formFields.title || 'Portfolio image').trim()
+      };
+    } else if (itemType === 'pdf') {
+      newItem = {
+        ...newItem,
+        title: (formFields.title || '').trim() || 'Document.pdf',
+        fileName: (formFields.fileName || 'document.pdf').trim(),
+        fileSize: (formFields.fileSize || 'PDF Document').trim(),
+        desc: (formFields.desc || '').trim(),
+        url: (formFields.url || '').trim() || '#'
+      };
+    } else if (itemType === 'text') {
+      newItem = {
+        ...newItem,
+        title: (formFields.title || '').trim(),
+        content: (formFields.content || '').trim()
+      };
+    }
+
+    const updatedSections = (data.customSections || []).map((sec) => {
+      if (sec.id !== secId) return sec;
+      const currentItems = Array.isArray(sec.items) ? sec.items : [];
+      let nextItems;
+      if (isNewItem) {
+        nextItems = [...currentItems, newItem];
+      } else {
+        nextItems = currentItems.map((it) => (it.id === newItem.id ? newItem : it));
+      }
+      return { ...sec, items: nextItems };
+    });
+
+    const updated = { ...data, customSections: updatedSections };
+    setData(updated);
+    setHasUnsavedChanges(true);
+    savePortfolioData(updated);
+    setModalType(null);
+  };
+
+  const deleteCustomItem = (secId, itemId) => {
+    playSelectClick();
+    if (window.confirm('Delete this item from this tab?')) {
+      const updatedSections = (data.customSections || []).map((sec) => {
+        if (sec.id !== secId) return sec;
+        return {
+          ...sec,
+          items: (sec.items || []).filter((it) => it.id !== itemId)
+        };
+      });
+      const updated = { ...data, customSections: updatedSections };
+      setData(updated);
+      setHasUnsavedChanges(true);
+      savePortfolioData(updated);
+    }
+  };
+
+  const moveCustomItem = (secId, itemId, direction) => {
+    playSelectClick();
+    const updatedSections = (data.customSections || []).map((sec) => {
+      if (sec.id !== secId) return sec;
+      const items = [...(sec.items || [])];
+      const idx = items.findIndex((it) => it.id === itemId);
+      if (idx === -1) return sec;
+      const targetIdx = idx + direction;
+      if (targetIdx < 0 || targetIdx >= items.length) return sec;
+      const temp = items[idx];
+      items[idx] = items[targetIdx];
+      items[targetIdx] = temp;
+      return { ...sec, items };
+    });
+    const updated = { ...data, customSections: updatedSections };
+    setData(updated);
+    setHasUnsavedChanges(true);
+    savePortfolioData(updated);
+  };
+
+  const unorderedTabs = [
     { id: 'about', label: 'About' },
     { id: 'skills', label: 'Skills' },
     { id: 'projects', label: 'Projects' },
-    { id: 'contact', label: 'Contact' }
-  ];
-
-  const allTabs = [
-    ...baseTabs,
+    { id: 'contact', label: 'Contact' },
     ...(data.customSections || []).map((s) => ({ id: s.id, label: s.label }))
   ];
+
+  const tabOrder = data.tabOrder || DEFAULT_TAB_ORDER;
+  const allTabs = [...unorderedTabs].sort((a, b) => {
+    let idxA = tabOrder.indexOf(a.id);
+    let idxB = tabOrder.indexOf(b.id);
+    if (idxA === -1) idxA = 999;
+    if (idxB === -1) idxB = 999;
+    return idxA - idxB;
+  });
 
   const currentTabIdx = allTabs.findIndex((t) => t.id === activeTab);
   const prevTab = currentTabIdx > 0 ? allTabs[currentTabIdx - 1] : null;
@@ -354,6 +849,8 @@ export default function AdminEditView({ onNavigateHome }) {
 
   return (
     <div className="mac-terminal-page">
+      {/* Floating Google Docs Toolbar on Mouse Selection */}
+      <RichTextFloatingBar onApplyFormat={handleFloatingFormat} />
       {/* Toast Notification Banner */}
       {publishMessage && (
         <div className="admin-toast-banner fade-in">
@@ -364,28 +861,30 @@ export default function AdminEditView({ onNavigateHome }) {
 
       {/* Terminal Window Container */}
       <div className="mac-window">
-        {/* Titlebar with Admin Tag & Actions */}
-        <div className="mac-titlebar">
-          <div className="mac-traffic-lights">
-            <span
-              className="mac-dot red"
-              onClick={() => {
-                playSelectClick();
-                onNavigateHome();
-              }}
-              title="Return to Live Site"
-            ></span>
-            <span className="mac-dot yellow" title="Admin Window"></span>
-            <span className="mac-dot green" title="Admin Active"></span>
+        {/* Titlebar with Left-Aligned Title and Non-Overlapping Action Buttons */}
+        <div className="mac-titlebar admin-titlebar-layout">
+          <div className="admin-titlebar-left">
+            <div className="mac-traffic-lights">
+              <span
+                className="mac-dot red"
+                onClick={() => {
+                  playSelectClick();
+                  onNavigateHome();
+                }}
+                title="Return to Live Site"
+              ></span>
+              <span className="mac-dot yellow" title="Admin Window"></span>
+              <span className="mac-dot green" title="Admin Active"></span>
+            </div>
+
+            <div className="admin-branding-group">
+              <span className="window-title-name-yellow">{data.profile?.displayName || 'Shreyas N'}</span>
+              <span className="admin-status-badge">ADMIN MODE</span>
+            </div>
           </div>
 
-          <div className="mac-window-title">
-            <span className="window-title-name-yellow">{data.profile.displayName || 'Shreyas N'}</span>
-            <span className="admin-status-badge">ADMIN / EDIT MODE</span>
-          </div>
-
-          {/* Quick Header Actions */}
-          <div className="mac-header-actions">
+          {/* Quick Header Actions (Never Overlaps) */}
+          <div className="admin-titlebar-actions">
             <button
               className="mac-action-btn admin-reset-btn"
               onClick={handleReset}
@@ -393,7 +892,7 @@ export default function AdminEditView({ onNavigateHome }) {
               title="Reset all content to original defaults"
             >
               <RotateCcw size={13} />
-              <span>Reset</span>
+              <span>Reset Defaults</span>
             </button>
 
             <button
@@ -424,15 +923,44 @@ export default function AdminEditView({ onNavigateHome }) {
         {/* Tab Bar */}
         <div className="mac-tabbar">
           <div className="tab-pills-wrap">
-            {allTabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => switchTab(tab.id)}
-                onMouseEnter={playHoverTick}
-                className={`mac-tab-btn ${activeTab === tab.id ? 'active' : ''}`}
-              >
-                <span>{tab.label}</span>
-              </button>
+            {allTabs.map((tab, idx) => (
+              <div key={tab.id} className="mac-tab-pill-group">
+                <button
+                  onClick={() => switchTab(tab.id)}
+                  onMouseEnter={playHoverTick}
+                  className={`mac-tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+                >
+                  <span>{tab.label}</span>
+                </button>
+                {activeTab === tab.id && (
+                  <div className="tab-reorder-arrows">
+                    <button
+                      type="button"
+                      className="tab-arrow-btn"
+                      disabled={idx === 0}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMoveTab(tab.id, -1);
+                      }}
+                      title="Move Tab Left"
+                    >
+                      <ChevronLeft size={12} />
+                    </button>
+                    <button
+                      type="button"
+                      className="tab-arrow-btn"
+                      disabled={idx === allTabs.length - 1}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMoveTab(tab.id, 1);
+                      }}
+                      title="Move Tab Right"
+                    >
+                      <ChevronRight size={12} />
+                    </button>
+                  </div>
+                )}
+              </div>
             ))}
 
             <button
@@ -442,14 +970,30 @@ export default function AdminEditView({ onNavigateHome }) {
               title="Add a new custom section/tab"
             >
               <Plus size={13} />
-              <span>Section</span>
+              <span>Add Tab</span>
+            </button>
+
+            <button
+              className="mac-tab-btn reorder-modal-trigger-btn"
+              onClick={() => setShowReorderModal(true)}
+              onMouseEnter={playHoverTick}
+              title="Reorder all tabs"
+            >
+              <ArrowUpDown size={13} />
+              <span>Reorder Tabs</span>
             </button>
           </div>
 
           <div className="mac-tab-guide">
-            <span>Click any section or widget below to edit</span>
+            <span>Tab {currentTabIdx + 1} of {allTabs.length}</span>
           </div>
         </div>
+
+        {/* Docked Google Docs Formatting Toolbar directly visible on the terminal */}
+        <AdminDocsToolbar
+          onApplyFormat={handleFloatingFormat}
+          onOpenReorderModal={() => setShowReorderModal(true)}
+        />
 
         {/* Content Body Area */}
         <div className="mac-content-body" ref={contentBodyRef}>
@@ -467,18 +1011,27 @@ export default function AdminEditView({ onNavigateHome }) {
 
                 <div className="about-hero-section">
                   <div className="badge-cute">
-                    <span>{data.profile.roleTag}</span>
+                    <span>{data.profile?.roleTag || 'Machine Learning & Computer Vision'}</span>
                   </div>
                   <h1 className="about-name-title">
-                    Hi, I'm <span className="highlight-cute">{data.profile.name}</span>
+                    Hi, I'm <span className="highlight-cute">{data.profile?.name || 'Shreyas Naik'}</span>
                   </h1>
-                  <p className="about-description">{data.profile.bio}</p>
+                  <div
+                    className="about-description rich-inline-editable"
+                    contentEditable
+                    suppressContentEditableWarning
+                    data-rich-editable="true"
+                    data-rich-field="profile.bio"
+                    title="Highlight words with mouse to style color, font, and size!"
+                    onBlur={(e) => handleInlineSave('profile.bio', e.currentTarget.innerHTML)}
+                    dangerouslySetInnerHTML={{ __html: data.profile?.bio || '' }}
+                  />
                 </div>
               </div>
 
-              {/* 3 Information Cards / Focus Areas */}
+              {/* Focus Areas & Cards */}
               <div className="admin-section-subheader">
-                <span className="subheader-title">Focus Areas & Domain Cards ({data.aboutCards.length})</span>
+                <span className="subheader-title">Focus Areas & Domain Cards ({data.aboutCards?.length || 0})</span>
                 <button className="admin-add-item-btn" onClick={openAddAboutCard} onMouseEnter={playHoverTick}>
                   <Plus size={14} />
                   <span>Add Focus Card</span>
@@ -486,7 +1039,7 @@ export default function AdminEditView({ onNavigateHome }) {
               </div>
 
               <div className="about-triplet-grid">
-                {data.aboutCards.map((card) => {
+                {(data.aboutCards || []).map((card) => {
                   const Icon = ICON_MAP[card.iconName] || Layers;
                   return (
                     <div key={card.id} className="mac-card admin-editable-card">
@@ -529,15 +1082,69 @@ export default function AdminEditView({ onNavigateHome }) {
                         </div>
                         <h2 className="cute-card-title">{card.title}</h2>
                       </div>
-                      <p className="cute-card-desc" onClick={() => openEditAboutCard(card)}>
-                        {card.desc}
-                      </p>
+                      <div
+                        className="cute-card-desc rich-inline-editable"
+                        contentEditable
+                        suppressContentEditableWarning
+                        data-rich-editable="true"
+                        data-rich-field={`aboutCard.${card.id}`}
+                        title="Highlight words with mouse to style color, font, and size!"
+                        onBlur={(e) => handleInlineSave(`aboutCard.${card.id}`, e.currentTarget.innerHTML)}
+                        dangerouslySetInnerHTML={{ __html: card.desc || '' }}
+                      />
+
+                      {/* Tag list with quick remove and quick add */}
                       <div className="cute-tags-row">
                         {(card.tags || []).map((tag, i) => (
-                          <span key={i} className="tag-pill">
-                            {tag}
+                          <span key={i} className="tag-pill tag-pill-interactive">
+                            <span>{tag}</span>
+                            <button
+                              className="pill-quick-remove"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleQuickRemoveTag(card.id, i);
+                              }}
+                              title="Remove tag"
+                            >
+                              <X size={10} />
+                            </button>
                           </span>
                         ))}
+
+                        {quickTagInputCard === card.id ? (
+                          <div className="inline-quick-add-form" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              className="inline-quick-input"
+                              placeholder="Tag name..."
+                              autoFocus
+                              value={quickTagText}
+                              onChange={(e) => setQuickTagText(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleQuickAddTag(card.id);
+                                if (e.key === 'Escape') setQuickTagInputCard(null);
+                              }}
+                            />
+                            <button className="inline-quick-confirm" onClick={() => handleQuickAddTag(card.id)}>
+                              Add
+                            </button>
+                            <button className="inline-quick-cancel" onClick={() => setQuickTagInputCard(null)}>
+                              <X size={12} />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className="inline-add-pill-trigger"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setQuickTagInputCard(card.id);
+                              setQuickTagText('');
+                            }}
+                            title="Add tag directly"
+                          >
+                            <Plus size={11} />
+                            <span>Tag</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   );
@@ -545,35 +1152,46 @@ export default function AdminEditView({ onNavigateHome }) {
               </div>
 
               {/* Status Footer Pill */}
-              <div className="admin-editable-block status-block" onClick={openEditProfile}>
+              <div className="admin-editable-block status-block" onClick={openEditProfile} style={{ marginTop: '16px' }}>
                 <div className="mac-status-strip">
                   <div className="status-segment">
                     <span className="status-label-cute">Location:</span>
-                    <span className="status-value-cute">{data.profile.location}</span>
+                    <span className="status-value-cute">{data.profile?.location || 'Bengaluru, India'}</span>
                   </div>
                   <div className="status-segment">
                     <span className="status-label-cute">Focus:</span>
-                    <span className="status-value-cute">{data.profile.focus}</span>
+                    <span className="status-value-cute">{data.profile?.focus || 'Computer Vision & Edge ML'}</span>
                   </div>
                   <div className="status-segment status-available">
                     <span className="live-dot"></span>
-                    <span>{data.profile.availability}</span>
+                    <span>{data.profile?.availability || 'Available for Engineering Roles'}</span>
                   </div>
-                  <span className="mini-edit-hint">Click to edit</span>
+                  <span className="mini-edit-hint">Click to edit location & status</span>
                 </div>
               </div>
             </div>
           )}
 
           {/* ==========================================
-              TAB 2: SKILLS (EDITABLE)
+              TAB 2: SKILLS (WITH FLAWLESS COMMA & INLINE ADD)
               ========================================== */}
           {activeTab === 'skills' && (
             <div className="mac-pane fade-in">
               <div className="admin-section-subheader">
-                <div className="pane-intro" style={{ marginBottom: 0 }}>
-                  <h1 className="pane-heading">Technical Skills</h1>
-                  <p className="pane-subtitle">Manage skill categories, frameworks, and tools.</p>
+                <div className="section-title-wrap">
+                  <h1 className="pane-heading">
+                    {data.sectionTitles?.skillsHeading || 'Technical Skills'}
+                    <button
+                      className="inline-header-edit-btn"
+                      onClick={() => openEditSectionTitles('skills')}
+                      title="Edit Section Title & Subtitle"
+                    >
+                      <Edit3 size={13} />
+                    </button>
+                  </h1>
+                  <p className="pane-subtitle">
+                    {data.sectionTitles?.skillsSubtitle || 'Technologies and tools I use to build intelligent applications.'}
+                  </p>
                 </div>
                 <button className="admin-add-item-btn" onClick={openAddSkillGroup} onMouseEnter={playHoverTick}>
                   <Plus size={14} />
@@ -582,7 +1200,7 @@ export default function AdminEditView({ onNavigateHome }) {
               </div>
 
               <div className="skills-grid-compact" style={{ marginTop: '16px' }}>
-                {data.skillGroups.map((group) => {
+                {(data.skillGroups || []).map((group) => {
                   const Icon = ICON_MAP[group.iconName] || Wrench;
                   return (
                     <div key={group.id} className="mac-card skill-card-clean admin-editable-card">
@@ -590,7 +1208,7 @@ export default function AdminEditView({ onNavigateHome }) {
                         <button
                           className="card-mini-btn edit"
                           onClick={() => openEditSkillGroup(group)}
-                          title="Edit Category"
+                          title="Edit Category & Skills"
                         >
                           <Edit3 size={13} />
                         </button>
@@ -615,14 +1233,61 @@ export default function AdminEditView({ onNavigateHome }) {
                           <Icon size={16} />
                         </div>
                         <h2 className="skill-card-heading">{group.title}</h2>
+                        <span className="card-badge-count">{(group.items || []).length} skills</span>
                       </div>
 
-                      <div className="skill-tags-wrap" onClick={() => openEditSkillGroup(group)}>
+                      <div className="skill-tags-wrap">
                         {(group.items || []).map((item, i) => (
-                          <span key={i} className="skill-tag-cute">
-                            {item}
+                          <span key={i} className="skill-tag-cute skill-tag-interactive">
+                            <span>{item}</span>
+                            <button
+                              className="pill-quick-remove"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleQuickRemoveSkill(group.id, i);
+                              }}
+                              title={`Remove ${item}`}
+                            >
+                              <X size={11} />
+                            </button>
                           </span>
                         ))}
+
+                        {/* Inline Quick Add Skill Input */}
+                        {quickSkillInputGroup === group.id ? (
+                          <div className="inline-quick-add-form" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              className="inline-quick-input"
+                              placeholder="e.g. TensorRT, PyTorch..."
+                              autoFocus
+                              value={quickSkillText}
+                              onChange={(e) => setQuickSkillText(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleQuickAddSkill(group.id);
+                                if (e.key === 'Escape') setQuickSkillInputGroup(null);
+                              }}
+                            />
+                            <button className="inline-quick-confirm" onClick={() => handleQuickAddSkill(group.id)}>
+                              Add
+                            </button>
+                            <button className="inline-quick-cancel" onClick={() => setQuickSkillInputGroup(null)}>
+                              <X size={12} />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className="inline-add-pill-trigger skill-add-trigger"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setQuickSkillInputGroup(group.id);
+                              setQuickSkillText('');
+                            }}
+                            title="Quickly add a skill to this card"
+                          >
+                            <Plus size={12} />
+                            <span>Add Skill</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   );
@@ -632,14 +1297,25 @@ export default function AdminEditView({ onNavigateHome }) {
           )}
 
           {/* ==========================================
-              TAB 3: PROJECTS (EDITABLE)
+              TAB 3: PROJECTS (WITH FLAWLESS COMMA & LIVE LINK)
               ========================================== */}
           {activeTab === 'projects' && (
             <div className="mac-pane fade-in">
               <div className="admin-section-subheader">
-                <div className="pane-intro" style={{ marginBottom: 0 }}>
-                  <h1 className="pane-heading">Featured Projects</h1>
-                  <p className="pane-subtitle">Create, reorder, or edit showcase engineering projects.</p>
+                <div className="section-title-wrap">
+                  <h1 className="pane-heading">
+                    {data.sectionTitles?.projectsHeading || 'Featured Projects'}
+                    <button
+                      className="inline-header-edit-btn"
+                      onClick={() => openEditSectionTitles('projects')}
+                      title="Edit Section Title & Subtitle"
+                    >
+                      <Edit3 size={13} />
+                    </button>
+                  </h1>
+                  <p className="pane-subtitle">
+                    {data.sectionTitles?.projectsSubtitle || 'Practical systems built with computer vision, edge machine learning, and web services.'}
+                  </p>
                 </div>
                 <button className="admin-add-item-btn" onClick={openAddProject} onMouseEnter={playHoverTick}>
                   <Plus size={14} />
@@ -648,7 +1324,7 @@ export default function AdminEditView({ onNavigateHome }) {
               </div>
 
               <div className="projects-grid-compact" style={{ marginTop: '16px' }}>
-                {data.projects.map((proj) => (
+                {(data.projects || []).map((proj) => (
                   <div key={proj.id} className="mac-card project-card-compact admin-editable-card">
                     <div className="card-admin-action-row">
                       <button
@@ -692,13 +1368,20 @@ export default function AdminEditView({ onNavigateHome }) {
                     </div>
 
                     {/* Description of the project */}
-                    <p className="project-desc-cute" onClick={() => openEditProject(proj)}>
-                      {proj.desc}
-                    </p>
+                    <div
+                      className="project-desc-cute rich-inline-editable"
+                      contentEditable
+                      suppressContentEditableWarning
+                      data-rich-editable="true"
+                      data-rich-field={`project.${proj.id}`}
+                      title="Highlight words with mouse to style color, font, and size!"
+                      onBlur={(e) => handleInlineSave(`project.${proj.id}`, e.currentTarget.innerHTML)}
+                      dangerouslySetInnerHTML={{ __html: proj.desc || '' }}
+                    />
 
-                    {/* Below: Live link (if present) */}
+                    {/* Below: Live link (if present) or add trigger */}
                     {proj.liveLink ? (
-                      <div className="project-live-container" onClick={() => openEditProject(proj)}>
+                      <div className="project-live-container" onClick={() => openEditProject(proj, true)}>
                         <div className="project-live-btn" style={{ pointerEvents: 'none' }}>
                           <ExternalLink size={13} />
                           <span className="live-link-label">Live Link:</span>
@@ -706,8 +1389,15 @@ export default function AdminEditView({ onNavigateHome }) {
                         </div>
                       </div>
                     ) : (
-                      <div className="project-live-container" onClick={() => openEditProject(proj)}>
-                        <span className="no-live-link-hint">+ Click to add live preview URL</span>
+                      <div className="project-live-container">
+                        <button
+                          className="no-live-link-trigger"
+                          onClick={() => openEditProject(proj, true)}
+                          title="Add a live demo website link to this project"
+                        >
+                          <Plus size={12} />
+                          <span>Add Live Demo Link</span>
+                        </button>
                       </div>
                     )}
                   </div>
@@ -722,9 +1412,20 @@ export default function AdminEditView({ onNavigateHome }) {
           {activeTab === 'contact' && (
             <div className="mac-pane fade-in">
               <div className="admin-section-subheader">
-                <div className="pane-intro" style={{ marginBottom: 0 }}>
-                  <h1 className="pane-heading">Contact Information</h1>
-                  <p className="pane-subtitle">Manage direct contact channels, social profiles, and response note.</p>
+                <div className="section-title-wrap">
+                  <h1 className="pane-heading">
+                    {data.sectionTitles?.contactHeading || 'Get in Touch'}
+                    <button
+                      className="inline-header-edit-btn"
+                      onClick={() => openEditSectionTitles('contact')}
+                      title="Edit Section Title & Subtitle"
+                    >
+                      <Edit3 size={13} />
+                    </button>
+                  </h1>
+                  <p className="pane-subtitle">
+                    {data.sectionTitles?.contactSubtitle || 'Looking for an ML engineer or want to discuss a project? I would love to hear from you.'}
+                  </p>
                 </div>
                 <button className="admin-add-item-btn" onClick={openEditContact} onMouseEnter={playHoverTick}>
                   <Edit3 size={14} />
@@ -739,7 +1440,7 @@ export default function AdminEditView({ onNavigateHome }) {
                   </div>
                   <div className="contact-details">
                     <span className="contact-type-label">Email Address</span>
-                    <span className="contact-main-text">{data.contact.email}</span>
+                    <span className="contact-main-text">{data.contact?.email || 'shreyasnaik81@gmail.com'}</span>
                   </div>
                   <Edit3 size={15} className="contact-hover-arrow" />
                 </div>
@@ -751,7 +1452,7 @@ export default function AdminEditView({ onNavigateHome }) {
                   <div className="contact-details">
                     <span className="contact-type-label">LinkedIn Profile</span>
                     <span className="contact-main-text">
-                      {data.contact.linkedin ? data.contact.linkedin.replace('https://', '') : 'Not configured'}
+                      {data.contact?.linkedin ? data.contact.linkedin.replace('https://', '') : 'Not configured'}
                     </span>
                   </div>
                   <Edit3 size={15} className="contact-hover-arrow" />
@@ -760,7 +1461,7 @@ export default function AdminEditView({ onNavigateHome }) {
 
               <div className="contact-footer-note admin-editable-card" onClick={openEditContact} style={{ marginTop: '16px', cursor: 'pointer' }}>
                 <span className="status-label-cute">Availability Note: </span>
-                <span>{data.contact.note}</span>
+                <span>{data.contact?.note || 'Always open to discuss machine learning systems, edge optimization, and interesting engineering projects.'}</span>
                 <span className="mini-edit-hint" style={{ marginLeft: '10px' }}>(Click to edit)</span>
               </div>
             </div>
@@ -775,25 +1476,211 @@ export default function AdminEditView({ onNavigateHome }) {
               return (
                 <div className="mac-pane fade-in">
                   <div className="admin-section-subheader">
-                    <div className="pane-intro" style={{ marginBottom: 0 }}>
-                      <h1 className="pane-heading">{sec.heading || sec.label}</h1>
-                      <p className="pane-subtitle">Custom Section</p>
+                    <div className="section-title-wrap">
+                      <h1
+                        className="pane-heading rich-inline-editable"
+                        contentEditable
+                        suppressContentEditableWarning
+                        data-rich-editable="true"
+                        data-rich-field={`customSectionHeading.${sec.id}`}
+                        onBlur={(e) => handleInlineSave(`customSectionHeading.${sec.id}`, e.currentTarget.innerHTML)}
+                        dangerouslySetInnerHTML={{ __html: sec.heading || sec.label }}
+                      />
+                      <p className="pane-subtitle">Custom Tab Section</p>
                     </div>
-                    <button
-                      className="admin-add-item-btn delete-sec"
-                      onClick={() => deleteCustomSection(sec.id)}
-                      onMouseEnter={playHoverTick}
-                    >
-                      <Trash2 size={14} />
-                      <span>Delete Section</span>
-                    </button>
+                    <div className="subheader-actions-row">
+                      <button
+                        className="admin-add-item-btn"
+                        onClick={() => openEditCustomSection(sec)}
+                        onMouseEnter={playHoverTick}
+                        title="Edit Section Heading & Label"
+                      >
+                        <Edit3 size={13} />
+                        <span>Edit Heading</span>
+                      </button>
+                      <button
+                        className="admin-add-item-btn delete-sec"
+                        onClick={() => deleteCustomSection(sec.id)}
+                        onMouseEnter={playHoverTick}
+                      >
+                        <Trash2 size={13} />
+                        <span>Delete Tab</span>
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="mac-card admin-editable-card" style={{ marginTop: '16px' }}>
-                    <p style={{ fontSize: '1rem', lineHeight: '1.7', color: '#cbd5e1', whiteSpace: 'pre-wrap' }}>
-                      {sec.desc}
-                    </p>
+                  {/* Intro Overview Box */}
+                  <div className="mac-card admin-editable-card" style={{ marginTop: '14px', padding: '16px 20px' }}>
+                    <div style={{ fontSize: '0.74rem', color: 'var(--honey-yellow)', fontFamily: 'var(--font-mono)', marginBottom: '6px', textTransform: 'uppercase' }}>
+                      Tab Overview (Select text with mouse to style):
+                    </div>
+                    <div
+                      className="rich-inline-editable"
+                      style={{ fontSize: '0.98rem', lineHeight: '1.6', color: '#cbd5e1' }}
+                      contentEditable
+                      suppressContentEditableWarning
+                      data-rich-editable="true"
+                      data-rich-field={`customSection.${sec.id}`}
+                      title="Highlight words with mouse to style color, font, and size!"
+                      onBlur={(e) => handleInlineSave(`customSection.${sec.id}`, e.currentTarget.innerHTML)}
+                      dangerouslySetInnerHTML={{ __html: sec.desc || '' }}
+                    />
                   </div>
+
+                  {/* Builder Bar: Cards, Images, PDFs, Notes */}
+                  <div className="custom-tab-builder-bar">
+                    <span className="builder-bar-label">Add Content to "{sec.label}":</span>
+                    <div className="builder-btns-group">
+                      <button
+                        className="builder-add-btn"
+                        onClick={() => openAddCustomItem(sec.id, 'card')}
+                        onMouseEnter={playHoverTick}
+                        title="Add a domain card with title, icon, tags"
+                      >
+                        <Plus size={13} />
+                        <span>Add Focus Card</span>
+                      </button>
+
+                      <button
+                        className="builder-add-btn"
+                        onClick={() => openAddCustomItem(sec.id, 'image')}
+                        onMouseEnter={playHoverTick}
+                        title="Upload an image or paste image link"
+                      >
+                        <ImageIcon size={13} />
+                        <span>Upload Image</span>
+                      </button>
+
+                      <button
+                        className="builder-add-btn"
+                        onClick={() => openAddCustomItem(sec.id, 'pdf')}
+                        onMouseEnter={playHoverTick}
+                        title="Upload a PDF file or document link"
+                      >
+                        <FileText size={13} />
+                        <span>Upload / Link PDF</span>
+                      </button>
+
+                      <button
+                        className="builder-add-btn"
+                        onClick={() => openAddCustomItem(sec.id, 'text')}
+                        onMouseEnter={playHoverTick}
+                        title="Add formatted rich text note block"
+                      >
+                        <Edit3 size={13} />
+                        <span>Add Rich Note</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Grid of Custom Items */}
+                  {sec.items && sec.items.length > 0 ? (
+                    <div className="custom-items-grid-admin">
+                      {sec.items.map((item, idx) => {
+                        const Icon = ICON_MAP[item.iconName] || Sparkles;
+                        return (
+                          <div key={item.id || idx} className="mac-card custom-admin-item-card">
+                            <div className="card-admin-action-row">
+                              <button
+                                className="card-mini-btn"
+                                disabled={idx === 0}
+                                onClick={() => moveCustomItem(sec.id, item.id, -1)}
+                                title="Move Up"
+                              >
+                                <ArrowUp size={12} />
+                              </button>
+                              <button
+                                className="card-mini-btn"
+                                disabled={idx === sec.items.length - 1}
+                                onClick={() => moveCustomItem(sec.id, item.id, 1)}
+                                title="Move Down"
+                              >
+                                <ArrowDown size={12} />
+                              </button>
+                              <button
+                                className="card-mini-btn edit"
+                                onClick={() => openEditCustomItem(sec.id, item)}
+                                title="Edit Item"
+                              >
+                                <Edit3 size={12} />
+                              </button>
+                              <button
+                                className="card-mini-btn delete"
+                                onClick={() => deleteCustomItem(sec.id, item.id)}
+                                title="Delete Item"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+
+                            {item.type === 'card' && (
+                              <>
+                                <div className="card-header-cute" onClick={() => openEditCustomItem(sec.id, item)}>
+                                  <div className="cute-icon-box">
+                                    <Icon size={17} />
+                                  </div>
+                                  <h2 className="cute-card-title">{item.title}</h2>
+                                </div>
+                                <div
+                                  className="cute-card-desc rich-inline-editable"
+                                  dangerouslySetInnerHTML={{ __html: item.desc || '' }}
+                                />
+                                {item.tags && item.tags.length > 0 && (
+                                  <div className="cute-tags-row">
+                                    {item.tags.map((t, i) => (
+                                      <span key={i} className="tag-pill">
+                                        <span>{t}</span>
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </>
+                            )}
+
+                            {item.type === 'image' && (
+                              <div className="custom-image-preview-block">
+                                <img src={item.url} alt={item.title || 'Preview'} className="custom-admin-thumb" />
+                                {item.caption && <p className="custom-img-caption-text">{item.caption}</p>}
+                              </div>
+                            )}
+
+                            {item.type === 'pdf' && (
+                              <div className="custom-pdf-preview-block">
+                                <div className="pdf-block-header">
+                                  <div className="pdf-icon-badge">
+                                    <FileText size={20} />
+                                  </div>
+                                  <div className="pdf-info-wrap">
+                                    <span className="pdf-title">{item.title}</span>
+                                    <span className="pdf-filename">{item.fileName || 'document.pdf'}</span>
+                                  </div>
+                                  {item.fileSize && <span className="pdf-size-badge">{item.fileSize}</span>}
+                                </div>
+                                {item.desc && (
+                                  <p className="pdf-desc" dangerouslySetInnerHTML={{ __html: item.desc }} />
+                                )}
+                              </div>
+                            )}
+
+                            {item.type === 'text' && (
+                              <div className="custom-text-preview-block">
+                                {item.title && <h3 className="custom-block-title">{item.title}</h3>}
+                                <div
+                                  className="custom-text-content"
+                                  dangerouslySetInnerHTML={{ __html: item.content || '' }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="custom-empty-notice">
+                      <Sparkles size={20} />
+                      <p>No content widgets added to this tab yet. Click any button above to add Focus Cards, upload Images, or attach PDFs!</p>
+                    </div>
+                  )}
                 </div>
               );
             })()
@@ -858,7 +1745,7 @@ export default function AdminEditView({ onNavigateHome }) {
       {/* ==========================================
           MODAL: PROFILE / BIO EDITOR
           ========================================== */}
-      {modalType === 'profile' && editingItem && (
+      {modalType === 'profile' && (
         <div className="admin-modal-backdrop">
           <div className="admin-modal-card">
             <div className="modal-header">
@@ -869,30 +1756,29 @@ export default function AdminEditView({ onNavigateHome }) {
               <label className="modal-field-label">Full Name</label>
               <input
                 className="modal-input"
-                value={editingItem.name || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                value={formFields.name || ''}
+                onChange={(e) => setFormFields({ ...formFields, name: e.target.value })}
               />
 
-              <label className="modal-field-label">Window Title Display Name</label>
+              <label className="modal-field-label">Window Title Display Name (Top Header)</label>
               <input
                 className="modal-input"
-                value={editingItem.displayName || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, displayName: e.target.value })}
+                value={formFields.displayName || ''}
+                onChange={(e) => setFormFields({ ...formFields, displayName: e.target.value })}
               />
 
               <label className="modal-field-label">Role Badge Tag</label>
               <input
                 className="modal-input"
-                value={editingItem.roleTag || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, roleTag: e.target.value })}
+                value={formFields.roleTag || ''}
+                onChange={(e) => setFormFields({ ...formFields, roleTag: e.target.value })}
               />
 
-              <label className="modal-field-label">Bio Description</label>
-              <textarea
-                className="modal-textarea"
-                rows={4}
-                value={editingItem.bio || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, bio: e.target.value })}
+              <label className="modal-field-label">Bio Description (Highlight text with mouse to style)</label>
+              <RichTextEditorBox
+                initialHtml={formFields.bio || ''}
+                onChange={(html) => setFormFields((prev) => ({ ...prev, bio: html }))}
+                placeholder="Write your bio... Highlight words with mouse to change color, size, and font!"
               />
 
               <div className="modal-grid-2">
@@ -900,16 +1786,16 @@ export default function AdminEditView({ onNavigateHome }) {
                   <label className="modal-field-label">Location</label>
                   <input
                     className="modal-input"
-                    value={editingItem.location || ''}
-                    onChange={(e) => setEditingItem({ ...editingItem, location: e.target.value })}
+                    value={formFields.location || ''}
+                    onChange={(e) => setFormFields({ ...formFields, location: e.target.value })}
                   />
                 </div>
                 <div>
                   <label className="modal-field-label">Focus Area</label>
                   <input
                     className="modal-input"
-                    value={editingItem.focus || ''}
-                    onChange={(e) => setEditingItem({ ...editingItem, focus: e.target.value })}
+                    value={formFields.focus || ''}
+                    onChange={(e) => setFormFields({ ...formFields, focus: e.target.value })}
                   />
                 </div>
               </div>
@@ -917,13 +1803,13 @@ export default function AdminEditView({ onNavigateHome }) {
               <label className="modal-field-label">Availability Status</label>
               <input
                 className="modal-input"
-                value={editingItem.availability || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, availability: e.target.value })}
+                value={formFields.availability || ''}
+                onChange={(e) => setFormFields({ ...formFields, availability: e.target.value })}
               />
             </div>
             <div className="modal-footer">
               <button className="modal-btn secondary" onClick={() => setModalType(null)}>Cancel</button>
-              <button className="modal-btn primary" onClick={() => saveProfile(editingItem)}>Save Profile</button>
+              <button className="modal-btn primary" onClick={saveProfile}>Save Profile</button>
             </div>
           </div>
         </div>
@@ -932,7 +1818,7 @@ export default function AdminEditView({ onNavigateHome }) {
       {/* ==========================================
           MODAL: ABOUT FOCUS CARD EDITOR
           ========================================== */}
-      {modalType === 'aboutCard' && editingItem && (
+      {modalType === 'aboutCard' && (
         <div className="admin-modal-backdrop">
           <div className="admin-modal-card">
             <div className="modal-header">
@@ -943,15 +1829,15 @@ export default function AdminEditView({ onNavigateHome }) {
               <label className="modal-field-label">Card Title</label>
               <input
                 className="modal-input"
-                value={editingItem.title || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                value={formFields.title || ''}
+                onChange={(e) => setFormFields({ ...formFields, title: e.target.value })}
               />
 
               <label className="modal-field-label">Icon</label>
               <select
                 className="modal-select"
-                value={editingItem.iconName || 'Eye'}
-                onChange={(e) => setEditingItem({ ...editingItem, iconName: e.target.value })}
+                value={formFields.iconName || 'Eye'}
+                onChange={(e) => setFormFields({ ...formFields, iconName: e.target.value })}
               >
                 <option value="Eye">Eye (Computer Vision / AI)</option>
                 <option value="Cpu">Cpu (Edge / Hardware / Embedded)</option>
@@ -961,39 +1847,49 @@ export default function AdminEditView({ onNavigateHome }) {
                 <option value="Sparkles">Sparkles (Special / Innovation)</option>
               </select>
 
-              <label className="modal-field-label">Description</label>
-              <textarea
-                className="modal-textarea"
-                rows={3}
-                value={editingItem.desc || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, desc: e.target.value })}
+              <label className="modal-field-label">Description (Highlight text with mouse to style)</label>
+              <RichTextEditorBox
+                initialHtml={formFields.desc || ''}
+                onChange={(html) => setFormFields((prev) => ({ ...prev, desc: html }))}
+                placeholder="Describe focus area... Highlight text to change color, size, and font!"
               />
 
-              <label className="modal-field-label">Tags (comma separated)</label>
+              <label className="modal-field-label">Tags (Type freely separated by commas)</label>
               <input
                 className="modal-input"
                 placeholder="e.g. YOLOv8, OpenCV, CUDA"
-                value={Array.isArray(editingItem.tags) ? editingItem.tags.join(', ') : ''}
-                onChange={(e) =>
-                  setEditingItem({
-                    ...editingItem,
-                    tags: e.target.value.split(',').map((s) => s.trim()).filter(Boolean)
-                  })
-                }
+                value={formFields.tagsInput || ''}
+                onChange={(e) => setFormFields({ ...formFields, tagsInput: e.target.value })}
               />
+
+              {/* Live Preview of Tag Pills */}
+              <div className="modal-pills-preview">
+                <span className="pills-preview-label">Live Tags Preview:</span>
+                <div className="pills-preview-list">
+                  {(formFields.tagsInput || '')
+                    .split(',')
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+                    .map((pill, idx) => (
+                      <span key={idx} className="tag-pill">
+                        {pill}
+                      </span>
+                    ))}
+                </div>
+              </div>
             </div>
             <div className="modal-footer">
               <button className="modal-btn secondary" onClick={() => setModalType(null)}>Cancel</button>
-              <button className="modal-btn primary" onClick={() => saveAboutCard(editingItem)}>Save Card</button>
+              <button className="modal-btn primary" onClick={saveAboutCard}>Save Card</button>
             </div>
           </div>
         </div>
       )}
 
       {/* ==========================================
-          MODAL: SKILL GROUP EDITOR
+          MODAL: SKILL GROUP EDITOR (FLAWLESS COMMA TYPING)
           ========================================== */}
-      {modalType === 'skillGroup' && editingItem && (
+      {modalType === 'skillGroup' && (
         <div className="admin-modal-backdrop">
           <div className="admin-modal-card">
             <div className="modal-header">
@@ -1004,15 +1900,15 @@ export default function AdminEditView({ onNavigateHome }) {
               <label className="modal-field-label">Category Title</label>
               <input
                 className="modal-input"
-                value={editingItem.title || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                value={formFields.title || ''}
+                onChange={(e) => setFormFields({ ...formFields, title: e.target.value })}
               />
 
               <label className="modal-field-label">Icon</label>
               <select
                 className="modal-select"
-                value={editingItem.iconName || 'Wrench'}
-                onChange={(e) => setEditingItem({ ...editingItem, iconName: e.target.value })}
+                value={formFields.iconName || 'Wrench'}
+                onChange={(e) => setFormFields({ ...formFields, iconName: e.target.value })}
               >
                 <option value="Eye">Eye (Vision / Deep Learning)</option>
                 <option value="Cpu">Cpu (Edge AI / Hardware)</option>
@@ -1021,32 +1917,48 @@ export default function AdminEditView({ onNavigateHome }) {
                 <option value="Globe">Globe (Cloud / APIs)</option>
               </select>
 
-              <label className="modal-field-label">Skills / Technologies (comma separated)</label>
+              <label className="modal-field-label">
+                Skills / Technologies (Type freely separated by commas)
+              </label>
               <textarea
                 className="modal-textarea"
                 rows={4}
                 placeholder="e.g. Python, PyTorch, YOLOv8, OpenCV, SAM, CUDA Acceleration"
-                value={Array.isArray(editingItem.items) ? editingItem.items.join(', ') : ''}
-                onChange={(e) =>
-                  setEditingItem({
-                    ...editingItem,
-                    items: e.target.value.split(',').map((s) => s.trim()).filter(Boolean)
-                  })
-                }
+                value={formFields.itemsInput || ''}
+                onChange={(e) => setFormFields({ ...formFields, itemsInput: e.target.value })}
               />
+              <span className="modal-field-hint">
+                Type commas naturally to separate skills (e.g. Python, PyTorch, YOLOv8). They will parse automatically into pills!
+              </span>
+
+              {/* Live Preview of Skill Pills */}
+              <div className="modal-pills-preview">
+                <span className="pills-preview-label">Live Skill Pills Preview:</span>
+                <div className="pills-preview-list">
+                  {(formFields.itemsInput || '')
+                    .split(',')
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+                    .map((pill, idx) => (
+                      <span key={idx} className="skill-tag-cute">
+                        {pill}
+                      </span>
+                    ))}
+                </div>
+              </div>
             </div>
             <div className="modal-footer">
               <button className="modal-btn secondary" onClick={() => setModalType(null)}>Cancel</button>
-              <button className="modal-btn primary" onClick={() => saveSkillGroup(editingItem)}>Save Category</button>
+              <button className="modal-btn primary" onClick={saveSkillGroup}>Save Category</button>
             </div>
           </div>
         </div>
       )}
 
       {/* ==========================================
-          MODAL: PROJECT EDITOR
+          MODAL: PROJECT EDITOR (FLAWLESS COMMA TYPING)
           ========================================== */}
-      {modalType === 'project' && editingItem && (
+      {modalType === 'project' && (
         <div className="admin-modal-backdrop">
           <div className="admin-modal-card">
             <div className="modal-header">
@@ -1057,50 +1969,62 @@ export default function AdminEditView({ onNavigateHome }) {
               <label className="modal-field-label">Project Name</label>
               <input
                 className="modal-input"
-                value={editingItem.title || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                placeholder="e.g. Digital Ad Replacement"
+                value={formFields.title || ''}
+                onChange={(e) => setFormFields({ ...formFields, title: e.target.value })}
               />
 
-              <label className="modal-field-label">Tech Stack (comma separated)</label>
+              <label className="modal-field-label">Tech Stack (Type freely separated by commas)</label>
               <input
                 className="modal-input"
                 placeholder="e.g. Python, YOLOv8, OpenCV, CUDA"
-                value={Array.isArray(editingItem.tech) ? editingItem.tech.join(', ') : (editingItem.tech || '')}
-                onChange={(e) =>
-                  setEditingItem({
-                    ...editingItem,
-                    tech: e.target.value.split(',').map((s) => s.trim()).filter(Boolean)
-                  })
-                }
+                value={formFields.techInput || ''}
+                onChange={(e) => setFormFields({ ...formFields, techInput: e.target.value })}
               />
 
-              <label className="modal-field-label">Repository Link</label>
+              {/* Live Preview of Tech Pills */}
+              <div className="modal-pills-preview">
+                <span className="pills-preview-label">Live Tech Stack Preview:</span>
+                <div className="pills-preview-list">
+                  {(formFields.techInput || '')
+                    .split(',')
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+                    .map((tech, idx) => (
+                      <span key={idx} className="project-tech-text" style={{ fontSize: '0.78rem' }}>
+                        {tech}
+                      </span>
+                    ))}
+                </div>
+              </div>
+
+              <label className="modal-field-label">Repository URL (GitHub)</label>
               <input
                 className="modal-input"
                 placeholder="https://github.com/ShreyasN707/..."
-                value={editingItem.repoLink || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, repoLink: e.target.value })}
+                value={formFields.repoLink || ''}
+                onChange={(e) => setFormFields({ ...formFields, repoLink: e.target.value })}
               />
 
-              <label className="modal-field-label">Live Demo Link (optional)</label>
+              <label className="modal-field-label">Live Demo URL (Optional)</label>
               <input
                 className="modal-input"
-                placeholder="https://your-demo-site.com (leave blank if none)"
-                value={editingItem.liveLink || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, liveLink: e.target.value })}
+                autoFocus={formFields.focusLive}
+                placeholder="https://your-demo-site.com (leave blank if not available)"
+                value={formFields.liveLink || ''}
+                onChange={(e) => setFormFields({ ...formFields, liveLink: e.target.value })}
               />
 
-              <label className="modal-field-label">Project Description</label>
-              <textarea
-                className="modal-textarea"
-                rows={3}
-                value={editingItem.desc || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, desc: e.target.value })}
+              <label className="modal-field-label">Project Description (Highlight text with mouse to style)</label>
+              <RichTextEditorBox
+                initialHtml={formFields.desc || ''}
+                onChange={(html) => setFormFields((prev) => ({ ...prev, desc: html }))}
+                placeholder="Describe what the project achieves... Highlight words to format color, size, and font!"
               />
             </div>
             <div className="modal-footer">
               <button className="modal-btn secondary" onClick={() => setModalType(null)}>Cancel</button>
-              <button className="modal-btn primary" onClick={() => saveProject(editingItem)}>Save Project</button>
+              <button className="modal-btn primary" onClick={saveProject}>Save Project</button>
             </div>
           </div>
         </div>
@@ -1109,7 +2033,7 @@ export default function AdminEditView({ onNavigateHome }) {
       {/* ==========================================
           MODAL: CONTACT DETAILS EDITOR
           ========================================== */}
-      {modalType === 'contact' && editingItem && (
+      {modalType === 'contact' && (
         <div className="admin-modal-backdrop">
           <div className="admin-modal-card">
             <div className="modal-header">
@@ -1120,35 +2044,69 @@ export default function AdminEditView({ onNavigateHome }) {
               <label className="modal-field-label">Email Address</label>
               <input
                 className="modal-input"
-                value={editingItem.email || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, email: e.target.value })}
+                value={formFields.email || ''}
+                onChange={(e) => setFormFields({ ...formFields, email: e.target.value })}
               />
 
               <label className="modal-field-label">LinkedIn Profile URL</label>
               <input
                 className="modal-input"
-                value={editingItem.linkedin || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, linkedin: e.target.value })}
+                value={formFields.linkedin || ''}
+                onChange={(e) => setFormFields({ ...formFields, linkedin: e.target.value })}
               />
 
               <label className="modal-field-label">GitHub Profile URL</label>
               <input
                 className="modal-input"
-                value={editingItem.github || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, github: e.target.value })}
+                value={formFields.github || ''}
+                onChange={(e) => setFormFields({ ...formFields, github: e.target.value })}
               />
 
               <label className="modal-field-label">Availability / Working Note</label>
               <textarea
                 className="modal-textarea"
                 rows={3}
-                value={editingItem.note || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, note: e.target.value })}
+                value={formFields.note || ''}
+                onChange={(e) => setFormFields({ ...formFields, note: e.target.value })}
               />
             </div>
             <div className="modal-footer">
               <button className="modal-btn secondary" onClick={() => setModalType(null)}>Cancel</button>
-              <button className="modal-btn primary" onClick={() => saveContact(editingItem)}>Save Contact</button>
+              <button className="modal-btn primary" onClick={saveContact}>Save Contact</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==========================================
+          MODAL: SECTION TITLES / HEADINGS EDITOR
+          ========================================== */}
+      {modalType === 'sectionTitles' && (
+        <div className="admin-modal-backdrop">
+          <div className="admin-modal-card">
+            <div className="modal-header">
+              <h2 className="modal-title">Edit Section Heading & Subtitle</h2>
+              <button className="modal-close-btn" onClick={() => setModalType(null)}>×</button>
+            </div>
+            <div className="modal-body">
+              <label className="modal-field-label">Section Heading</label>
+              <input
+                className="modal-input"
+                value={formFields.heading || ''}
+                onChange={(e) => setFormFields({ ...formFields, heading: e.target.value })}
+              />
+
+              <label className="modal-field-label">Section Subtitle</label>
+              <textarea
+                className="modal-textarea"
+                rows={3}
+                value={formFields.subtitle || ''}
+                onChange={(e) => setFormFields({ ...formFields, subtitle: e.target.value })}
+              />
+            </div>
+            <div className="modal-footer">
+              <button className="modal-btn secondary" onClick={() => setModalType(null)}>Cancel</button>
+              <button className="modal-btn primary" onClick={saveSectionTitles}>Save Headings</button>
             </div>
           </div>
         </div>
@@ -1157,7 +2115,7 @@ export default function AdminEditView({ onNavigateHome }) {
       {/* ==========================================
           MODAL: CUSTOM SECTION EDITOR
           ========================================== */}
-      {modalType === 'customSection' && editingItem && (
+      {modalType === 'customSection' && (
         <div className="admin-modal-backdrop">
           <div className="admin-modal-card">
             <div className="modal-header">
@@ -1169,30 +2127,256 @@ export default function AdminEditView({ onNavigateHome }) {
               <input
                 className="modal-input"
                 placeholder="e.g. Experience, Certifications, Publications"
-                value={editingItem.label || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, label: e.target.value })}
+                value={formFields.label || ''}
+                onChange={(e) => setFormFields({ ...formFields, label: e.target.value })}
               />
 
               <label className="modal-field-label">Section Heading</label>
               <input
                 className="modal-input"
                 placeholder="e.g. Work & Engineering Experience"
-                value={editingItem.heading || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, heading: e.target.value })}
+                value={formFields.heading || ''}
+                onChange={(e) => setFormFields({ ...formFields, heading: e.target.value })}
               />
 
-              <label className="modal-field-label">Content</label>
-              <textarea
-                className="modal-textarea"
-                rows={5}
-                placeholder="Write summary, bullet points, or achievements..."
-                value={editingItem.desc || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, desc: e.target.value })}
+              <label className="modal-field-label">Content (Highlight text with mouse to style)</label>
+              <RichTextEditorBox
+                initialHtml={formFields.desc || ''}
+                onChange={(html) => setFormFields((prev) => ({ ...prev, desc: html }))}
+                placeholder="Write section content... Highlight words to format color, size, and font!"
               />
             </div>
             <div className="modal-footer">
               <button className="modal-btn secondary" onClick={() => setModalType(null)}>Cancel</button>
-              <button className="modal-btn primary" onClick={() => saveCustomSection(editingItem)}>Create Section</button>
+              <button className="modal-btn primary" onClick={saveCustomSection}>
+                {isNewItem ? 'Create Section' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==========================================
+          MODAL: REORDER TABS MODAL
+          ========================================== */}
+      {showReorderModal && (
+        <div className="admin-modal-backdrop">
+          <div className="admin-modal-card reorder-modal-card">
+            <div className="modal-header">
+              <h2 className="modal-title">Reorder Navigation Tabs</h2>
+              <button className="modal-close-btn" onClick={() => setShowReorderModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p className="modal-field-hint" style={{ marginBottom: '14px', color: '#94a3b8' }}>
+                Change the sequence of tabs. Changes immediately apply to both this edit screen and your live portfolio.
+              </p>
+              <div className="reorder-tab-list">
+                {allTabs.map((tab, idx) => (
+                  <div key={tab.id} className="reorder-tab-row">
+                    <span className="reorder-tab-index">{idx + 1}</span>
+                    <span className="reorder-tab-name">{tab.label}</span>
+                    <span className="reorder-tab-type-tag">
+                      {['about', 'skills', 'projects', 'contact'].includes(tab.id) ? 'Core' : 'Custom'}
+                    </span>
+                    <div className="reorder-tab-actions">
+                      <button
+                        type="button"
+                        className="reorder-action-btn"
+                        disabled={idx === 0}
+                        onClick={() => handleMoveTab(tab.id, -1)}
+                        title="Move Up"
+                      >
+                        <ArrowUp size={13} />
+                        <span>Up</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="reorder-action-btn"
+                        disabled={idx === allTabs.length - 1}
+                        onClick={() => handleMoveTab(tab.id, 1)}
+                        title="Move Down"
+                      >
+                        <ArrowDown size={13} />
+                        <span>Down</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="modal-btn primary" onClick={() => setShowReorderModal(false)}>
+                Done / Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==========================================
+          MODAL: CUSTOM ITEM BUILDER (Card, Image, PDF, Note)
+          ========================================== */}
+      {modalType === 'customItem' && (
+        <div className="admin-modal-backdrop">
+          <div className="admin-modal-card">
+            <div className="modal-header">
+              <h2 className="modal-title">
+                {isNewItem ? 'Add' : 'Edit'}{' '}
+                {formFields.itemType === 'card' && 'Focus Card'}
+                {formFields.itemType === 'image' && 'Image Widget'}
+                {formFields.itemType === 'pdf' && 'PDF Document'}
+                {formFields.itemType === 'text' && 'Rich Text Note'}
+              </h2>
+              <button className="modal-close-btn" onClick={() => setModalType(null)}>×</button>
+            </div>
+
+            <div className="modal-body">
+              {/* Common Title */}
+              <label className="modal-field-label">
+                {formFields.itemType === 'image' ? 'Image Title / Caption' : 'Title'}
+              </label>
+              <input
+                className="modal-input"
+                placeholder="e.g. System Architecture, Research Paper..."
+                value={formFields.title || ''}
+                onChange={(e) => setFormFields({ ...formFields, title: e.target.value })}
+              />
+
+              {/* Card Type Fields */}
+              {formFields.itemType === 'card' && (
+                <>
+                  <label className="modal-field-label">Icon</label>
+                  <select
+                    className="modal-select"
+                    value={formFields.iconName || 'Sparkles'}
+                    onChange={(e) => setFormFields({ ...formFields, iconName: e.target.value })}
+                  >
+                    <option value="Sparkles">Sparkles (Innovation)</option>
+                    <option value="Eye">Eye (Vision / AI)</option>
+                    <option value="Cpu">Cpu (Edge / Hardware)</option>
+                    <option value="Layers">Layers (Backend / Systems)</option>
+                    <option value="Wrench">Wrench (Tools / Workflow)</option>
+                    <option value="Globe">Globe (Web / Network)</option>
+                  </select>
+
+                  <label className="modal-field-label">Card Description (Highlight text with mouse to style)</label>
+                  <RichTextEditorBox
+                    initialHtml={formFields.desc || ''}
+                    onChange={(html) => setFormFields((prev) => ({ ...prev, desc: html }))}
+                    placeholder="Describe this domain card... Highlight text with mouse to change color, size, and font!"
+                  />
+
+                  <label className="modal-field-label">Tags (Type freely separated by commas)</label>
+                  <input
+                    className="modal-input"
+                    placeholder="e.g. YOLOv8, PyTorch, CUDA"
+                    value={formFields.tagsInput || ''}
+                    onChange={(e) => setFormFields({ ...formFields, tagsInput: e.target.value })}
+                  />
+                </>
+              )}
+
+              {/* Image Type Fields */}
+              {formFields.itemType === 'image' && (
+                <>
+                  <label className="modal-field-label">Upload Image File (Direct Browser Storage)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="modal-input file-input"
+                    onChange={(e) => handleFileUpload(e, 'url')}
+                  />
+
+                  <div className="url-or-divider"><span>OR PASTE IMAGE URL</span></div>
+
+                  <label className="modal-field-label">Image Web URL</label>
+                  <input
+                    className="modal-input"
+                    placeholder="https://images.unsplash.com/... or your image link"
+                    value={formFields.url || ''}
+                    onChange={(e) => setFormFields({ ...formFields, url: e.target.value })}
+                  />
+
+                  {formFields.url && (
+                    <div className="modal-image-preview-box">
+                      <span className="preview-label" style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>
+                        Image Preview:
+                      </span>
+                      <img src={formFields.url} alt="Preview" className="modal-preview-img" />
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* PDF Type Fields */}
+              {formFields.itemType === 'pdf' && (
+                <>
+                  <label className="modal-field-label">Upload PDF File (Direct Browser Storage)</label>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    className="modal-input file-input"
+                    onChange={(e) => handleFileUpload(e, 'url')}
+                  />
+
+                  <div className="url-or-divider"><span>OR PASTE PDF LINK</span></div>
+
+                  <label className="modal-field-label">PDF Web URL or Drive Link</label>
+                  <input
+                    className="modal-input"
+                    placeholder="https://example.com/resume.pdf or Google Drive / GitHub link"
+                    value={formFields.url || ''}
+                    onChange={(e) => setFormFields({ ...formFields, url: e.target.value })}
+                  />
+
+                  <div className="modal-grid-2">
+                    <div>
+                      <label className="modal-field-label">File Name</label>
+                      <input
+                        className="modal-input"
+                        placeholder="e.g. Shreyas_Naik_Resume.pdf"
+                        value={formFields.fileName || ''}
+                        onChange={(e) => setFormFields({ ...formFields, fileName: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="modal-field-label">File Size Badge</label>
+                      <input
+                        className="modal-input"
+                        placeholder="e.g. 240 KB"
+                        value={formFields.fileSize || ''}
+                        onChange={(e) => setFormFields({ ...formFields, fileSize: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <label className="modal-field-label">Document Description (Optional)</label>
+                  <RichTextEditorBox
+                    initialHtml={formFields.desc || ''}
+                    onChange={(html) => setFormFields((prev) => ({ ...prev, desc: html }))}
+                    placeholder="Briefly describe what this document contains..."
+                  />
+                </>
+              )}
+
+              {/* Text Note Type Fields */}
+              {formFields.itemType === 'text' && (
+                <>
+                  <label className="modal-field-label">Rich Note Content (Highlight text with mouse to style)</label>
+                  <RichTextEditorBox
+                    initialHtml={formFields.content || ''}
+                    onChange={(html) => setFormFields((prev) => ({ ...prev, content: html }))}
+                    placeholder="Write detailed notes, announcements, or documentation... Highlight text to change color, size, and font!"
+                  />
+                </>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <button className="modal-btn secondary" onClick={() => setModalType(null)}>Cancel</button>
+              <button className="modal-btn primary" onClick={saveCustomItem}>
+                {isNewItem ? 'Add to Tab' : 'Save Item'}
+              </button>
             </div>
           </div>
         </div>

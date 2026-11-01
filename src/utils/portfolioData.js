@@ -1,3 +1,5 @@
+export const DEFAULT_TAB_ORDER = ['about', 'skills', 'projects', 'contact'];
+
 export const DEFAULT_PORTFOLIO_DATA = {
   profile: {
     name: 'Shreyas Naik',
@@ -8,6 +10,7 @@ export const DEFAULT_PORTFOLIO_DATA = {
     focus: 'Computer Vision & Edge ML',
     availability: 'Available for Engineering Roles'
   },
+  tabOrder: ['about', 'skills', 'projects', 'contact'],
   sectionTitles: {
     skillsHeading: 'Technical Skills',
     skillsSubtitle: 'Technologies and tools I use to build intelligent applications.',
@@ -110,16 +113,44 @@ export function getPortfolioData() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_PORTFOLIO_DATA;
     const parsed = JSON.parse(raw);
+
+    const customSections = Array.isArray(parsed.customSections)
+      ? parsed.customSections.map((sec) => ({
+          ...sec,
+          items: Array.isArray(sec.items) ? sec.items : []
+        }))
+      : [];
+
+    // Ensure tabOrder contains base tabs and all customSections
+    let tabOrder = Array.isArray(parsed.tabOrder) && parsed.tabOrder.length > 0
+      ? parsed.tabOrder
+      : [...DEFAULT_TAB_ORDER];
+
+    // Make sure all default tabs are present
+    DEFAULT_TAB_ORDER.forEach((id) => {
+      if (!tabOrder.includes(id)) {
+        tabOrder.push(id);
+      }
+    });
+
+    // Make sure all custom section IDs are present
+    customSections.forEach((sec) => {
+      if (!tabOrder.includes(sec.id)) {
+        tabOrder.push(sec.id);
+      }
+    });
+
     return {
       ...DEFAULT_PORTFOLIO_DATA,
       ...parsed,
+      tabOrder,
       profile: { ...DEFAULT_PORTFOLIO_DATA.profile, ...(parsed.profile || {}) },
       sectionTitles: { ...DEFAULT_PORTFOLIO_DATA.sectionTitles, ...(parsed.sectionTitles || {}) },
       contact: { ...DEFAULT_PORTFOLIO_DATA.contact, ...(parsed.contact || {}) },
       aboutCards: Array.isArray(parsed.aboutCards) ? parsed.aboutCards : DEFAULT_PORTFOLIO_DATA.aboutCards,
       skillGroups: Array.isArray(parsed.skillGroups) ? parsed.skillGroups : DEFAULT_PORTFOLIO_DATA.skillGroups,
       projects: Array.isArray(parsed.projects) ? parsed.projects : DEFAULT_PORTFOLIO_DATA.projects,
-      customSections: Array.isArray(parsed.customSections) ? parsed.customSections : []
+      customSections
     };
   } catch (err) {
     console.error('Failed to load portfolio data from localStorage:', err);
