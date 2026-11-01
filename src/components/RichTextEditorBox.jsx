@@ -18,7 +18,7 @@ export default function RichTextEditorBox({
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showSizePicker, setShowSizePicker] = useState(false);
   const [showFontPicker, setShowFontPicker] = useState(false);
-  const [customColor, setCustomColor] = useState('#fcd34d');
+  const [customColor, setCustomColor] = useState('#B89A5A');
 
   useEffect(() => {
     if (isInitialMount.current) {

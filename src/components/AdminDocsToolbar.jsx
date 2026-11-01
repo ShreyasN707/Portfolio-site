@@ -21,7 +21,7 @@ export default function AdminDocsToolbar({ onApplyFormat, onOpenReorderModal }) 
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showSizePicker, setShowSizePicker] = useState(false);
   const [showFontPicker, setShowFontPicker] = useState(false);
-  const [customColor, setCustomColor] = useState('#fcd34d');
+  const [customColor, setCustomColor] = useState('#B89A5A');
 
   const handleFormat = (style) => {
     playSelectClick();
