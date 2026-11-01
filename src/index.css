@@ -682,7 +682,113 @@ body {
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  pointer-events: none;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+/* Funny Website Logo Styles */
+.titlebar-funny-logo {
+  width: 22px;
+  height: 22px;
+  display: inline-block;
+  vertical-align: middle;
+  filter: drop-shadow(0 2px 6px rgba(14, 165, 233, 0.4));
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+}
+
+.titlebar-funny-logo:hover {
+  transform: rotate(-14deg) scale(1.25);
+}
+
+.titlebar-funny-logo:active {
+  transform: rotate(180deg) scale(1.1);
+}
+
+.landing-brand-badge {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px 8px 10px;
+  background: rgba(18, 18, 26, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  z-index: 50;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.landing-brand-badge:hover {
+  transform: translateY(-2px) scale(1.02);
+  border-color: rgba(252, 211, 77, 0.4);
+  box-shadow: 0 6px 24px rgba(252, 211, 77, 0.18);
+}
+
+.landing-logo-icon {
+  width: 34px;
+  height: 34px;
+  filter: drop-shadow(0 2px 8px rgba(14, 165, 233, 0.45));
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.landing-brand-badge:hover .landing-logo-icon {
+  transform: rotate(-12deg) scale(1.18);
+}
+
+.landing-logo-labels {
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-logo-title {
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #fcd34d;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.landing-logo-status {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  line-height: 1.2;
+}
+
+.status-ping {
+  width: 6px;
+  height: 6px;
+  background: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #22c55e;
+  display: inline-block;
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@media (max-width: 640px) {
+  .landing-brand-badge {
+    top: 16px;
+    left: 16px;
+    padding: 6px 10px;
+    gap: 8px;
+  }
+  .landing-logo-icon {
+    width: 26px;
+    height: 26px;
+  }
+  .landing-logo-status {
+    display: none;
+  }
 }
 
 .window-title-name-yellow {

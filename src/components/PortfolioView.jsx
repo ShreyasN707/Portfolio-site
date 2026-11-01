@@ -118,6 +118,13 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
           </div>
 
           <div className="mac-window-title">
+            <img
+              src="/favicon.svg"
+              alt="Funny Logo"
+              className="titlebar-funny-logo"
+              title="Derpy Retro PC // Beep Boop!"
+              onClick={playSelectClick}
+            />
             <span className="window-title-name-yellow">{data.profile?.displayName || 'Shreyas N'}</span>
           </div>
 

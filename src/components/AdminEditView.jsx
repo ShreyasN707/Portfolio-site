@@ -955,6 +955,13 @@ export default function AdminEditView({ onNavigateHome }) {
             </div>
 
             <div className="admin-branding-group">
+              <img
+                src="/favicon.svg"
+                alt="Funny Logo"
+                className="titlebar-funny-logo"
+                title="Derpy Retro PC // Beep Boop!"
+                onClick={playSelectClick}
+              />
               <span className="window-title-name-yellow">{data.profile?.displayName || 'Shreyas N'}</span>
               <span className="admin-status-badge">ADMIN MODE</span>
             </div>
