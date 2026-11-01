@@ -1,6 +1,8 @@
 :root {
   --obsidian-black: #000000;
   --electric-yellow: #d4ff00;
+  --electric-glow: rgba(212, 255, 0, 0.65);
+  --cyber-cyan: #00f0ff;
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
   --text-muted: #52525b;
@@ -169,15 +171,15 @@ body {
 /* Subtle Audio Button in Corner */
 .audio-btn {
   position: absolute;
-  top: 36px;
-  right: 40px;
+  top: clamp(24px, 4vh, 40px);
+  right: clamp(24px, 4vw, 44px);
   background: transparent;
   border: none;
-  color: var(--electric-yellow);
+  color: var(--text-secondary);
   cursor: pointer;
   z-index: 100;
-  opacity: 0.75;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, color 0.2s ease, transform 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -186,8 +188,8 @@ body {
 
 .audio-btn:hover {
   opacity: 1;
-  transform: scale(1.1);
-  filter: drop-shadow(0 0 10px rgba(212, 255, 0, 0.6));
+  color: var(--electric-yellow);
+  transform: scale(1.08);
 }
 
 .audio-btn.muted {
@@ -195,16 +197,16 @@ body {
 }
 
 .audio-btn.muted:hover {
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
-/* Landing Container - Grounded to Bottom */
+/* Precision-Balanced Main Container */
 .landing-container {
   width: 100%;
-  max-width: 1350px;
+  max-width: 1440px;
   height: 100vh;
   display: flex;
-  align-items: flex-end;
+  align-items: flex-end; /* Grounded to bottom */
   justify-content: center;
   padding: 0 4vw;
   gap: clamp(2rem, 5vw, 6rem);
@@ -212,46 +214,58 @@ body {
   z-index: 10;
 }
 
-/* Robot Image Wrapper: Grounded at the bottom */
+/* 3D Model Wrapper: Grounded directly to bottom */
 .robot-wrapper {
-  flex: 1 1 50%;
-  max-width: 50%;
+  flex: 1 1 52%;
+  max-width: 52%;
   height: 100%;
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
   margin: 0;
   padding: 0;
-  pointer-events: none;
+  position: relative;
 }
 
-.robot-image {
-  height: clamp(380px, 82vh, 800px);
-  width: auto;
-  max-width: 100%;
-  object-fit: contain;
-  object-position: bottom right;
+.model-3d-container {
+  width: 100%;
+  height: 94vh;
+  max-height: 940px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+  cursor: grab;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.model-3d-container:active {
+  cursor: grabbing;
+}
+
+.model-3d-container.is-loaded {
+  opacity: 1;
+}
+
+.model-3d-canvas {
+  width: 100% !important;
+  height: 100% !important;
   display: block;
-  margin: 0;
-  padding: 0;
-  vertical-align: bottom;
-  pointer-events: auto;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  touch-action: none;
 }
 
-.robot-image:hover {
-  transform: scale(1.02);
-}
-
-/* Intro Wrapper: Vertically Centered on Right Side */
+/* Intro Wrapper: Perfect Optical Eye-Line Alignment with Robot Head */
 .intro-wrapper {
-  flex: 1 1 50%;
-  max-width: 50%;
+  flex: 1 1 48%;
+  max-width: 48%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding-bottom: 8vh; /* Natural visual center */
+  padding-bottom: clamp(60px, 13vh, 150px); /* Lifts text to line up with robot eye-line */
 }
 
 .intro-content {
@@ -259,53 +273,58 @@ body {
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
-  max-width: 520px;
+  max-width: 620px;
 }
 
+/* Clear, Organized Typographic Hierarchy with Increased Scale */
 .intro-hi {
   font-family: var(--font-hud);
-  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+  font-size: clamp(2.8rem, 6vw, 5rem);
   font-weight: 900;
-  color: var(--electric-yellow);
+  color: var(--text-primary);
   line-height: 1;
   letter-spacing: -0.02em;
-  margin-bottom: 4px;
+  margin: 0 0 4px 0;
+  padding: 0;
 }
 
 .intro-name {
   font-family: var(--font-main);
-  font-size: clamp(2rem, 4.5vw, 3.6rem);
+  font-size: clamp(2.4rem, 4.8vw, 4.2rem);
   font-weight: 300;
   color: var(--text-primary);
   line-height: 1.1;
   letter-spacing: -0.01em;
-  margin-bottom: 22px;
+  margin: 0 0 14px 0;
+  padding: 0;
 }
 
-/* 100% Rock-Solid Stable "I do:" Container */
+/* Dynamic "I do:" Container - Precision Baseline Lock & Fixed Slot */
 .dynamic-role-container {
   display: flex;
   align-items: center;
   gap: 14px;
-  height: 3.5rem; /* Strict fixed height: zero vertical shifting */
-  margin-bottom: 24px;
+  height: 2.4rem; /* Scaled fixed height */
+  margin: 0 0 20px 0;
+  padding: 0;
   width: 100%;
 }
 
 .do-label {
   font-family: var(--font-hud);
-  font-size: clamp(1.15rem, 2.2vw, 1.55rem);
+  font-size: clamp(1.2rem, 2.2vw, 1.65rem);
   color: var(--text-secondary);
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.05em;
   white-space: nowrap;
   flex-shrink: 0;
+  line-height: 1;
 }
 
 .role-viewport {
   position: relative;
   height: 100%;
-  width: clamp(280px, 25vw, 380px); /* Fixed slot width: zero horizontal shifting */
+  width: clamp(320px, 30vw, 460px); /* Comfortable slot width preventing layout shift */
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -318,29 +337,27 @@ body {
   top: 50%;
   transform: translateY(-50%);
   font-family: var(--font-hud);
-  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  font-size: clamp(1.2rem, 2.2vw, 1.65rem);
   font-weight: 700;
-  color: var(--electric-yellow);
   letter-spacing: 0.08em;
-  text-shadow: 0 0 14px rgba(212, 255, 0, 0.6);
   white-space: nowrap;
-  animation: roleSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  line-height: 1;
 }
 
-@keyframes roleSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-35%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(-50%);
-  }
+.role-text.scrambling {
+  color: #e8ff66;
+  opacity: 0.9;
 }
 
-/* Start Button */
+.role-text.resolved {
+  color: var(--electric-yellow);
+  opacity: 1;
+}
+
+/* Start Button - Flush Left Alignment */
 .start-btn-container {
-  margin-top: 4px;
+  margin: 0;
+  padding: 0;
 }
 
 .start-btn {
@@ -352,39 +369,76 @@ body {
   align-items: center;
   gap: 14px;
   font-family: var(--font-hud);
-  font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+  font-size: clamp(1.25rem, 2.2vw, 1.55rem);
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.16em;
   color: var(--text-primary);
-  padding: 8px 0;
-  transition: color 0.3s ease, transform 0.3s ease;
+  padding: 0;
+  margin: 0;
+  transition: color 0.25s ease;
 }
 
 .start-btn:hover {
   color: var(--electric-yellow);
-  transform: translateX(6px);
 }
 
 .start-btn-icon {
   color: var(--electric-yellow);
-  transition: transform 0.3s ease, filter 0.3s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .start-btn:hover .start-btn-icon {
-  transform: translateX(6px);
-  filter: drop-shadow(0 0 10px rgba(212, 255, 0, 0.8));
+  transform: translateX(8px);
 }
 
 /* ==========================================
-   RESPONSIVE DESIGN (TABLET & MOBILE)
+   PERFECT RESPONSIVE BREAKPOINTS
    ========================================== */
-@media (max-width: 860px) {
+
+/* Laptop & Medium Desktops */
+@media (max-width: 1200px) {
   .landing-container {
-    flex-direction: column-reverse; /* Robot anchored to bottom, text above */
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    padding: 0 3vw;
+  }
+
+  .model-3d-container {
+    height: 88vh;
+    max-height: 800px;
+  }
+}
+
+/* Tablets Landscape & Portrait */
+@media (max-width: 960px) {
+  .landing-container {
+    gap: 2rem;
+  }
+
+  .robot-wrapper {
+    flex: 1 1 48%;
+    max-width: 48%;
+  }
+
+  .intro-wrapper {
+    flex: 1 1 52%;
+    max-width: 52%;
+    padding-bottom: 4vh;
+  }
+
+  .model-3d-container {
+    height: 75vh;
+    max-height: 650px;
+  }
+}
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+  .landing-container {
+    flex-direction: column-reverse; /* Text on top, Robot grounded at bottom */
     align-items: center;
     justify-content: flex-end;
-    padding: 40px 20px 0 20px;
-    gap: 16px;
+    padding: 50px 20px 0 20px;
+    gap: 12px;
   }
 
   .intro-wrapper {
@@ -400,6 +454,15 @@ body {
     align-items: center;
   }
 
+  .intro-hi {
+    font-size: clamp(2.2rem, 9vw, 3.2rem);
+  }
+
+  .intro-name {
+    font-size: clamp(1.8rem, 7vw, 2.6rem);
+    margin-bottom: 16px;
+  }
+
   .dynamic-role-container {
     justify-content: center;
     height: 3rem;
@@ -408,7 +471,7 @@ body {
 
   .role-viewport {
     justify-content: center;
-    width: 280px;
+    width: 270px;
   }
 
   .role-text {
@@ -416,34 +479,43 @@ body {
     transform: translate(-50%, -50%);
   }
 
-  @keyframes roleSlideIn {
-    from {
-      opacity: 0;
-      transform: translate(-50%, -35%);
-    }
-    to {
-      opacity: 1;
-      transform: translate(-50%, -50%);
-    }
-  }
-
   .robot-wrapper {
     flex: 1 1 auto;
     max-width: 100%;
     width: 100%;
-    height: auto;
+    height: 48vh;
+    min-height: 260px;
+    max-height: 440px;
     justify-content: center;
     align-items: flex-end;
   }
 
-  .robot-image {
-    height: clamp(260px, 48vh, 440px);
-    max-width: 90vw;
-    object-position: bottom center;
+  .model-3d-container {
+    height: 100%;
+    max-height: 440px;
   }
 
   .audio-btn {
-    top: 24px;
-    right: 24px;
+    top: 20px;
+    right: 20px;
+  }
+}
+
+/* Small Handheld Screens (e.g. iPhone SE / < 380px) */
+@media (max-width: 380px) {
+  .intro-hi {
+    font-size: 2rem;
+  }
+
+  .intro-name {
+    font-size: 1.5rem;
+  }
+
+  .role-viewport {
+    width: 230px;
+  }
+
+  .robot-image {
+    height: clamp(200px, 40vh, 320px);
   }
 }
