@@ -1,7 +1,5 @@
 import { useState, useRef } from 'react';
 import {
-  Volume2,
-  VolumeX,
   ExternalLink,
   Mail,
   ArrowRight,
@@ -51,7 +49,7 @@ const ICON_MAP = {
   Sparkles
 };
 
-export default function PortfolioView({ onBackToLanding, mutedState, onToggleMute, onNavigateEdit }) {
+export default function PortfolioView({ onBackToLanding, onNavigateEdit }) {
   const [data] = useState(() => getPortfolioData());
   const [activeTab, setActiveTab] = useState('about');
   const [copied, setCopied] = useState(false);
@@ -157,16 +155,6 @@ export default function PortfolioView({ onBackToLanding, mutedState, onToggleMut
             >
               <GithubIcon size={15} />
             </a>
-
-            <button
-              className={`mac-action-btn ${mutedState ? 'muted' : ''}`}
-              onClick={onToggleMute}
-              onMouseEnter={playHoverTick}
-              title={mutedState ? 'Unmute Audio' : 'Mute Audio'}
-              aria-label="Toggle Audio"
-            >
-              {mutedState ? <VolumeX size={15} /> : <Volume2 size={15} />}
-            </button>
           </div>
         </div>
 

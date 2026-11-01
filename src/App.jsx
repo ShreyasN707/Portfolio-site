@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import CyberBoot from './components/CyberBoot';
 import ModelViewer from './components/ModelViewer';
 import PortfolioView from './components/PortfolioView';
 import AdminEditView from './components/AdminEditView';
-import { playHoverTick, playSelectClick, playAccessGranted, setMuted } from './utils/audio';
+import { playHoverTick, playSelectClick, playAccessGranted } from './utils/audio';
 
 const ROLES = ["ML", "COMPUTER VISION", "BACKEND ENGINEERING"];
 const CYBER_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
@@ -28,7 +28,6 @@ export default function App() {
   });
 
   const [currentView, setCurrentView] = useState('landing'); // 'landing' | 'transitioning' | 'portfolio'
-  const [mutedState, setMutedState] = useState(false);
   const [roleIndex, setRoleIndex] = useState(0);
   const [scrambledRole, setScrambledRole] = useState(ROLES[0]);
   const [isScrambling, setIsScrambling] = useState(false);
@@ -110,13 +109,6 @@ export default function App() {
     };
   }, []);
 
-  const toggleMute = () => {
-    const newState = !mutedState;
-    setMutedState(newState);
-    setMuted(newState);
-    if (!newState) playSelectClick();
-  };
-
   const handleStart = () => {
     playAccessGranted();
     setCurrentView('transitioning');
@@ -158,17 +150,6 @@ export default function App() {
       {/* Clean Dark Landing Page */}
       {isBooted && currentView === 'landing' && (
         <div className="landing-viewport">
-          {/* Subtle Audio Toggle */}
-          <button
-            className={`audio-btn ${mutedState ? 'muted' : ''}`}
-            onClick={toggleMute}
-            onMouseEnter={playHoverTick}
-            aria-label="Toggle sound effects"
-            title={mutedState ? 'Unmute Audio' : 'Mute Audio'}
-          >
-            {mutedState ? <VolumeX size={20} /> : <Volume2 size={20} />}
-          </button>
-
           {/* Precision-Aligned Landing Container */}
           <div className="landing-container">
             {/* Interactive 3D Model Grounded to Bottom */}
@@ -217,8 +198,6 @@ export default function App() {
       {isBooted && currentView === 'portfolio' && (
         <PortfolioView
           onBackToLanding={handleBackToLanding}
-          mutedState={mutedState}
-          onToggleMute={toggleMute}
           onNavigateEdit={navigateToEdit}
         />
       )}
