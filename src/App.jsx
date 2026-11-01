@@ -179,18 +179,20 @@ export default function App() {
             {/* Intro Content with High-Tech Scramble Decryptor */}
             <div className="intro-wrapper">
               <div className="intro-content">
-                <h1 className="intro-hi">HI,</h1>
-                <h2 className="intro-name">I <span className="name-am">am</span> Shreyas</h2>
+                <div className="intro-text-group">
+                  <h1 className="intro-hi">HI,</h1>
+                  <h2 className="intro-name">I <span className="name-am">am</span> Shreyas</h2>
 
-                {/* 100% Rock-Solid Stable Cyber Decryptor Slot */}
-                <div className="dynamic-role-container">
-                  <span className="do-label">I do:</span>
-                  <div className="role-viewport">
-                    <span
-                      className={`role-text ${isScrambling ? 'scrambling' : 'resolved'}`}
-                    >
-                      {scrambledRole}
-                    </span>
+                  {/* 100% Rock-Solid Stable Cyber Decryptor Slot */}
+                  <div className="dynamic-role-container">
+                    <span className="do-label">I do:</span>
+                    <div className="role-viewport">
+                      <span
+                        className={`role-text ${isScrambling ? 'scrambling' : 'resolved'}`}
+                      >
+                        {scrambledRole}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
