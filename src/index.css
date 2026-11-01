@@ -703,60 +703,46 @@ body {
 }
 
 /* ==========================================
-   ANIME TECH CYBER TRANSITION SCREEN
+   PAGE TRANSITION — Yellow Split-Door (no text)
+   Mirrors CyberBoot door animation
    ========================================== */
-.anime-transition-screen {
+.page-transition-overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: 99999;
-  display: flex;
-  flex-direction: column;
   pointer-events: all;
 }
 
-.transition-shutter {
-  flex: 1;
-  background-color: var(--obsidian-black);
-  position: relative;
-  transition: transform 0.4s cubic-bezier(0.8, 0, 0.2, 1);
-}
-
-.transition-shutter.top {
-  border-bottom: 2px solid var(--robot-yellow);
-}
-
-.transition-shutter.bottom {
-  border-top: 2px solid var(--robot-yellow);
-}
-
-.transition-hud-label {
+.pt-door {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 100000;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  background: rgba(0, 0, 0, 0.9);
-  padding: 16px 32px;
-  border: 1px solid var(--robot-yellow);
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: var(--electric-yellow);
+  transition: transform 0.75s cubic-bezier(0.8, 0, 0.2, 1);
 }
 
-.transition-hud-label .hud-kanji {
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--robot-yellow);
-  letter-spacing: 0.16em;
+/* Same diagonal clip-paths as CyberBoot */
+.pt-top-door {
+  top: 0;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 35%, 65% 35%, 35% 65%, 0% 65%);
 }
 
-.transition-hud-label .hud-metric {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  color: var(--text-primary);
-  letter-spacing: 0.08em;
+.pt-bottom-door {
+  top: 0;
+  clip-path: polygon(100% 100%, 0% 100%, 0% 65%, 35% 65%, 65% 35%, 100% 35%);
+}
+
+/* Split open: doors fly off screen */
+.pt-split-open .pt-top-door {
+  transform: translateY(-100%);
+}
+
+.pt-split-open .pt-bottom-door {
+  transform: translateY(100%);
 }
 
 /* ==========================================

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import CyberBoot from './components/CyberBoot';
+import PageTransition from './components/PageTransition';
 import ModelViewer from './components/ModelViewer';
 import PortfolioView from './components/PortfolioView';
 import AdminEditView from './components/AdminEditView';
@@ -112,17 +113,19 @@ export default function App() {
   const handleStart = () => {
     playAccessGranted();
     setCurrentView('transitioning');
-    setTimeout(() => {
-      setCurrentView('portfolio');
-    }, 450);
+  };
+
+  const handleTransitionDone = () => {
+    setCurrentView('portfolio');
   };
 
   const handleBackToLanding = () => {
     playSelectClick();
-    setCurrentView('transitioning');
-    setTimeout(() => {
-      setCurrentView('landing');
-    }, 350);
+    setCurrentView('transitioning_back');
+  };
+
+  const handleBackTransitionDone = () => {
+    setCurrentView('landing');
   };
 
   // Dedicated Route: /edit (Admin / Owner Page)
@@ -135,16 +138,14 @@ export default function App() {
       {/* Initial Loading Page (Kept exactly as requested) */}
       {!isBooted && <CyberBoot onComplete={() => setIsBooted(true)} />}
 
-      {/* Clean Mac Terminal Transition Shutter */}
+      {/* Page Transition (forward: landing -> portfolio) */}
       {isBooted && currentView === 'transitioning' && (
-        <div className="anime-transition-screen">
-          <div className="transition-shutter top"></div>
-          <div className="transition-shutter bottom"></div>
-          <div className="transition-hud-label">
-            <span className="hud-kanji">OPENING TERMINAL</span>
-            <span className="hud-metric">LOADING PORTFOLIO...</span>
-          </div>
-        </div>
+        <PageTransition onDone={handleTransitionDone} />
+      )}
+
+      {/* Page Transition (back: portfolio -> landing) */}
+      {isBooted && currentView === 'transitioning_back' && (
+        <PageTransition onDone={handleBackTransitionDone} />
       )}
 
       {/* Clean Dark Landing Page */}
