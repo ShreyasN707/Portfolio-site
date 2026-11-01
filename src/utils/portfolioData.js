@@ -4,7 +4,6 @@ export const DEFAULT_PORTFOLIO_DATA = {
   profile: {
     name: 'Shreyas Naik',
     displayName: 'Shreyas N',
-    roleTag: 'Machine Learning & Computer Vision',
     bio: 'I build real-time computer vision models and optimize deep learning pipelines to run fast on edge hardware like NVIDIA Jetson and Raspberry Pi.',
     location: 'Bengaluru, India',
     focus: 'Computer Vision & Edge ML',

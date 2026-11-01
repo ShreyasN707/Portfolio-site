@@ -187,9 +187,6 @@ export default function PortfolioView({ onBackToLanding, onNavigateEdit }) {
             <div className="mac-pane fade-in">
               {!data.hiddenSections?.profileHero && (
                 <div className="about-hero-section">
-                  <div className="badge-cute">
-                    <span>{data.profile?.roleTag || 'Machine Learning & Computer Vision'}</span>
-                  </div>
                   <h1 className="about-name-title">
                     Hi, I'm <span className="highlight-cute">{data.profile?.name || 'Shreyas Naik'}</span>
                   </h1>
