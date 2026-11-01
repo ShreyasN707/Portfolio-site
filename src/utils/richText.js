@@ -1,12 +1,12 @@
 export const PRESET_COLORS = [
+  { name: 'Dark Gold', color: '#70551E' },
   { name: 'Royal Gold', color: '#B89A5A' },
-  { name: 'Warm Ivory', color: '#E8E0D2' },
   { name: 'Deep Atlas Navy', color: '#0E1D61' },
-  { name: 'Emerald Green', color: '#4ade80' },
+  { name: 'Warm Ivory', color: '#E8E0D2' },
+  { name: 'Emerald Green', color: '#16a34a' },
   { name: 'Coral Rose', color: '#fb7185' },
   { name: 'Purple Lavender', color: '#c084fc' },
-  { name: 'Bright White', color: '#ffffff' },
-  { name: 'Muted Ivory', color: '#c5beb1' }
+  { name: 'Bright White', color: '#ffffff' }
 ];
 
 export const FONT_SIZES = [

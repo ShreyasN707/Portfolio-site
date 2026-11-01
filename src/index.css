@@ -31,14 +31,14 @@
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   --font-hud: var(--font-display);
 
-  /* Mac Terminal Theme: Deep Navy Blue terminal floating on Ivory page */
+  /* Mac Terminal Theme: Ivory background with Deep Navy Blue chrome and Dark Gold text */
   --theme-yellow: #E8E0D2;         /* Ivory canvas */
   --bg-pastel-yellow: #E8E0D2;
-  --mac-terminal-bg: #0E1D61;      /* Deep Navy Blue terminal interior */
-  --mac-terminal-header: #070F33;  /* Deep Navy titlebar */
-  --mac-card-bg: #142470;          /* Elevated Navy card */
-  --mac-card-hover: #1C3090;       /* Hover card */
-  --honey-yellow: #B89A5A;         /* Gold accents inside terminal */
+  --mac-terminal-bg: #E8E0D2;      /* Ivory terminal page background */
+  --mac-terminal-header: #0E1D61;  /* Deep Navy titlebar */
+  --mac-card-bg: #FAF6EF;          /* Elevated warm ivory card */
+  --mac-card-hover: #FFFFFF;       /* Clean white hover card */
+  --honey-yellow: #0E1D61;         /* Highlight -> Deep Navy Blue */
 }
 
 *,
@@ -800,7 +800,8 @@ body {
   height: 100dvh;
   overflow: hidden !important;
   overscroll-behavior: none;
-  background: var(--theme-yellow);
+  background: var(--ivory) !important;
+  background-color: var(--ivory) !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -817,14 +818,14 @@ body {
   max-height: calc(100vh - 36px);
   max-height: calc(100dvh - 36px);
   background: var(--mac-terminal-bg);
-  border: 2px solid var(--gold-accent);
+  border: 2.5px solid var(--deep-atlas-navy);
   border-radius: 14px;
-  box-shadow: 0 24px 60px rgba(14, 29, 97, 0.4);
+  box-shadow: 0 20px 50px rgba(14, 29, 97, 0.22);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
-  color: var(--ivory);
+  color: var(--gold-text);
 }
 
 /* Window Titlebar */
@@ -955,8 +956,8 @@ body {
 
 /* Mac Tab Bar */
 .mac-tabbar {
-  background: #070F33;
-  border-bottom: 1px solid rgba(184, 154, 90, 0.18);
+  background: var(--deep-atlas-navy);
+  border-bottom: 1px solid rgba(184, 154, 90, 0.25);
   padding: 10px 22px;
   display: flex;
   align-items: center;
@@ -969,7 +970,7 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #0B174D;
+  background: rgba(232, 224, 210, 0.1);
   padding: 4px;
   border-radius: 8px;
   border: 1px solid rgba(184, 154, 90, 0.25);
@@ -978,7 +979,7 @@ body {
 .mac-tab-btn {
   background: transparent;
   border: none;
-  color: #C5BEB3;
+  color: #D8D2C5;
   font-family: var(--font-cute);
   font-size: 0.88rem;
   font-weight: 600;
@@ -990,12 +991,12 @@ body {
 
 .mac-tab-btn:hover {
   color: var(--ivory);
-  background: rgba(232, 224, 210, 0.08);
+  background: rgba(184, 154, 90, 0.18);
 }
 
 .mac-tab-btn.active {
   background: var(--gold-accent);
-  color: #0E1D61;
+  color: var(--deep-atlas-navy);
   font-weight: 750;
   box-shadow: none;
 }
@@ -1004,8 +1005,8 @@ body {
   font-family: var(--font-cute);
   font-size: 0.82rem;
   font-weight: 600;
-  color: #C5BEB3;
-  background: #0B174D;
+  color: var(--ivory);
+  background: rgba(232, 224, 210, 0.1);
   padding: 5px 12px;
   border-radius: 6px;
   border: 1px solid rgba(184, 154, 90, 0.2);
@@ -1013,6 +1014,7 @@ body {
 
 /* Content Body (Scrollable interior with sleek macOS scrollbars) */
 .mac-content-body {
+  background: var(--mac-terminal-bg);
   padding: 26px 36px 32px 36px;
   display: flex;
   flex-direction: column;
@@ -1022,7 +1024,7 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: rgba(184, 154, 90, 0.35) transparent;
+  scrollbar-color: rgba(112, 85, 30, 0.35) transparent;
 }
 
 .mac-content-body::-webkit-scrollbar {
@@ -1034,12 +1036,12 @@ body {
 }
 
 .mac-content-body::-webkit-scrollbar-thumb {
-  background: rgba(184, 154, 90, 0.3);
+  background: rgba(112, 85, 30, 0.3);
   border-radius: 4px;
 }
 
 .mac-content-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(184, 154, 90, 0.5);
+  background: rgba(112, 85, 30, 0.5);
 }
 
 .mac-pane.fade-in {
@@ -1054,29 +1056,29 @@ body {
 /* Card Styling */
 .mac-card {
   background: var(--mac-card-bg);
-  border: 1px solid rgba(184, 154, 90, 0.25);
+  border: 1.5px solid rgba(184, 154, 90, 0.38);
   border-radius: 10px;
   padding: 20px 22px;
   display: flex;
   flex-direction: column;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 16px rgba(7, 15, 51, 0.3);
-  color: var(--ivory);
+  box-shadow: 0 4px 14px rgba(112, 85, 30, 0.08);
+  color: var(--gold-text);
 }
 
 .mac-card:hover {
   background: var(--mac-card-hover);
-  border-color: var(--gold-accent);
+  border-color: var(--deep-atlas-navy);
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(7, 15, 51, 0.45);
+  box-shadow: 0 8px 22px rgba(14, 29, 97, 0.15);
 }
 
 .cute-icon-box {
   width: 36px;
   height: 36px;
-  background: rgba(184, 154, 90, 0.18);
-  border: 1px solid rgba(184, 154, 90, 0.35);
-  color: var(--gold-accent);
+  background: rgba(14, 29, 97, 0.08);
+  border: 1px solid rgba(14, 29, 97, 0.25);
+  color: var(--deep-atlas-navy);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -1088,9 +1090,9 @@ body {
   font-family: var(--font-cute);
   font-size: 0.76rem;
   font-weight: 600;
-  color: var(--gold-accent);
-  background: rgba(184, 154, 90, 0.12);
-  border: 1px solid rgba(184, 154, 90, 0.28);
+  color: var(--deep-atlas-navy);
+  background: rgba(14, 29, 97, 0.08);
+  border: 1px solid rgba(14, 29, 97, 0.25);
   padding: 3px 9px;
   border-radius: 4px;
 }
@@ -1104,14 +1106,14 @@ body {
   font-family: var(--font-cute);
   font-size: 1.85rem;
   font-weight: 800;
-  color: var(--ivory);
+  color: var(--gold-text);
   margin: 0 0 5px 0;
   letter-spacing: -0.01em;
 }
 
 .pane-subtitle {
   font-size: 0.98rem;
-  color: #cbd5e1;
+  color: var(--gold);
   margin: 0;
   line-height: 1.5;
 }
@@ -1130,9 +1132,8 @@ body {
   font-family: var(--font-cute);
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--gold-accent);
-  background: rgba(184, 154, 90, 0.16);
-  border: 1px solid rgba(184, 154, 90, 0.35);
+  color: var(--ivory);
+  background: var(--deep-atlas-navy);
   padding: 5px 13px;
   border-radius: 20px;
   margin-bottom: 10px;
@@ -1142,21 +1143,21 @@ body {
   font-family: var(--font-cute);
   font-size: 2.35rem;
   font-weight: 800;
-  color: var(--ivory);
+  color: var(--gold-text);
   line-height: 1.2;
   margin: 0 0 8px 0;
   letter-spacing: -0.01em;
 }
 
 .highlight-cute {
-  color: var(--gold-accent);
+  color: var(--deep-atlas-navy);
 }
 
 .about-description {
   font-family: var(--font-cute);
   font-size: 1.02rem;
   line-height: 1.62;
-  color: #D8D2C5;
+  color: var(--gold);
   max-width: 980px;
   margin: 0;
 }
@@ -1179,14 +1180,14 @@ body {
   font-family: var(--font-cute);
   font-size: 1.12rem;
   font-weight: 700;
-  color: var(--ivory);
+  color: var(--deep-atlas-navy);
   margin: 0;
 }
 
 .cute-card-desc {
   font-size: 0.92rem;
   line-height: 1.55;
-  color: #C5BEB3;
+  color: var(--gold);
   margin: 0 0 12px 0;
   flex-grow: 1;
 }
@@ -1203,7 +1204,7 @@ body {
   align-items: center;
   justify-content: space-between;
   background: var(--mac-card-bg);
-  border: 1px solid rgba(184, 154, 90, 0.25);
+  border: 1.5px solid rgba(184, 154, 90, 0.35);
   padding: 12px 22px;
   border-radius: 8px;
   font-family: var(--font-cute);
@@ -1217,17 +1218,17 @@ body {
 }
 
 .status-label-cute {
-  color: #A8A095;
+  color: var(--gold);
   font-weight: 600;
 }
 
 .status-value-cute {
-  color: var(--gold-accent);
+  color: var(--deep-atlas-navy);
   font-weight: 700;
 }
 
 .status-divider-dot {
-  color: rgba(184, 154, 90, 0.4);
+  color: rgba(184, 154, 90, 0.5);
 }
 
 .status-available {
@@ -1275,7 +1276,7 @@ body {
   font-family: var(--font-cute);
   font-size: 1.08rem;
   font-weight: 700;
-  color: var(--ivory);
+  color: var(--deep-atlas-navy);
   margin: 0;
 }
 
@@ -1289,9 +1290,9 @@ body {
   font-family: var(--font-cute);
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--ivory);
-  background: #0B174D;
-  border: 1px solid rgba(184, 154, 90, 0.3);
+  color: var(--gold-text);
+  background: #FFFFFF;
+  border: 1px solid rgba(184, 154, 90, 0.4);
   padding: 6px 13px;
   border-radius: 6px;
   transition: all 0.2s ease;
@@ -1299,9 +1300,9 @@ body {
 }
 
 .skill-tag-cute:hover {
-  background: var(--gold-accent);
-  border-color: var(--gold-accent);
-  color: #0E1D61;
+  background: var(--deep-atlas-navy);
+  border-color: var(--deep-atlas-navy);
+  color: var(--ivory);
   font-weight: 700;
   transform: translateY(-1px);
 }
@@ -1341,7 +1342,7 @@ body {
   font-family: var(--font-cute);
   font-size: 1.15rem;
   font-weight: 750;
-  color: var(--ivory);
+  color: var(--deep-atlas-navy);
   letter-spacing: -0.01em;
 }
 
@@ -1356,20 +1357,20 @@ body {
   font-family: var(--font-mono);
   font-size: 0.84rem;
   font-weight: 500;
-  color: var(--gold-accent);
-  background: #0B174D;
+  color: var(--gold-text);
+  background: #FFFFFF;
   padding: 3px 10px;
   border-radius: 5px;
-  border: 1px solid rgba(184, 154, 90, 0.3);
+  border: 1px solid rgba(184, 154, 90, 0.4);
 }
 
 .project-repo-link {
   font-family: var(--font-cute);
   font-size: 0.8rem;
   font-weight: 700;
-  color: #0E1D61;
-  background: var(--gold-accent);
-  border: 1px solid var(--gold-accent);
+  color: var(--ivory);
+  background: var(--deep-atlas-navy);
+  border: 1px solid var(--deep-atlas-navy);
   padding: 6px 14px;
   border-radius: 6px;
   text-decoration: none;
@@ -1382,9 +1383,9 @@ body {
 }
 
 .project-repo-link:hover {
-  background: #CBB075;
-  border-color: #CBB075;
-  color: #070F33;
+  background: var(--navy-hover);
+  border-color: var(--navy-hover);
+  color: var(--ivory);
   transform: translateY(-1px);
   box-shadow: none;
 }
@@ -1392,7 +1393,7 @@ body {
 .project-desc-cute {
   font-size: 0.93rem;
   line-height: 1.6;
-  color: #C5BEB3;
+  color: var(--gold);
   margin: 0;
 }
 
@@ -1406,9 +1407,9 @@ body {
   font-family: var(--font-cute);
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--ivory);
-  background: rgba(184, 154, 90, 0.12);
-  border: 1px solid rgba(184, 154, 90, 0.35);
+  color: var(--deep-atlas-navy);
+  background: rgba(14, 29, 97, 0.08);
+  border: 1px solid var(--deep-atlas-navy);
   padding: 5px 13px;
   border-radius: 6px;
   text-decoration: none;
@@ -1420,9 +1421,9 @@ body {
 }
 
 .project-live-btn:hover {
-  background: var(--gold-accent);
-  border-color: var(--gold-accent);
-  color: #0E1D61;
+  background: var(--deep-atlas-navy);
+  border-color: var(--deep-atlas-navy);
+  color: var(--ivory);
 }
 
 .live-link-label {
@@ -1454,7 +1455,7 @@ body {
   gap: 16px;
   padding: 20px 24px;
   text-decoration: none;
-  color: var(--ivory);
+  color: var(--gold);
   cursor: pointer;
 }
 
@@ -1469,7 +1470,7 @@ body {
   font-family: var(--font-cute);
   font-size: 0.74rem;
   font-weight: 700;
-  color: var(--gold-accent);
+  color: var(--gold-text);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -1478,11 +1479,11 @@ body {
   font-family: var(--font-cute);
   font-size: 1.02rem;
   font-weight: 600;
-  color: var(--ivory);
+  color: var(--deep-atlas-navy);
 }
 
 .contact-hover-arrow {
-  color: var(--gold-accent);
+  color: var(--deep-atlas-navy);
   transition: all 0.2s ease;
 }
 
@@ -1502,18 +1503,18 @@ body {
 
 .contact-footer-note {
   background: var(--mac-card-bg);
-  border: 1px solid rgba(184, 154, 90, 0.25);
-  border-left: 3px solid var(--gold-accent);
+  border: 1.5px solid rgba(184, 154, 90, 0.35);
+  border-left: 3px solid var(--deep-atlas-navy);
   padding: 12px 20px;
   border-radius: 6px;
   font-size: 0.86rem;
-  color: #C5BEB3;
+  color: var(--gold);
 }
 
 /* Window Footer Bar */
 .mac-window-footer {
-  background: #070F33;
-  border-top: 1px solid rgba(184, 154, 90, 0.2);
+  background: var(--deep-atlas-navy);
+  border-top: 1px solid rgba(184, 154, 90, 0.25);
   padding: 12px 22px;
   display: flex;
   align-items: center;
@@ -1557,7 +1558,7 @@ body {
 /* Prominently Highlighted NEXT Button */
 .footer-btn.next-btn {
   background: var(--gold-accent);
-  color: #0E1D61;
+  color: var(--deep-atlas-navy);
   border: 1px solid var(--gold-accent);
   box-shadow: none;
 }
@@ -1572,14 +1573,13 @@ body {
 
 /* High-Contrast PREVIOUS Button */
 .footer-btn.prev-btn {
-  background: #142470;
+  background: rgba(232, 224, 210, 0.12);
   border: 1px solid rgba(184, 154, 90, 0.35);
   color: var(--ivory);
 }
 
 .footer-btn.prev-btn:hover {
-  background: #1C3090;
-  border-color: var(--gold-accent);
+  background: rgba(232, 224, 210, 0.22);
   color: var(--ivory);
   transform: translateY(-1px);
 }
@@ -1593,7 +1593,7 @@ body {
 
 .footer-btn.restart-btn:hover {
   background: var(--gold-accent);
-  color: #0E1D61;
+  color: var(--deep-atlas-navy);
   transform: translateY(-1px);
 }
 
