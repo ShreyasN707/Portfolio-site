@@ -42,6 +42,7 @@ body {
   color: var(--text-primary);
   font-family: var(--font-main);
   overflow: hidden;
+  overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -661,9 +662,14 @@ body {
    SIMPLE MAC TERMINAL (CUTE & PROFESSIONAL)
    ========================================== */
 .mac-terminal-page {
+  position: fixed;
+  inset: 0;
   width: 100vw;
+  width: 100dvw;
   height: 100vh;
-  overflow: hidden;
+  height: 100dvh;
+  overflow: hidden !important;
+  overscroll-behavior: none;
   background: var(--theme-yellow);
   display: flex;
   align-items: center;
@@ -679,6 +685,7 @@ body {
   max-width: 96vw;
   height: 720px;
   max-height: calc(100vh - 36px);
+  max-height: calc(100dvh - 36px);
   background: var(--mac-terminal-bg);
   border: 1px solid rgba(0, 0, 0, 0.25);
   border-radius: 14px;
@@ -1483,16 +1490,31 @@ body {
 /* Responsive adjustments for Tablets & Medium Screens */
 @media (max-width: 960px) {
   .mac-terminal-page {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    width: 100dvw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden !important;
+    overscroll-behavior: none;
     padding: 12px;
-    height: auto;
-    min-height: 100dvh;
-    overflow-y: auto;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    box-sizing: border-box;
   }
 
   .mac-window {
     width: 100%;
-    height: auto;
-    max-height: none;
+    max-width: 100%;
+    height: 100% !important;
+    max-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    margin: 0;
+    border-radius: 12px;
   }
 
   .about-triplet-grid {
@@ -1513,36 +1535,54 @@ body {
 
   .mac-content-body {
     padding: 20px 18px;
-    min-height: auto;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
 }
 
 /* Mobile Devices (iPhones, Android, Handhelds) */
 @media (max-width: 768px) {
   .mac-terminal-page {
-    padding: 8px 6px;
-    min-height: 100dvh;
-    height: auto;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    align-items: flex-start;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    width: 100dvw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden !important;
+    overscroll-behavior: none;
+    padding: clamp(4px, 1.2vh, 8px) clamp(4px, 1.2vw, 8px);
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    box-sizing: border-box;
   }
 
   .mac-window {
     width: 100%;
     max-width: 100%;
-    border-radius: 12px;
+    height: 100% !important;
+    max-height: 100% !important;
+    border-radius: 10px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-    min-height: calc(100dvh - 16px);
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    margin: 0;
   }
 
   /* Titlebar: clean unconstrained layout so buttons & title never overlap */
   .mac-titlebar {
-    padding: 8px 12px;
-    min-height: 44px;
+    padding: 6px 10px;
+    min-height: 42px;
     gap: 8px;
     position: relative;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .mac-window-title {
@@ -1584,10 +1624,13 @@ body {
 
   /* Swipeable Tab Navigation on Mobile */
   .mac-tabbar {
-    padding: 6px 10px;
+    padding: 6px 8px;
     overflow-x: auto;
+    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   }
 
   .mac-tabbar::-webkit-scrollbar {
@@ -1616,9 +1659,15 @@ body {
     flex-shrink: 0;
   }
 
-  /* Content Body */
+  /* Content Body: strictly where ALL vertical scrolling happens! */
   .mac-content-body {
-    padding: 16px 12px 24px 12px;
+    padding: 14px 12px 20px 12px;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
 
   .pane-intro {
@@ -1721,15 +1770,32 @@ body {
     line-height: 1.45;
   }
 
-  /* Footer bar */
+  /* Footer bar: pinned at bottom, fixed height, non-scrolling */
   .mac-window-footer {
-    padding: 8px 12px;
-    min-height: 44px;
+    padding: 6px 10px;
+    min-height: 40px;
+    flex-shrink: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .footer-side-nav {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .footer-side-nav.right {
+    justify-content: flex-end;
+  }
+
+  .footer-center-nav {
+    gap: 6px;
+    flex-shrink: 0;
   }
 
   .footer-btn {
     padding: 6px 10px;
-    font-size: 0.75rem;
+    font-size: 0.74rem;
+    white-space: nowrap;
   }
 
   /* Admin Titlebar on Mobile */
@@ -1738,6 +1804,7 @@ body {
     gap: 8px;
     min-height: auto;
     padding: 8px 12px !important;
+    flex-shrink: 0;
   }
 
   .admin-titlebar-left {
@@ -1766,6 +1833,34 @@ body {
     width: min(500px, 94vw);
     max-height: 90vh;
     padding: 16px 14px;
+  }
+}
+
+/* Small Handheld Screens (e.g. iPhone SE / < 380px) */
+@media (max-width: 380px) {
+  .footer-btn {
+    padding: 5px 8px;
+    font-size: 0.70rem;
+    gap: 4px;
+  }
+
+  .footer-btn svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .pagination-circle {
+    width: 6px;
+    height: 6px;
+  }
+
+  .mac-tab-btn {
+    padding: 5px 9px;
+    font-size: 0.74rem;
+  }
+
+  .window-title-name-yellow {
+    font-size: 0.82rem;
   }
 }
 
