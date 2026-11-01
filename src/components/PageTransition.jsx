@@ -1,23 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
-export default function PageTransition({ onDone }) {
-  const [phase, setPhase] = useState('close'); // 'close' -> 'open'
-
+export default function PageTransition({ onCovered, onDone }) {
   useEffect(() => {
-    // Phase 1: doors slam shut instantly (already rendered closed)
-    // Phase 2: after a brief hold, split them open
-    const openTimer = setTimeout(() => {
-      setPhase('open');
-      // Phase 3: tell parent we're done once doors finish animating out
-      const doneTimer = setTimeout(onDone, 850);
-      return () => clearTimeout(doneTimer);
-    }, 180);
+    // 1. Doors animate from outside and seal completely shut at ~460ms
+    const coveredTimer = setTimeout(() => {
+      onCovered?.();
+    }, 460);
 
-    return () => clearTimeout(openTimer);
-  }, [onDone]);
+    // 2. Doors hold closed until ~580ms, then animate open, finishing by ~1050ms
+    const doneTimer = setTimeout(() => {
+      onDone?.();
+    }, 1060);
+
+    return () => {
+      clearTimeout(coveredTimer);
+      clearTimeout(doneTimer);
+    };
+  }, [onCovered, onDone]);
 
   return (
-    <div className={`page-transition-overlay ${phase === 'open' ? 'pt-split-open' : ''}`}>
+    <div className="page-transition-overlay">
       <div className="pt-door pt-top-door" />
       <div className="pt-door pt-bottom-door" />
     </div>

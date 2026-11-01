@@ -498,7 +498,7 @@ body {
     line-height: 1.05;
     letter-spacing: -0.02em;
     margin: 0 0 3px 0;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+    text-shadow: none;
   }
 
   .intro-name {
@@ -514,7 +514,7 @@ body {
   .name-am {
     color: var(--robot-yellow);
     font-weight: 600;
-    text-shadow: 0 0 12px var(--electric-glow);
+    text-shadow: none;
   }
 
   /* Clean Typography Dynamic Role without Background */
@@ -570,7 +570,7 @@ body {
     letter-spacing: 0.04em;
     white-space: nowrap;
     line-height: 1;
-    text-shadow: 0 0 12px rgba(255, 238, 0, 0.35);
+    text-shadow: none;
   }
 
   /* 2. MIDDLE: Centerpiece 3D Interactive Model */
@@ -704,45 +704,71 @@ body {
 
 /* ==========================================
    PAGE TRANSITION — Yellow Split-Door (no text)
-   Mirrors CyberBoot door animation
+   Close Then Open Animation
    ========================================== */
 .page-transition-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
+  width: 100dvw;
   height: 100vh;
-  z-index: 99999;
+  height: 100dvh;
+  z-index: 999999;
   pointer-events: all;
+  overflow: hidden;
 }
 
 .pt-door {
   position: absolute;
   left: 0;
+  top: 0;
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   background-color: var(--electric-yellow);
-  transition: transform 0.75s cubic-bezier(0.8, 0, 0.2, 1);
+  will-change: transform;
 }
 
-/* Same diagonal clip-paths as CyberBoot */
+/* Diagonal split cutouts - matching CyberBoot */
 .pt-top-door {
-  top: 0;
   clip-path: polygon(0% 0%, 100% 0%, 100% 35%, 65% 35%, 35% 65%, 0% 65%);
+  animation: ptTopDoorCloseOpen 1.05s cubic-bezier(0.77, 0, 0.175, 1) forwards;
 }
 
 .pt-bottom-door {
-  top: 0;
   clip-path: polygon(100% 100%, 0% 100%, 0% 65%, 35% 65%, 65% 35%, 100% 35%);
+  animation: ptBottomDoorCloseOpen 1.05s cubic-bezier(0.77, 0, 0.175, 1) forwards;
 }
 
-/* Split open: doors fly off screen */
-.pt-split-open .pt-top-door {
-  transform: translateY(-100%);
+/* Close from outside -> Hold shut at 0% -> Open back to outside */
+@keyframes ptTopDoorCloseOpen {
+  0% {
+    transform: translateY(-100%);
+  }
+  42% {
+    transform: translateY(0%);
+  }
+  56% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(-100%);
+  }
 }
 
-.pt-split-open .pt-bottom-door {
-  transform: translateY(100%);
+@keyframes ptBottomDoorCloseOpen {
+  0% {
+    transform: translateY(100%);
+  }
+  42% {
+    transform: translateY(0%);
+  }
+  56% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
 }
 
 /* ==========================================
@@ -2417,7 +2443,8 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(4px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   z-index: 10000;
   display: flex;
   align-items: center;

@@ -28,7 +28,8 @@ export default function App() {
     return false;
   });
 
-  const [currentView, setCurrentView] = useState('landing'); // 'landing' | 'transitioning' | 'portfolio'
+  const [currentView, setCurrentView] = useState('landing'); // 'landing' | 'portfolio'
+  const [transitionTarget, setTransitionTarget] = useState(null); // null | 'portfolio' | 'landing'
   const [roleIndex, setRoleIndex] = useState(0);
   const [scrambledRole, setScrambledRole] = useState(ROLES[0]);
   const [isScrambling, setIsScrambling] = useState(false);
@@ -111,21 +112,15 @@ export default function App() {
   }, []);
 
   const handleStart = () => {
+    if (transitionTarget) return;
     playAccessGranted();
-    setCurrentView('transitioning');
-  };
-
-  const handleTransitionDone = () => {
-    setCurrentView('portfolio');
+    setTransitionTarget('portfolio');
   };
 
   const handleBackToLanding = () => {
+    if (transitionTarget) return;
     playSelectClick();
-    setCurrentView('transitioning_back');
-  };
-
-  const handleBackTransitionDone = () => {
-    setCurrentView('landing');
+    setTransitionTarget('landing');
   };
 
   // Dedicated Route: /edit (Admin / Owner Page)
@@ -138,14 +133,16 @@ export default function App() {
       {/* Initial Loading Page (Kept exactly as requested) */}
       {!isBooted && <CyberBoot onComplete={() => setIsBooted(true)} />}
 
-      {/* Page Transition (forward: landing -> portfolio) */}
-      {isBooted && currentView === 'transitioning' && (
-        <PageTransition onDone={handleTransitionDone} />
-      )}
-
-      {/* Page Transition (back: portfolio -> landing) */}
-      {isBooted && currentView === 'transitioning_back' && (
-        <PageTransition onDone={handleBackTransitionDone} />
+      {/* Page Transition (Yellow Split-Doors Close then Open, No Text) */}
+      {isBooted && transitionTarget && (
+        <PageTransition
+          onCovered={() => {
+            setCurrentView(transitionTarget);
+          }}
+          onDone={() => {
+            setTransitionTarget(null);
+          }}
+        />
       )}
 
       {/* Clean Dark Landing Page */}
