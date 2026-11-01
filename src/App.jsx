@@ -101,7 +101,7 @@ export default function App() {
             <div className="intro-wrapper">
               <div className="intro-content">
                 <h1 className="intro-hi">HI,</h1>
-                <h2 className="intro-name">I am Shreyas</h2>
+                <h2 className="intro-name">I <span className="name-am">am</span> Shreyas</h2>
 
                 {/* 100% Rock-Solid Stable Cyber Decryptor Slot */}
                 <div className="dynamic-role-container">

@@ -34,25 +34,25 @@ export default function ModelViewer() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.35;
+    renderer.toneMappingExposure = 1.0;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-    // Clean Studio Lighting setup for bright, pristine white rendering
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
+    // Calibrated Studio Lighting setup (natural contrast, zero blowout)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
     scene.add(ambientLight);
 
-    // Key Light (pure bright white from front-right)
-    const keyLight = new THREE.DirectionalLight(0xffffff, 3.2);
+    // Key Light (balanced from front-right)
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
     keyLight.position.set(3, 5, 5);
     scene.add(keyLight);
 
     // Soft Fill Light (from front-left)
-    const fillLight = new THREE.DirectionalLight(0xffffff, 1.8);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.9);
     fillLight.position.set(-4, 2, 4);
     scene.add(fillLight);
 
     // Top Overhead Light
-    const topLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    const topLight = new THREE.DirectionalLight(0xffffff, 0.6);
     topLight.position.set(0, 6, 2);
     scene.add(topLight);
 
@@ -92,18 +92,18 @@ export default function ModelViewer() {
             const matName = (child.material.name || '').toLowerCase();
 
             if (matName.includes('shinywhite')) {
-              // Main Body: Pure, Brilliant White (ceramic / non-metallic)
+              // Main Body: Ceramic Studio White (balanced specular, no glare)
               child.material = new THREE.MeshStandardMaterial({
-                color: 0xffffff,
-                roughness: 0.15,
+                color: 0xf0f2f5,
+                roughness: 0.22,
                 metalness: 0.02,
               });
             } else if (matName.includes('oranje')) {
-              // Iconic BB-8 Orange Rings and Accents
+              // Iconic Robot Yellow Rings (High-vibrancy pure yellow)
               child.material = new THREE.MeshStandardMaterial({
-                color: new THREE.Color(0.92, 0.38, 0.04),
-                roughness: 0.22,
-                metalness: 0.03,
+                color: new THREE.Color('#ffee00'),
+                roughness: 0.2,
+                metalness: 0.04,
               });
             } else if (matName.includes('zwart')) {
               // Deep Glossy Black Eye Lens

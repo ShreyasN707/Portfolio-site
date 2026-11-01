@@ -1,14 +1,19 @@
 :root {
   --obsidian-black: #000000;
-  --electric-yellow: #d4ff00;
-  --electric-glow: rgba(212, 255, 0, 0.65);
+  --robot-yellow: #ffee00;
+  --robot-yellow-bright: #ffff33;
+  --robot-yellow-scramble: #fff980;
+  --electric-yellow: var(--robot-yellow);
+  --electric-glow: rgba(255, 238, 0, 0.4);
   --cyber-cyan: #00f0ff;
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
   --text-muted: #52525b;
 
-  --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-hud: 'Orbitron', sans-serif;
+  --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  --font-hud: var(--font-display);
 }
 
 *,
@@ -188,7 +193,7 @@ body {
 
 .audio-btn:hover {
   opacity: 1;
-  color: var(--electric-yellow);
+  color: var(--robot-yellow);
   transform: scale(1.08);
 }
 
@@ -276,27 +281,32 @@ body {
   max-width: 620px;
 }
 
-/* Clear, Organized Typographic Hierarchy with Increased Scale */
+/* Clear, Organized Typographic Hierarchy with Professional Modern Type */
 .intro-hi {
-  font-family: var(--font-hud);
-  font-size: clamp(2.8rem, 6vw, 5rem);
-  font-weight: 900;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 6.5vw, 5.2rem);
+  font-weight: 700;
   color: var(--text-primary);
-  line-height: 1;
-  letter-spacing: -0.02em;
-  margin: 0 0 4px 0;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin: 0 0 6px 0;
   padding: 0;
 }
 
 .intro-name {
   font-family: var(--font-main);
   font-size: clamp(2.4rem, 4.8vw, 4.2rem);
-  font-weight: 300;
+  font-weight: 400;
   color: var(--text-primary);
-  line-height: 1.1;
-  letter-spacing: -0.01em;
-  margin: 0 0 14px 0;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 16px 0;
   padding: 0;
+}
+
+.name-am {
+  color: var(--robot-yellow);
+  font-weight: 500;
 }
 
 /* Dynamic "I do:" Container - Precision Baseline Lock & Fixed Slot */
@@ -305,17 +315,17 @@ body {
   align-items: center;
   gap: 14px;
   height: 2.4rem; /* Scaled fixed height */
-  margin: 0 0 20px 0;
+  margin: 0 0 22px 0;
   padding: 0;
   width: 100%;
 }
 
 .do-label {
-  font-family: var(--font-hud);
-  font-size: clamp(1.2rem, 2.2vw, 1.65rem);
+  font-family: var(--font-mono);
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
   color: var(--text-secondary);
   font-weight: 500;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
   white-space: nowrap;
   flex-shrink: 0;
   line-height: 1;
@@ -336,21 +346,22 @@ body {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  font-family: var(--font-hud);
-  font-size: clamp(1.2rem, 2.2vw, 1.65rem);
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2.2vw, 1.6rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
   white-space: nowrap;
   line-height: 1;
 }
 
 .role-text.scrambling {
-  color: #e8ff66;
-  opacity: 0.9;
+  font-family: var(--font-mono);
+  color: var(--robot-yellow-scramble);
+  opacity: 0.95;
 }
 
 .role-text.resolved {
-  color: var(--electric-yellow);
+  color: var(--robot-yellow);
   opacity: 1;
 }
 
@@ -368,10 +379,10 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 14px;
-  font-family: var(--font-hud);
-  font-size: clamp(1.25rem, 2.2vw, 1.55rem);
-  font-weight: 700;
-  letter-spacing: 0.16em;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  font-weight: 600;
+  letter-spacing: 0.14em;
   color: var(--text-primary);
   padding: 0;
   margin: 0;
@@ -379,11 +390,11 @@ body {
 }
 
 .start-btn:hover {
-  color: var(--electric-yellow);
+  color: var(--robot-yellow);
 }
 
 .start-btn-icon {
-  color: var(--electric-yellow);
+  color: var(--robot-yellow);
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
