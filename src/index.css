@@ -41,9 +41,9 @@
   --mac-tabbar-bg: #826527;        /* A bit darker gold for the bar below the titlebar */
   --mac-footer-bg: #826527;        /* Matching refined darker gold for footer bar */
   --mac-terminal-border: #4B350F;  /* Outer frame matching darkest topbar */
-  --mac-card-bg: #FAF6EF;          /* Solid elegant warm Ivory text box / card */
-  --mac-card-hover: #FFFFFF;       /* Crisp white hover card */
-  --mac-card-border: rgba(118, 91, 39, 0.32); /* Warm gold border matching terminal frame */
+  --mac-card-bg: rgba(60, 42, 10, 0.12); /* Seamless dark-gold tint - NO WHITE! */
+  --mac-card-hover: rgba(60, 42, 10, 0.20); /* Deepened gold hover - NO WHITE! */
+  --mac-card-border: rgba(75, 53, 15, 0.25); /* Dark gold border */
   --mac-card-border-hover: #4B350F;
   --honey-yellow: #0E1D61;         /* Deep Navy accents inside terminal */
 }
@@ -1098,8 +1098,8 @@ body {
   font-size: 0.76rem;
   font-weight: 700;
   color: #070F33;
-  background: #EFE7DA;
-  border: 1px solid rgba(118, 91, 39, 0.28);
+  background: rgba(60, 42, 10, 0.16);
+  border: 1px solid rgba(75, 53, 15, 0.25);
   padding: 3px 9px;
   border-radius: 4px;
 }
@@ -1416,7 +1416,7 @@ body {
   font-size: 0.82rem;
   font-weight: 650;
   color: #070F33;
-  background: #FAF6EF;
+  background: rgba(60, 42, 10, 0.14);
   border: 1.5px solid #0E1D61;
   padding: 5px 13px;
   border-radius: 6px;
@@ -1580,22 +1580,22 @@ body {
 
 /* High-Contrast PREVIOUS Button */
 .footer-btn.prev-btn {
-  background: #FAF6EF;
-  border: 1.5px solid #684E1E;
+  background: rgba(60, 42, 10, 0.16);
+  border: 1.5px solid #4B350F;
   color: #070F33;
 }
 
 .footer-btn.prev-btn:hover {
-  background: #FFFFFF;
+  background: rgba(60, 42, 10, 0.30);
   color: #000000;
   transform: translateY(-1px);
 }
 
 /* Restart Button on Final Step */
 .footer-btn.restart-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
-  color: #FAF7F2;
+  background: rgba(60, 42, 10, 0.16);
+  border: 1.5px solid #4B350F;
+  color: #070F33;
 }
 
 .footer-btn.restart-btn:hover {
