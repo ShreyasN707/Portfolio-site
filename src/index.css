@@ -38,8 +38,8 @@
   --bg-pastel-yellow: #F5EFE6;
   --mac-terminal-bg: #C2A25D;      /* Warm rich Gold terminal interior */
   --mac-titlebar-bg: #4B350F;      /* The darkest tone: exclusively for topbar containing "shreyas N" */
-  --mac-tabbar-bg: #B8974E;        /* Lighter harmonious warm gold for tab bar */
-  --mac-footer-bg: #B8974E;        /* Lighter harmonious warm gold for footer */
+  --mac-tabbar-bg: #826527;        /* A bit darker gold for the bar below the titlebar */
+  --mac-footer-bg: #826527;        /* Matching refined darker gold for footer bar */
   --mac-terminal-border: #4B350F;  /* Outer frame matching darkest topbar */
   --mac-card-bg: #FAF6EF;          /* Solid elegant warm Ivory text box / card */
   --mac-card-hover: #FFFFFF;       /* Crisp white hover card */
@@ -977,19 +977,19 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(75, 53, 15, 0.14);
+  background: rgba(0, 0, 0, 0.2);
   padding: 4px;
   border-radius: 8px;
-  border: 1px solid rgba(75, 53, 15, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .mac-tab-btn {
   background: transparent;
   border: none;
-  color: #070F33;
+  color: #FAF7F2;
   font-family: var(--font-cute);
   font-size: 0.88rem;
-  font-weight: 700;
+  font-weight: 650;
   padding: 7px 18px;
   border-radius: 6px;
   cursor: pointer;
@@ -997,26 +997,26 @@ body {
 }
 
 .mac-tab-btn:hover {
-  color: #000000;
-  background: rgba(255, 255, 255, 0.35);
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .mac-tab-btn.active {
   background: #0E1D61;
   color: var(--ivory-terminal);
   font-weight: 750;
-  box-shadow: 0 2px 8px rgba(14, 29, 97, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
 }
 
 .mac-tab-guide {
   font-family: var(--font-cute);
   font-size: 0.82rem;
   font-weight: 600;
-  color: #070F33;
-  background: rgba(75, 53, 15, 0.12);
+  color: #FAF7F2;
+  background: rgba(0, 0, 0, 0.2);
   padding: 5px 12px;
   border-radius: 6px;
-  border: 1px solid rgba(75, 53, 15, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 /* Content Body (Scrollable interior with sleek macOS scrollbars) */
