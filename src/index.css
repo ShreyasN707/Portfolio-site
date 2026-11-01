@@ -1498,9 +1498,9 @@ body {
     height: 100dvh;
     overflow: hidden !important;
     overscroll-behavior: none;
-    padding: 12px;
+    padding: clamp(14px, 2.5vh, 24px) clamp(12px, 2vw, 20px);
     display: flex;
-    align-items: stretch;
+    align-items: center;
     justify-content: center;
     box-sizing: border-box;
   }
@@ -1508,8 +1508,9 @@ body {
   .mac-window {
     width: 100%;
     max-width: 100%;
-    height: 100% !important;
-    max-height: 100% !important;
+    height: 86vh !important;
+    height: 86dvh !important;
+    max-height: calc(100dvh - 44px) !important;
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
@@ -1555,9 +1556,9 @@ body {
     height: 100dvh;
     overflow: hidden !important;
     overscroll-behavior: none;
-    padding: clamp(4px, 1.2vh, 8px) clamp(4px, 1.2vw, 8px);
+    padding: clamp(14px, 3vh, 26px) clamp(8px, 2vw, 14px);
     display: flex;
-    align-items: stretch;
+    align-items: center;
     justify-content: center;
     box-sizing: border-box;
   }
@@ -1565,10 +1566,11 @@ body {
   .mac-window {
     width: 100%;
     max-width: 100%;
-    height: 100% !important;
-    max-height: 100% !important;
-    border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    height: 80vh !important;
+    height: 80dvh !important;
+    max-height: calc(100dvh - 40px) !important;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
@@ -1838,6 +1840,16 @@ body {
 
 /* Small Handheld Screens (e.g. iPhone SE / < 380px) */
 @media (max-width: 380px) {
+  .mac-terminal-page {
+    padding: 10px 6px;
+  }
+
+  .mac-window {
+    height: 80vh !important;
+    height: 80dvh !important;
+    max-height: calc(100dvh - 30px) !important;
+  }
+
   .footer-btn {
     padding: 5px 8px;
     font-size: 0.70rem;
