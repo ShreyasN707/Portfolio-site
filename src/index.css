@@ -1,25 +1,29 @@
 :root {
   /* Three Theme Pillars */
   --ivory: #E8E0D2;
-  --gold: #B89A5A;
-  --gold-text: #78602E;         /* Rich readable gold for text on ivory */
+  --gold: #70551E;              /* Dark rich gold for sharp, clear readability on Ivory */
+  --gold-accent: #B89A5A;       /* Standard metallic gold for borders, accents & CTAs */
+  --gold-text: #604818;         /* Deepest high-contrast gold for text */
   --gold-subtle: rgba(184, 154, 90, 0.22);
-  --deep-atlas-navy: #0E1D61;   /* Highlight accent */
-  --navy-hover: #1b339a;
+  --deep-atlas-navy: #0E1D61;   /* Deep Navy Blue from given pallet */
+  --navy-dark: #070F33;
+  --navy-surface: #142470;
+  --navy-surface-hover: #1C3090;
+  --navy-hover: #1B339A;
 
   /* Theme Roles */
   --obsidian-black: #E8E0D2;    /* Background colour -> Ivory #E8E0D2 */
   --robot-yellow: #0E1D61;      /* Highlight colour -> Deep Navy Blue #0E1D61 */
-  --robot-yellow-bright: #1b339a;
-  --robot-yellow-scramble: #3f55b5;
+  --robot-yellow-bright: #1B339A;
+  --robot-yellow-scramble: #3F55B5;
   --electric-yellow: #B89A5A;   /* Normal door color -> Gold #B89A5A */
   --electric-glow: rgba(14, 29, 97, 0.25);
   --cyber-cyan: #0E1D61;
-  --text-primary: #78602E;      /* Normal text -> Gold */
-  --text-gold: #B89A5A;         /* Primary brand Gold */
+  --text-primary: #604818;      /* Normal text -> Dark Gold for clear visibility */
+  --text-gold: #70551E;         /* Dark Gold for headings on Ivory */
   --text-highlight: #0E1D61;    /* Deep Navy Blue highlight */
-  --text-secondary: #91763e;
-  --text-muted: #a68c56;
+  --text-secondary: #70551E;
+  --text-muted: #8A6B2D;
 
   --font-cute: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-main: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -27,14 +31,14 @@
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   --font-hud: var(--font-display);
 
-  /* Mac Terminal Theme: Ivory background, Gold structure, Navy highlights */
-  --theme-yellow: #E8E0D2;      /* Ivory canvas */
+  /* Mac Terminal Theme: Deep Navy Blue terminal floating on Ivory page */
+  --theme-yellow: #E8E0D2;         /* Ivory canvas */
   --bg-pastel-yellow: #E8E0D2;
-  --mac-terminal-bg: #F5EFE5;   /* Warm Ivory interior */
-  --mac-terminal-header: #DFD5C2; /* Subtle Ivory titlebar */
-  --mac-card-bg: #FFFFFF;       /* Clean elevated card */
-  --mac-card-hover: #FAF7F0;
-  --honey-yellow: #0E1D61;      /* Highlight -> Deep Navy Blue */
+  --mac-terminal-bg: #0E1D61;      /* Deep Navy Blue terminal interior */
+  --mac-terminal-header: #070F33;  /* Deep Navy titlebar */
+  --mac-card-bg: #142470;          /* Elevated Navy card */
+  --mac-card-hover: #1C3090;       /* Hover card */
+  --honey-yellow: #B89A5A;         /* Gold accents inside terminal */
 }
 
 *,
@@ -813,21 +817,21 @@ body {
   max-height: calc(100vh - 36px);
   max-height: calc(100dvh - 36px);
   background: var(--mac-terminal-bg);
-  border: 2px solid var(--gold);
+  border: 2px solid var(--gold-accent);
   border-radius: 14px;
-  box-shadow: 0 20px 50px rgba(184, 154, 90, 0.25), 0 4px 16px rgba(14, 29, 97, 0.08);
+  box-shadow: 0 24px 60px rgba(14, 29, 97, 0.4);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
-  color: var(--text-primary);
+  color: var(--ivory);
 }
 
 /* Window Titlebar */
 .mac-titlebar {
   position: relative;
   background: var(--mac-terminal-header);
-  border-bottom: 1px solid var(--gold);
+  border-bottom: 1px solid rgba(184, 154, 90, 0.25);
   padding: 12px 22px;
   display: flex;
   align-items: center;
@@ -892,7 +896,7 @@ body {
 }
 
 .window-title-name-yellow {
-  color: var(--deep-atlas-navy);
+  color: var(--gold-accent);
   font-family: var(--font-cute);
   font-size: 1.05rem;
   font-weight: 800;
@@ -900,19 +904,19 @@ body {
 }
 
 .window-app-name {
-  color: var(--gold-text);
+  color: var(--ivory);
   font-weight: 700;
   font-size: 0.94rem;
 }
 
 .window-title-tag {
-  background: rgba(14, 29, 97, 0.08);
-  color: var(--deep-atlas-navy);
+  background: rgba(184, 154, 90, 0.15);
+  color: var(--ivory);
   font-size: 0.76rem;
   font-weight: 600;
   padding: 3px 9px;
   border-radius: 4px;
-  border: 1px solid rgba(14, 29, 97, 0.2);
+  border: 1px solid rgba(184, 154, 90, 0.3);
 }
 
 .mac-header-actions {
@@ -922,9 +926,9 @@ body {
 }
 
 .mac-action-btn {
-  background: #FAF6EF;
-  border: 1px solid var(--gold);
-  color: var(--gold-text);
+  background: #142470;
+  border: 1px solid rgba(184, 154, 90, 0.28);
+  color: var(--ivory);
   padding: 6px 13px;
   font-family: var(--font-cute);
   font-size: 0.82rem;
@@ -939,20 +943,20 @@ body {
 }
 
 .mac-action-btn:hover {
-  background: var(--deep-atlas-navy);
-  color: var(--ivory);
+  background: var(--gold-accent);
+  color: #0E1D61;
   font-weight: 700;
   transform: translateY(-1px);
 }
 
 .mac-action-btn.muted {
-  color: var(--text-muted);
+  color: #C5BEB3;
 }
 
 /* Mac Tab Bar */
 .mac-tabbar {
-  background: #EDE4D4;
-  border-bottom: 1px solid rgba(184, 154, 90, 0.35);
+  background: #070F33;
+  border-bottom: 1px solid rgba(184, 154, 90, 0.18);
   padding: 10px 22px;
   display: flex;
   align-items: center;
@@ -965,16 +969,16 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #DFD5C2;
+  background: #0B174D;
   padding: 4px;
   border-radius: 8px;
-  border: 1px solid var(--gold);
+  border: 1px solid rgba(184, 154, 90, 0.25);
 }
 
 .mac-tab-btn {
   background: transparent;
   border: none;
-  color: var(--gold-text);
+  color: #C5BEB3;
   font-family: var(--font-cute);
   font-size: 0.88rem;
   font-weight: 600;
@@ -985,14 +989,14 @@ body {
 }
 
 .mac-tab-btn:hover {
-  color: var(--deep-atlas-navy);
-  background: rgba(14, 29, 97, 0.08);
+  color: var(--ivory);
+  background: rgba(232, 224, 210, 0.08);
 }
 
 .mac-tab-btn.active {
-  background: var(--deep-atlas-navy);
-  color: var(--ivory);
-  font-weight: 700;
+  background: var(--gold-accent);
+  color: #0E1D61;
+  font-weight: 750;
   box-shadow: none;
 }
 
@@ -1000,11 +1004,11 @@ body {
   font-family: var(--font-cute);
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--gold-text);
-  background: #DFD5C2;
+  color: #C5BEB3;
+  background: #0B174D;
   padding: 5px 12px;
   border-radius: 6px;
-  border: 1px solid var(--gold);
+  border: 1px solid rgba(184, 154, 90, 0.2);
 }
 
 /* Content Body (Scrollable interior with sleek macOS scrollbars) */
@@ -1030,12 +1034,12 @@ body {
 }
 
 .mac-content-body::-webkit-scrollbar-thumb {
-  background: rgba(184, 154, 90, 0.35);
+  background: rgba(184, 154, 90, 0.3);
   border-radius: 4px;
 }
 
 .mac-content-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(184, 154, 90, 0.55);
+  background: rgba(184, 154, 90, 0.5);
 }
 
 .mac-pane.fade-in {
@@ -1050,29 +1054,29 @@ body {
 /* Card Styling */
 .mac-card {
   background: var(--mac-card-bg);
-  border: 1px solid var(--gold);
+  border: 1px solid rgba(184, 154, 90, 0.25);
   border-radius: 10px;
   padding: 20px 22px;
   display: flex;
   flex-direction: column;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(184, 154, 90, 0.12);
-  color: var(--gold-text);
+  box-shadow: 0 4px 16px rgba(7, 15, 51, 0.3);
+  color: var(--ivory);
 }
 
 .mac-card:hover {
   background: var(--mac-card-hover);
-  border-color: var(--deep-atlas-navy);
+  border-color: var(--gold-accent);
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(14, 29, 97, 0.12);
+  box-shadow: 0 8px 22px rgba(7, 15, 51, 0.45);
 }
 
 .cute-icon-box {
   width: 36px;
   height: 36px;
-  background: rgba(14, 29, 97, 0.1);
-  border: 1px solid var(--deep-atlas-navy);
-  color: var(--deep-atlas-navy);
+  background: rgba(184, 154, 90, 0.18);
+  border: 1px solid rgba(184, 154, 90, 0.35);
+  color: var(--gold-accent);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -1084,9 +1088,9 @@ body {
   font-family: var(--font-cute);
   font-size: 0.76rem;
   font-weight: 600;
-  color: var(--deep-atlas-navy);
-  background: rgba(14, 29, 97, 0.08);
-  border: 1px solid rgba(14, 29, 97, 0.25);
+  color: var(--gold-accent);
+  background: rgba(184, 154, 90, 0.12);
+  border: 1px solid rgba(184, 154, 90, 0.28);
   padding: 3px 9px;
   border-radius: 4px;
 }
@@ -1100,7 +1104,7 @@ body {
   font-family: var(--font-cute);
   font-size: 1.85rem;
   font-weight: 800;
-  color: var(--gold);
+  color: var(--ivory);
   margin: 0 0 5px 0;
   letter-spacing: -0.01em;
 }
@@ -1126,8 +1130,9 @@ body {
   font-family: var(--font-cute);
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--ivory);
-  background: var(--deep-atlas-navy);
+  color: var(--gold-accent);
+  background: rgba(184, 154, 90, 0.16);
+  border: 1px solid rgba(184, 154, 90, 0.35);
   padding: 5px 13px;
   border-radius: 20px;
   margin-bottom: 10px;
@@ -1137,21 +1142,21 @@ body {
   font-family: var(--font-cute);
   font-size: 2.35rem;
   font-weight: 800;
-  color: var(--gold);
+  color: var(--ivory);
   line-height: 1.2;
   margin: 0 0 8px 0;
   letter-spacing: -0.01em;
 }
 
 .highlight-cute {
-  color: var(--deep-atlas-navy);
+  color: var(--gold-accent);
 }
 
 .about-description {
   font-family: var(--font-cute);
   font-size: 1.02rem;
   line-height: 1.62;
-  color: var(--gold-text);
+  color: #D8D2C5;
   max-width: 980px;
   margin: 0;
 }
@@ -1174,14 +1179,14 @@ body {
   font-family: var(--font-cute);
   font-size: 1.12rem;
   font-weight: 700;
-  color: var(--deep-atlas-navy);
+  color: var(--ivory);
   margin: 0;
 }
 
 .cute-card-desc {
   font-size: 0.92rem;
   line-height: 1.55;
-  color: var(--gold-text);
+  color: #C5BEB3;
   margin: 0 0 12px 0;
   flex-grow: 1;
 }
@@ -1198,7 +1203,7 @@ body {
   align-items: center;
   justify-content: space-between;
   background: var(--mac-card-bg);
-  border: 1px solid var(--gold);
+  border: 1px solid rgba(184, 154, 90, 0.25);
   padding: 12px 22px;
   border-radius: 8px;
   font-family: var(--font-cute);
@@ -1212,17 +1217,17 @@ body {
 }
 
 .status-label-cute {
-  color: var(--gold-text);
+  color: #A8A095;
   font-weight: 600;
 }
 
 .status-value-cute {
-  color: var(--deep-atlas-navy);
+  color: var(--gold-accent);
   font-weight: 700;
 }
 
 .status-divider-dot {
-  color: var(--gold);
+  color: rgba(184, 154, 90, 0.4);
 }
 
 .status-available {
@@ -1270,7 +1275,7 @@ body {
   font-family: var(--font-cute);
   font-size: 1.08rem;
   font-weight: 700;
-  color: var(--deep-atlas-navy);
+  color: var(--ivory);
   margin: 0;
 }
 
@@ -1284,9 +1289,9 @@ body {
   font-family: var(--font-cute);
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--gold-text);
-  background: #FAF6EF;
-  border: 1px solid var(--gold);
+  color: var(--ivory);
+  background: #0B174D;
+  border: 1px solid rgba(184, 154, 90, 0.3);
   padding: 6px 13px;
   border-radius: 6px;
   transition: all 0.2s ease;
@@ -1294,8 +1299,9 @@ body {
 }
 
 .skill-tag-cute:hover {
-  background: var(--deep-atlas-navy);
-  color: var(--ivory);
+  background: var(--gold-accent);
+  border-color: var(--gold-accent);
+  color: #0E1D61;
   font-weight: 700;
   transform: translateY(-1px);
 }
@@ -1335,12 +1341,12 @@ body {
   font-family: var(--font-cute);
   font-size: 1.15rem;
   font-weight: 750;
-  color: var(--deep-atlas-navy);
+  color: var(--ivory);
   letter-spacing: -0.01em;
 }
 
 .project-pipe-divider {
-  color: var(--gold);
+  color: var(--gold-accent);
   font-weight: 700;
   font-size: 1.05rem;
   opacity: 0.6;
@@ -1350,20 +1356,20 @@ body {
   font-family: var(--font-mono);
   font-size: 0.84rem;
   font-weight: 500;
-  color: var(--gold-text);
-  background: #FAF6EF;
+  color: var(--gold-accent);
+  background: #0B174D;
   padding: 3px 10px;
   border-radius: 5px;
-  border: 1px solid var(--gold);
+  border: 1px solid rgba(184, 154, 90, 0.3);
 }
 
 .project-repo-link {
   font-family: var(--font-cute);
   font-size: 0.8rem;
   font-weight: 700;
-  color: var(--ivory);
-  background: var(--deep-atlas-navy);
-  border: none;
+  color: #0E1D61;
+  background: var(--gold-accent);
+  border: 1px solid var(--gold-accent);
   padding: 6px 14px;
   border-radius: 6px;
   text-decoration: none;
@@ -1376,7 +1382,9 @@ body {
 }
 
 .project-repo-link:hover {
-  background: var(--navy-hover);
+  background: #CBB075;
+  border-color: #CBB075;
+  color: #070F33;
   transform: translateY(-1px);
   box-shadow: none;
 }
@@ -1384,7 +1392,7 @@ body {
 .project-desc-cute {
   font-size: 0.93rem;
   line-height: 1.6;
-  color: var(--gold-text);
+  color: #C5BEB3;
   margin: 0;
 }
 
@@ -1398,9 +1406,9 @@ body {
   font-family: var(--font-cute);
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--deep-atlas-navy);
-  background: rgba(14, 29, 97, 0.08);
-  border: 1px solid var(--deep-atlas-navy);
+  color: var(--ivory);
+  background: rgba(184, 154, 90, 0.12);
+  border: 1px solid rgba(184, 154, 90, 0.35);
   padding: 5px 13px;
   border-radius: 6px;
   text-decoration: none;
@@ -1412,9 +1420,9 @@ body {
 }
 
 .project-live-btn:hover {
-  background: var(--deep-atlas-navy);
-  border-color: var(--deep-atlas-navy);
-  color: var(--ivory);
+  background: var(--gold-accent);
+  border-color: var(--gold-accent);
+  color: #0E1D61;
 }
 
 .live-link-label {
@@ -1446,7 +1454,7 @@ body {
   gap: 16px;
   padding: 20px 24px;
   text-decoration: none;
-  color: var(--gold-text);
+  color: var(--ivory);
   cursor: pointer;
 }
 
@@ -1461,7 +1469,7 @@ body {
   font-family: var(--font-cute);
   font-size: 0.74rem;
   font-weight: 700;
-  color: var(--deep-atlas-navy);
+  color: var(--gold-accent);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -1470,11 +1478,11 @@ body {
   font-family: var(--font-cute);
   font-size: 1.02rem;
   font-weight: 600;
-  color: var(--deep-atlas-navy);
+  color: var(--ivory);
 }
 
 .contact-hover-arrow {
-  color: var(--deep-atlas-navy);
+  color: var(--gold-accent);
   transition: all 0.2s ease;
 }
 
@@ -1494,18 +1502,18 @@ body {
 
 .contact-footer-note {
   background: var(--mac-card-bg);
-  border: 1px solid var(--gold);
-  border-left: 3px solid var(--deep-atlas-navy);
+  border: 1px solid rgba(184, 154, 90, 0.25);
+  border-left: 3px solid var(--gold-accent);
   padding: 12px 20px;
   border-radius: 6px;
   font-size: 0.86rem;
-  color: var(--gold-text);
+  color: #C5BEB3;
 }
 
 /* Window Footer Bar */
 .mac-window-footer {
-  background: #EDE4D4;
-  border-top: 1px solid var(--gold);
+  background: #070F33;
+  border-top: 1px solid rgba(184, 154, 90, 0.2);
   padding: 12px 22px;
   display: flex;
   align-items: center;
@@ -1548,42 +1556,44 @@ body {
 
 /* Prominently Highlighted NEXT Button */
 .footer-btn.next-btn {
-  background: var(--deep-atlas-navy);
-  color: var(--ivory);
-  border: 1px solid var(--deep-atlas-navy);
+  background: var(--gold-accent);
+  color: #0E1D61;
+  border: 1px solid var(--gold-accent);
   box-shadow: none;
 }
 
 .footer-btn.next-btn:hover {
-  background: var(--navy-hover);
-  color: var(--ivory);
+  background: #CBB075;
+  border-color: #CBB075;
+  color: #070F33;
   transform: translateY(-1px);
   box-shadow: none;
 }
 
 /* High-Contrast PREVIOUS Button */
 .footer-btn.prev-btn {
-  background: #FAF6EF;
-  border: 1px solid var(--gold);
-  color: var(--gold-text);
+  background: #142470;
+  border: 1px solid rgba(184, 154, 90, 0.35);
+  color: var(--ivory);
 }
 
 .footer-btn.prev-btn:hover {
-  border-color: var(--deep-atlas-navy);
-  color: var(--deep-atlas-navy);
+  background: #1C3090;
+  border-color: var(--gold-accent);
+  color: var(--ivory);
   transform: translateY(-1px);
 }
 
 /* Restart Button on Final Step */
 .footer-btn.restart-btn {
-  background: rgba(14, 29, 97, 0.08);
-  border: 1px solid var(--deep-atlas-navy);
-  color: var(--deep-atlas-navy);
+  background: rgba(184, 154, 90, 0.15);
+  border: 1px solid var(--gold-accent);
+  color: var(--gold-accent);
 }
 
 .footer-btn.restart-btn:hover {
-  background: var(--deep-atlas-navy);
-  color: var(--ivory);
+  background: var(--gold-accent);
+  color: #0E1D61;
   transform: translateY(-1px);
 }
 
@@ -1597,7 +1607,7 @@ body {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: rgba(184, 154, 90, 0.35);
+  background: rgba(184, 154, 90, 0.3);
   border: none;
   cursor: pointer;
   padding: 0;
@@ -1609,7 +1619,7 @@ body {
 }
 
 .pagination-circle.active {
-  background: var(--deep-atlas-navy);
+  background: var(--gold-accent);
   transform: scale(1.3);
 }
 
