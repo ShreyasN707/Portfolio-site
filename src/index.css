@@ -347,54 +347,49 @@ body {
 }
 
 /* Dynamic "I do:" Container - Precision Baseline Lock & Fixed Slot */
+/* Dynamic "I do:" Container - Precision Baseline Lock & Fixed Slot */
 .dynamic-role-container {
   display: flex;
-  align-items: center;
-  gap: 14px;
+  align-items: baseline;
+  gap: 12px;
   height: 2.4rem;
-  /* Scaled fixed height */
   margin: 0 0 22px 0;
   padding: 0;
   width: 100%;
 }
 
 .do-label {
-  font-family: var(--font-mono);
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-family: var(--font-sf-mono);
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
   color: var(--text-secondary);
   font-weight: 500;
   letter-spacing: 0.02em;
   white-space: nowrap;
   flex-shrink: 0;
-  line-height: 1;
+  line-height: 1.2;
 }
 
 .role-viewport {
   position: relative;
+  display: inline-flex;
+  align-items: baseline;
   height: 100%;
-  width: clamp(320px, 30vw, 460px);
-  /* Comfortable slot width preventing layout shift */
+  width: clamp(280px, 28vw, 420px);
   overflow: hidden;
-  display: flex;
-  align-items: center;
   flex-shrink: 0;
 }
 
 .role-text {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  font-family: var(--font-display);
-  font-size: clamp(1.2rem, 2.2vw, 1.6rem);
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-family: var(--font-sf-mono);
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
   white-space: nowrap;
-  line-height: 1;
+  line-height: 1.2;
 }
 
 .role-text.scrambling {
-  font-family: var(--font-mono);
+  font-family: var(--font-sf-mono);
   color: var(--robot-yellow-scramble);
   opacity: 0.95;
 }
@@ -569,7 +564,7 @@ body {
   /* Clean Typography Dynamic Role without Background */
   .dynamic-role-container {
     display: inline-flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: center;
     gap: 8px;
     height: auto;
@@ -587,38 +582,34 @@ body {
   }
 
   .do-label {
-    font-family: var(--font-mono);
-    font-size: clamp(0.95rem, 3.6vw, 1.15rem);
+    font-family: var(--font-sf-mono);
+    font-size: clamp(0.95rem, 3.4vw, 1.15rem);
     color: var(--text-secondary);
     font-weight: 500;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
     white-space: nowrap;
-    line-height: 1;
+    line-height: 1.2;
     flex-shrink: 0;
   }
 
   .role-viewport {
     position: relative;
-    height: 1.8rem;
-    width: clamp(210px, 58vw, 300px);
+    display: inline-flex;
+    align-items: baseline;
+    height: auto;
+    width: clamp(160px, 46vw, 220px);
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
     flex-shrink: 0;
+    text-align: left;
   }
 
   .role-text {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    font-family: var(--font-display);
-    font-size: clamp(1.02rem, 3.8vw, 1.25rem);
+    font-family: var(--font-sf-mono);
+    font-size: clamp(0.95rem, 3.4vw, 1.15rem);
     font-weight: 700;
     letter-spacing: 0.04em;
     white-space: nowrap;
-    line-height: 1;
+    line-height: 1.2;
     color: var(--deep-atlas-navy);
     text-shadow: none;
   }

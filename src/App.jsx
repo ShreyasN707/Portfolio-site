@@ -7,8 +7,9 @@ import PortfolioView from './components/PortfolioView';
 import AdminEditView from './components/AdminEditView';
 import { playHoverTick, playSelectClick, playAccessGranted } from './utils/audio';
 
-const ROLES = ["ML", "COMPUTER VISION", "BACKEND ENGINEERING"];
-const CYBER_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+const ROLES = ["ML", "DEVOPS", "Photography", "Video Editing"];
+const UPPER_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+const LOWER_GLYPHS = "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
 
 export default function App() {
   const [route, setRoute] = useState(() => {
@@ -77,7 +78,8 @@ export default function App() {
           .map((char, idx) => {
             if (idx < iteration) return targetText[idx];
             if (char === ' ') return ' ';
-            return CYBER_GLYPHS[Math.floor(Math.random() * CYBER_GLYPHS.length)];
+            const glyphs = char >= 'a' && char <= 'z' ? LOWER_GLYPHS : UPPER_GLYPHS;
+            return glyphs[Math.floor(Math.random() * glyphs.length)];
           })
           .join('')
       );
