@@ -8,7 +8,7 @@ import AdminEditView from './components/AdminEditView';
 import { playHoverTick, playSelectClick, playAccessGranted } from './utils/audio';
 
 const DESKTOP_ROLES = ["ML", "DEV-OPS", "Photography", "Video-Editing"];
-const MOBILE_ROLES = ["I DO: ML", "I DO: DEV-OPS", "I DO: Photography", "I DO: Video-Editing"];
+const MOBILE_ROLES = ["I do: ML", "I do: DEV-OPS", "I do: Photography", "I do: Video-Editing"];
 const UPPER_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
 const LOWER_GLYPHS = "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
 
@@ -89,7 +89,12 @@ export default function App() {
 
     const currentRoles = isMobile ? MOBILE_ROLES : DESKTOP_ROLES;
     const targetText = currentRoles[roleIndex % currentRoles.length];
-    let iteration = 0;
+    
+    // Check if targetText has a prefix like "I do: "
+    const prefixMatch = targetText.match(/^(I do:\s*|I DO:\s*)/i);
+    const prefixLen = prefixMatch ? prefixMatch[0].length : 0;
+
+    let iteration = prefixLen;
     setIsScrambling(true);
 
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -99,6 +104,7 @@ export default function App() {
         targetText
           .split('')
           .map((char, idx) => {
+            if (idx < prefixLen) return targetText[idx];
             if (idx < iteration) return targetText[idx];
             if (char === ' ') return ' ';
             const glyphs = char >= 'a' && char <= 'z' ? LOWER_GLYPHS : UPPER_GLYPHS;
@@ -194,7 +200,18 @@ export default function App() {
                       <span
                         className={`role-text ${isScrambling ? 'scrambling' : 'resolved'}`}
                       >
-                        {scrambledRole}
+                        {(() => {
+                          const match = scrambledRole.match(/^(I do:\s*|I DO:\s*)(.*)/i);
+                          if (match) {
+                            return (
+                              <>
+                                <span className="role-do-prefix">{match[1]}</span>
+                                <span className="role-do-val">{match[2]}</span>
+                              </>
+                            );
+                          }
+                          return scrambledRole;
+                        })()}
                       </span>
                     </div>
                   </div>
