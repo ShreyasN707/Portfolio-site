@@ -294,7 +294,7 @@ body {
   touch-action: none;
 }
 
-/* Quadrant 2 (Top-Right Box): Completely Occupied by Text & Intro */
+/* Quadrant 2 (Top-Right Box): Completely Occupied by Landing Intro Text */
 .intro-wrapper {
   grid-column: 2 / 3;
   grid-row: 1 / 2;
@@ -304,7 +304,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(20px, 3vh, 48px) clamp(24px, 4vw, 64px);
+  padding: clamp(20px, 3.5vh, 48px) clamp(24px, 4vw, 64px);
   box-sizing: border-box;
   margin: 0;
 }
@@ -315,7 +315,7 @@ body {
   align-items: flex-start;
   justify-content: center;
   width: 100%;
-  max-width: 580px;
+  max-width: 100%;
 }
 
 .intro-text-group {
@@ -325,26 +325,26 @@ body {
   width: 100%;
 }
 
-/* Clear, Large Impactful Typographic Hierarchy in SF Mono Regular */
+/* Clear, Extra-Bold & Large Impactful Typographic Hierarchy */
 .intro-hi {
   font-family: var(--font-sf-mono);
-  font-size: clamp(3.8rem, 7.5vw, 6.8rem);
+  font-size: clamp(4.8rem, 8.8vw, 8.2rem);
   font-weight: 850;
   color: var(--gold);
-  line-height: 0.96;
+  line-height: 0.92;
   letter-spacing: -0.02em;
-  margin: 0 0 8px 0;
+  margin: 0 0 10px 0;
   padding: 0;
 }
 
 .intro-name {
   font-family: var(--font-sf-mono);
-  font-size: clamp(2.6rem, 4.8vw, 4.2rem);
+  font-size: clamp(3.2rem, 5.8vw, 5.2rem);
   font-weight: 600;
   color: var(--gold);
-  line-height: 1.12;
+  line-height: 1.08;
   letter-spacing: -0.01em;
-  margin: 0 0 24px 0;
+  margin: 0 0 28px 0;
   padding: 0;
 }
 
@@ -357,16 +357,16 @@ body {
 .dynamic-role-container {
   display: flex;
   align-items: baseline;
-  gap: 16px;
-  height: 3.2rem;
-  margin: 0 0 32px 0;
+  gap: clamp(14px, 1.8vw, 24px);
+  height: 4rem;
+  margin: 0 0 36px 0;
   padding: 0;
   width: 100%;
 }
 
 .do-label {
   font-family: var(--font-sf-mono);
-  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  font-size: clamp(1.6rem, 3vw, 2.5rem);
   color: var(--text-secondary);
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -381,14 +381,14 @@ body {
   align-items: baseline;
   height: 100%;
   width: auto;
-  min-width: clamp(320px, 30vw, 480px);
+  min-width: clamp(360px, 34vw, 600px);
   overflow: visible;
   flex-shrink: 0;
 }
 
 .role-text {
   font-family: var(--font-sf-mono);
-  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  font-size: clamp(1.6rem, 3vw, 2.5rem);
   font-weight: 750;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -419,9 +419,9 @@ body {
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 18px;
+  gap: 20px;
   font-family: var(--font-sf-mono);
-  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+  font-size: clamp(1.55rem, 2.8vw, 2.3rem);
   font-weight: 750;
   letter-spacing: 0.16em;
   color: var(--text-primary);
@@ -436,8 +436,8 @@ body {
 
 .start-btn-icon {
   color: var(--robot-yellow);
-  width: clamp(26px, 2.4vw, 36px);
-  height: clamp(26px, 2.4vw, 36px);
+  width: clamp(32px, 2.8vw, 44px);
+  height: clamp(32px, 2.8vw, 44px);
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -482,7 +482,7 @@ body {
     max-width: 100%;
     align-items: center;
     justify-content: center;
-    padding: clamp(16px, 2.5vh, 36px) clamp(16px, 3vw, 44px);
+    padding: clamp(16px, 2.5vh, 32px) clamp(20px, 3.2vw, 48px);
   }
 
   .intro-content {
@@ -490,20 +490,36 @@ body {
   }
 
   .intro-hi {
-    font-size: clamp(2.8rem, 5.5vw, 4.4rem);
+    font-size: clamp(3.8rem, 7.5vw, 6rem);
   }
 
   .intro-name {
-    font-size: clamp(1.8rem, 3.6vw, 2.8rem);
+    font-size: clamp(2.5rem, 5vw, 3.8rem);
+    margin-bottom: 22px;
+  }
+
+  .dynamic-role-container {
+    height: 3.4rem;
+    margin-bottom: 28px;
+    gap: 16px;
   }
 
   .do-label,
   .role-text {
-    font-size: clamp(1.05rem, 2vw, 1.4rem);
+    font-size: clamp(1.35rem, 2.5vw, 1.95rem);
+  }
+
+  .role-viewport {
+    min-width: clamp(290px, 30vw, 440px);
   }
 
   .start-btn {
-    font-size: clamp(1.05rem, 2vw, 1.4rem);
+    font-size: clamp(1.35rem, 2.5vw, 1.95rem);
+  }
+
+  .start-btn-icon {
+    width: clamp(28px, 2.5vw, 38px);
+    height: clamp(28px, 2.5vw, 38px);
   }
 }
 
@@ -540,7 +556,7 @@ body {
     max-width: 100%;
     align-items: center;
     justify-content: center;
-    padding: 16px 20px;
+    padding: clamp(14px, 2vh, 24px) clamp(16px, 2.5vw, 36px);
   }
 
   .intro-content {
@@ -548,20 +564,36 @@ body {
   }
 
   .intro-hi {
-    font-size: clamp(2.4rem, 4.8vw, 3.4rem);
+    font-size: clamp(3.2rem, 6.5vw, 4.8rem);
   }
 
   .intro-name {
-    font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+    font-size: clamp(2.1rem, 4.4vw, 3.2rem);
+    margin-bottom: 18px;
+  }
+
+  .dynamic-role-container {
+    height: 3rem;
+    margin-bottom: 22px;
+    gap: 12px;
   }
 
   .do-label,
   .role-text {
-    font-size: clamp(0.92rem, 1.8vw, 1.2rem);
+    font-size: clamp(1.15rem, 2.2vw, 1.65rem);
+  }
+
+  .role-viewport {
+    min-width: clamp(250px, 28vw, 380px);
   }
 
   .start-btn {
-    font-size: clamp(0.92rem, 1.8vw, 1.2rem);
+    font-size: clamp(1.15rem, 2.2vw, 1.65rem);
+  }
+
+  .start-btn-icon {
+    width: clamp(24px, 2.2vw, 32px);
+    height: clamp(24px, 2.2vw, 32px);
   }
 }
 
@@ -620,24 +652,24 @@ body {
   }
 
   .intro-hi {
-    font-family: var(--font-display);
-    font-size: clamp(2.2rem, 7.5vw, 3rem);
-    font-weight: 800;
+    font-family: var(--font-sf-mono);
+    font-size: clamp(2.4rem, 8vw, 3.4rem);
+    font-weight: 850;
     color: var(--gold);
-    line-height: 1.05;
+    line-height: 1.0;
     letter-spacing: -0.02em;
-    margin: 0 0 3px 0;
+    margin: 0 0 4px 0;
     text-shadow: none;
   }
 
   .intro-name {
-    font-family: var(--font-main);
-    font-size: clamp(1.6rem, 5.5vw, 2.2rem);
-    font-weight: 400;
+    font-family: var(--font-sf-mono);
+    font-size: clamp(1.6rem, 5.5vw, 2.3rem);
+    font-weight: 600;
     color: var(--gold);
     line-height: 1.15;
     letter-spacing: -0.01em;
-    margin: 0 0 10px 0;
+    margin: 0 0 12px 0;
   }
 
   .name-am {
