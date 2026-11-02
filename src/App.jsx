@@ -7,7 +7,7 @@ import PortfolioView from './components/PortfolioView';
 import AdminEditView from './components/AdminEditView';
 import { playHoverTick, playSelectClick, playAccessGranted } from './utils/audio';
 
-const ROLES = ["ML", "DEVOPS", "Photography", "Video Editing"];
+const ROLES = ["ML", "DEV-OPS", "Photography", "Video-Editing"];
 const UPPER_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
 const LOWER_GLYPHS = "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
 
