@@ -231,53 +231,51 @@ body {
   user-select: none;
 }
 
-/* Precision-Balanced Main Container: Asymmetric Top-Right Text & Bottom-Left 3D Model */
+/* Literal 4-Quadrant Grid (2x2 Boxes): Top-Right Box for Text & Bottom-Left Box for 3D Model */
 .landing-container {
   width: 100vw;
   width: 100dvw;
   height: 100vh;
   height: 100dvh;
-  max-width: 100%;
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
+  max-width: 100vw;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
   padding: 0;
+  margin: 0;
   position: relative;
   z-index: 10;
   overflow: hidden;
 }
 
-/* 3D Model Wrapper: Grounded Boldly in Bottom Left Corner Area */
+/* Quadrant 3 (Bottom-Left Box): Completely Occupied by 3D Interactive Model */
 .robot-wrapper {
-  flex: 1 1 52%;
-  max-width: 56%;
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+  width: 100%;
   height: 100%;
+  max-width: 100%;
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
-  padding-left: clamp(0px, 1.5vw, 24px);
-  padding-bottom: 0;
+  align-items: center;
+  justify-content: center;
   margin: 0;
+  padding: 0;
   position: relative;
   overflow: visible;
 }
 
 .model-3d-container {
   width: 100%;
-  height: 94vh;
-  height: 94dvh;
-  max-height: 1050px;
+  height: 100%;
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: center;
   position: relative;
   cursor: grab;
   user-select: none;
   opacity: 0;
   transition: opacity 0.6s ease;
   overflow: visible;
-  transform: scale(1.15);
-  transform-origin: bottom left;
 }
 
 .model-3d-container:active {
@@ -296,25 +294,28 @@ body {
   touch-action: none;
 }
 
-/* Intro Wrapper: Grounded Boldly in Top Right Corner Area */
+/* Quadrant 2 (Top-Right Box): Completely Occupied by Text & Intro */
 .intro-wrapper {
-  flex: 1 1 52%;
-  max-width: 56%;
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+  width: 100%;
   height: 100%;
+  max-width: 100%;
   display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-  padding-top: clamp(24px, 4.5vh, 60px);
-  padding-right: clamp(24px, 4vw, 68px);
-  padding-bottom: 0;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(20px, 3vh, 48px) clamp(24px, 4vw, 64px);
+  box-sizing: border-box;
+  margin: 0;
 }
 
 .intro-content {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: center;
   width: 100%;
-  max-width: clamp(540px, 48vw, 760px);
+  max-width: 580px;
 }
 
 .intro-text-group {
@@ -448,111 +449,119 @@ body {
    PERFECT RESPONSIVE BREAKPOINTS
    ========================================== */
 
-/* Laptop & Medium Desktops: Bold Top-Right Text and Bottom-Left 3D Model */
-@media (max-width: 1200px) {
+/* Laptop & Medium Desktops: 4-Quadrant 2x2 Grid (Top-Right Text, Bottom-Left 3D Model) */
+@media (max-width: 1200px) and (min-width: 769px) {
   .landing-container {
-    justify-content: space-between;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
   }
 
   .robot-wrapper {
-    flex: 1 1 50%;
-    max-width: 54%;
-    align-items: flex-end;
-    justify-content: flex-start;
-    padding-left: clamp(0px, 1.5vw, 20px);
-    padding-bottom: 0;
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
   }
 
   .model-3d-container {
-    height: 90vh;
-    max-height: 850px;
-    transform: scale(1.12);
-    transform-origin: bottom left;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
   }
 
   .intro-wrapper {
-    flex: 1 1 50%;
-    max-width: 54%;
-    align-items: flex-start;
-    justify-content: flex-end;
-    padding-top: clamp(20px, 4vh, 48px);
-    padding-right: clamp(20px, 3.5vw, 48px);
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(16px, 2.5vh, 36px) clamp(16px, 3vw, 44px);
   }
 
   .intro-content {
-    max-width: clamp(480px, 46vw, 620px);
+    max-width: 100%;
   }
 
   .intro-hi {
-    font-size: clamp(3.2rem, 6.8vw, 5.4rem);
+    font-size: clamp(2.8rem, 5.5vw, 4.4rem);
   }
 
   .intro-name {
-    font-size: clamp(2.2rem, 4.4vw, 3.4rem);
+    font-size: clamp(1.8rem, 3.6vw, 2.8rem);
   }
 
   .do-label,
   .role-text {
-    font-size: clamp(1.2rem, 2.2vw, 1.65rem);
+    font-size: clamp(1.05rem, 2vw, 1.4rem);
   }
 
   .start-btn {
-    font-size: clamp(1.2rem, 2.2vw, 1.6rem);
+    font-size: clamp(1.05rem, 2vw, 1.4rem);
   }
 }
 
-/* Tablets Landscape & Portrait: Bold Top-Right Text and Bottom-Left 3D Model */
+/* Tablets Landscape & Portrait: 4-Quadrant 2x2 Grid */
 @media (max-width: 960px) and (min-width: 769px) {
   .landing-container {
-    justify-content: space-between;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
   }
 
   .robot-wrapper {
-    flex: 1 1 48%;
-    max-width: 50%;
-    align-items: flex-end;
-    justify-content: flex-start;
-    padding-left: 10px;
-    padding-bottom: 0;
-  }
-
-  .intro-wrapper {
-    flex: 1 1 52%;
-    max-width: 52%;
-    align-items: flex-start;
-    justify-content: flex-end;
-    padding-top: 24px;
-    padding-right: 20px;
-  }
-
-  .intro-content {
-    max-width: 420px;
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
   }
 
   .model-3d-container {
-    height: 75vh;
-    max-height: 620px;
-    transform: scale(1.1);
-    transform-origin: bottom left;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+  }
+
+  .intro-wrapper {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 20px;
+  }
+
+  .intro-content {
+    max-width: 100%;
   }
 
   .intro-hi {
-    font-size: clamp(2.8rem, 6vw, 4.2rem);
+    font-size: clamp(2.4rem, 4.8vw, 3.4rem);
   }
 
   .intro-name {
-    font-size: clamp(1.9rem, 3.8vw, 2.8rem);
+    font-size: clamp(1.6rem, 3.2vw, 2.2rem);
   }
 
   .do-label,
   .role-text {
-    font-size: clamp(1.1rem, 2vw, 1.45rem);
+    font-size: clamp(0.92rem, 1.8vw, 1.2rem);
   }
 
   .start-btn {
-    font-size: clamp(1.1rem, 2vw, 1.45rem);
+    font-size: clamp(0.92rem, 1.8vw, 1.2rem);
   }
 }
 
