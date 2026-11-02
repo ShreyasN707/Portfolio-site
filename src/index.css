@@ -247,15 +247,15 @@ body {
   overflow: hidden;
 }
 
-/* 3D Model Wrapper: Grounded in Bottom Left Corner Area */
+/* 3D Model Wrapper: Grounded Boldly in Bottom Left Corner Area */
 .robot-wrapper {
-  flex: 1 1 50%;
-  max-width: 52%;
+  flex: 1 1 52%;
+  max-width: 56%;
   height: 100%;
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
-  padding-left: clamp(20px, 4vw, 70px);
+  padding-left: clamp(0px, 1.5vw, 24px);
   padding-bottom: 0;
   margin: 0;
   position: relative;
@@ -264,8 +264,9 @@ body {
 
 .model-3d-container {
   width: 100%;
-  height: clamp(420px, 78vh, 820px);
-  max-height: 85vh;
+  height: 94vh;
+  height: 94dvh;
+  max-height: 1050px;
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
@@ -275,6 +276,8 @@ body {
   opacity: 0;
   transition: opacity 0.6s ease;
   overflow: visible;
+  transform: scale(1.15);
+  transform-origin: bottom left;
 }
 
 .model-3d-container:active {
@@ -293,16 +296,16 @@ body {
   touch-action: none;
 }
 
-/* Intro Wrapper: Positioned in Top Right Corner Area */
+/* Intro Wrapper: Grounded Boldly in Top Right Corner Area */
 .intro-wrapper {
-  flex: 1 1 50%;
-  max-width: 50%;
+  flex: 1 1 52%;
+  max-width: 56%;
   height: 100%;
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
-  padding-top: clamp(36px, 7.5vh, 84px);
-  padding-right: clamp(24px, 4.5vw, 76px);
+  padding-top: clamp(24px, 4.5vh, 60px);
+  padding-right: clamp(24px, 4vw, 68px);
   padding-bottom: 0;
 }
 
@@ -311,7 +314,7 @@ body {
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
-  max-width: 520px;
+  max-width: clamp(540px, 48vw, 760px);
 }
 
 .intro-text-group {
@@ -321,51 +324,50 @@ body {
   width: 100%;
 }
 
-/* Clear, Organized Typographic Hierarchy in SF Mono Regular */
+/* Clear, Large Impactful Typographic Hierarchy in SF Mono Regular */
 .intro-hi {
   font-family: var(--font-sf-mono);
-  font-size: clamp(2.4rem, 4.6vw, 3.8rem);
-  font-weight: 750;
+  font-size: clamp(3.8rem, 7.5vw, 6.8rem);
+  font-weight: 850;
   color: var(--gold);
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  line-height: 0.96;
+  letter-spacing: -0.02em;
   margin: 0 0 8px 0;
   padding: 0;
 }
 
 .intro-name {
   font-family: var(--font-sf-mono);
-  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
-  font-weight: 500;
+  font-size: clamp(2.6rem, 4.8vw, 4.2rem);
+  font-weight: 600;
   color: var(--gold);
-  line-height: 1.25;
+  line-height: 1.12;
   letter-spacing: -0.01em;
-  margin: 0 0 20px 0;
+  margin: 0 0 24px 0;
   padding: 0;
 }
 
 .name-am {
   color: var(--deep-atlas-navy);
-  font-weight: 750;
+  font-weight: 800;
 }
 
-/* Dynamic "I do:" Container - Precision Baseline Lock & Fixed Slot */
 /* Dynamic "I do:" Container - Precision Baseline Lock & Fixed Slot */
 .dynamic-role-container {
   display: flex;
   align-items: baseline;
-  gap: 12px;
-  height: 2.4rem;
-  margin: 0 0 22px 0;
+  gap: 16px;
+  height: 3.2rem;
+  margin: 0 0 32px 0;
   padding: 0;
   width: 100%;
 }
 
 .do-label {
   font-family: var(--font-sf-mono);
-  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.02em;
   white-space: nowrap;
   flex-shrink: 0;
@@ -378,15 +380,15 @@ body {
   align-items: baseline;
   height: 100%;
   width: auto;
-  min-width: clamp(280px, 28vw, 420px);
+  min-width: clamp(320px, 30vw, 480px);
   overflow: visible;
   flex-shrink: 0;
 }
 
 .role-text {
   font-family: var(--font-sf-mono);
-  font-size: clamp(1.15rem, 2vw, 1.45rem);
-  font-weight: 700;
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  font-weight: 750;
   letter-spacing: 0.04em;
   white-space: nowrap;
   line-height: 1.2;
@@ -416,11 +418,11 @@ body {
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 14px;
-  font-family: var(--font-display);
-  font-size: clamp(1.15rem, 2vw, 1.45rem);
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  gap: 18px;
+  font-family: var(--font-sf-mono);
+  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+  font-weight: 750;
+  letter-spacing: 0.16em;
   color: var(--text-primary);
   padding: 0;
   margin: 0;
@@ -433,18 +435,20 @@ body {
 
 .start-btn-icon {
   color: var(--robot-yellow);
+  width: clamp(26px, 2.4vw, 36px);
+  height: clamp(26px, 2.4vw, 36px);
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .start-btn:hover .start-btn-icon {
-  transform: translateX(8px);
+  transform: translateX(10px);
 }
 
 /* ==========================================
    PERFECT RESPONSIVE BREAKPOINTS
    ========================================== */
 
-/* Laptop & Medium Desktops: Top-Right Text and Bottom-Left 3D Model */
+/* Laptop & Medium Desktops: Bold Top-Right Text and Bottom-Left 3D Model */
 @media (max-width: 1200px) {
   .landing-container {
     justify-content: space-between;
@@ -452,34 +456,53 @@ body {
   }
 
   .robot-wrapper {
-    flex: 1 1 48%;
-    max-width: 50%;
+    flex: 1 1 50%;
+    max-width: 54%;
     align-items: flex-end;
     justify-content: flex-start;
-    padding-left: clamp(16px, 3vw, 44px);
+    padding-left: clamp(0px, 1.5vw, 20px);
     padding-bottom: 0;
   }
 
   .model-3d-container {
-    height: clamp(380px, 72vh, 700px);
-    max-height: 78vh;
+    height: 90vh;
+    max-height: 850px;
+    transform: scale(1.12);
+    transform-origin: bottom left;
   }
 
   .intro-wrapper {
-    flex: 1 1 52%;
-    max-width: 52%;
+    flex: 1 1 50%;
+    max-width: 54%;
     align-items: flex-start;
     justify-content: flex-end;
-    padding-top: clamp(30px, 6vh, 64px);
+    padding-top: clamp(20px, 4vh, 48px);
     padding-right: clamp(20px, 3.5vw, 48px);
   }
 
   .intro-content {
-    max-width: 480px;
+    max-width: clamp(480px, 46vw, 620px);
+  }
+
+  .intro-hi {
+    font-size: clamp(3.2rem, 6.8vw, 5.4rem);
+  }
+
+  .intro-name {
+    font-size: clamp(2.2rem, 4.4vw, 3.4rem);
+  }
+
+  .do-label,
+  .role-text {
+    font-size: clamp(1.2rem, 2.2vw, 1.65rem);
+  }
+
+  .start-btn {
+    font-size: clamp(1.2rem, 2.2vw, 1.6rem);
   }
 }
 
-/* Tablets Landscape & Portrait: Top-Right Text and Bottom-Left 3D Model */
+/* Tablets Landscape & Portrait: Bold Top-Right Text and Bottom-Left 3D Model */
 @media (max-width: 960px) and (min-width: 769px) {
   .landing-container {
     justify-content: space-between;
@@ -491,7 +514,7 @@ body {
     max-width: 50%;
     align-items: flex-end;
     justify-content: flex-start;
-    padding-left: 20px;
+    padding-left: 10px;
     padding-bottom: 0;
   }
 
@@ -500,17 +523,36 @@ body {
     max-width: 52%;
     align-items: flex-start;
     justify-content: flex-end;
-    padding-top: 26px;
-    padding-right: 22px;
+    padding-top: 24px;
+    padding-right: 20px;
   }
 
   .intro-content {
-    max-width: 390px;
+    max-width: 420px;
   }
 
   .model-3d-container {
-    height: clamp(340px, 62vh, 540px);
-    max-height: 66vh;
+    height: 75vh;
+    max-height: 620px;
+    transform: scale(1.1);
+    transform-origin: bottom left;
+  }
+
+  .intro-hi {
+    font-size: clamp(2.8rem, 6vw, 4.2rem);
+  }
+
+  .intro-name {
+    font-size: clamp(1.9rem, 3.8vw, 2.8rem);
+  }
+
+  .do-label,
+  .role-text {
+    font-size: clamp(1.1rem, 2vw, 1.45rem);
+  }
+
+  .start-btn {
+    font-size: clamp(1.1rem, 2vw, 1.45rem);
   }
 }
 
