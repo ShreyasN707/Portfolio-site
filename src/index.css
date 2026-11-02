@@ -662,16 +662,7 @@ body {
   }
 
   .do-label {
-    font-family: var(--font-sf-mono);
-    font-size: clamp(1.05rem, 3.8vw, 1.25rem);
-    color: var(--text-secondary);
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    white-space: nowrap;
-    line-height: 1;
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
+    display: none !important;
   }
 
   .role-viewport {
@@ -816,8 +807,7 @@ body {
   }
 
   .do-label {
-    font-size: 0.95rem;
-    line-height: 1;
+    display: none !important;
   }
 
   .role-viewport {

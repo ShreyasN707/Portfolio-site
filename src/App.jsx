@@ -7,7 +7,8 @@ import PortfolioView from './components/PortfolioView';
 import AdminEditView from './components/AdminEditView';
 import { playHoverTick, playSelectClick, playAccessGranted } from './utils/audio';
 
-const ROLES = ["ML", "DEV-OPS", "Photography", "Video-Editing"];
+const DESKTOP_ROLES = ["ML", "DEV-OPS", "Photography", "Video-Editing"];
+const MOBILE_ROLES = ["I DO: ML", "I DO: DEV-OPS", "I DO: Photography", "I DO: Video-Editing"];
 const UPPER_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
 const LOWER_GLYPHS = "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
 
@@ -29,14 +30,35 @@ export default function App() {
     return false;
   });
 
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth <= 768;
+    }
+    return false;
+  });
+
   const [currentView, setCurrentView] = useState('landing'); // 'landing' | 'portfolio'
   const [transitionTarget, setTransitionTarget] = useState(null); // null | 'portfolio' | 'landing'
   const [roleIndex, setRoleIndex] = useState(0);
-  const [scrambledRole, setScrambledRole] = useState(ROLES[0]);
+  const [scrambledRole, setScrambledRole] = useState(() => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      return MOBILE_ROLES[0];
+    }
+    return DESKTOP_ROLES[0];
+  });
   const [isScrambling, setIsScrambling] = useState(false);
 
   // Scramble animation ref to prevent overlapping intervals
   const intervalRef = useRef(null);
+
+  // Handle responsive isMobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Listen to browser Back/Forward navigation
   useEffect(() => {
@@ -61,11 +83,12 @@ export default function App() {
     setCurrentView('portfolio');
   };
 
-  // Smooth Scramble / Decrypt Animation when Role changes
+  // Smooth Scramble / Decrypt Animation when Role or device view changes
   useEffect(() => {
     if (!isBooted || route === 'edit') return;
 
-    const targetText = ROLES[roleIndex];
+    const currentRoles = isMobile ? MOBILE_ROLES : DESKTOP_ROLES;
+    const targetText = currentRoles[roleIndex % currentRoles.length];
     let iteration = 0;
     setIsScrambling(true);
 
@@ -94,16 +117,16 @@ export default function App() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [roleIndex, isBooted, route]);
+  }, [roleIndex, isBooted, route, isMobile]);
 
   // Cycle through roles smoothly every 3.2 seconds
   useEffect(() => {
     if (!isBooted || route === 'edit') return;
     const cycleInterval = setInterval(() => {
-      setRoleIndex((prev) => (prev + 1) % ROLES.length);
+      setRoleIndex((prev) => (prev + 1) % DESKTOP_ROLES.length);
     }, 3200);
     return () => clearInterval(cycleInterval);
-  }, [isBooted, route, ROLES.length]);
+  }, [isBooted, route]);
 
   // Keep window locked / non-scrollable as requested
   useEffect(() => {
