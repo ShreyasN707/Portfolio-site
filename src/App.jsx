@@ -96,14 +96,14 @@ export default function App() {
     };
   }, [roleIndex, isBooted, route]);
 
-  // Cycle through roles every 3.8 seconds
+  // Cycle through roles smoothly every 3.2 seconds
   useEffect(() => {
     if (!isBooted || route === 'edit') return;
     const cycleInterval = setInterval(() => {
       setRoleIndex((prev) => (prev + 1) % ROLES.length);
-    }, 3800);
+    }, 3200);
     return () => clearInterval(cycleInterval);
-  }, [isBooted, route]);
+  }, [isBooted, route, ROLES.length]);
 
   // Keep window locked / non-scrollable as requested
   useEffect(() => {

@@ -374,8 +374,9 @@ body {
   display: inline-flex;
   align-items: baseline;
   height: 100%;
-  width: clamp(280px, 28vw, 420px);
-  overflow: hidden;
+  width: auto;
+  min-width: clamp(280px, 28vw, 420px);
+  overflow: visible;
   flex-shrink: 0;
 }
 
@@ -597,8 +598,9 @@ body {
     display: inline-flex;
     align-items: baseline;
     height: auto;
-    width: clamp(160px, 46vw, 220px);
-    overflow: hidden;
+    width: auto;
+    min-width: clamp(160px, 46vw, 220px);
+    overflow: visible;
     flex-shrink: 0;
     text-align: left;
   }
