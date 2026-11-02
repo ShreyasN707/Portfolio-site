@@ -231,43 +231,44 @@ body {
   user-select: none;
 }
 
-/* Precision-Balanced Main Container */
+/* Precision-Balanced Main Container: Asymmetric Top-Right Text & Bottom-Left 3D Model */
 .landing-container {
-  width: 100%;
-  max-width: 1600px;
+  width: 100vw;
+  width: 100dvw;
   height: 100vh;
   height: 100dvh;
+  max-width: 100%;
   display: flex;
-  align-items: center;
-  /* Balanced vertical centering */
-  justify-content: center;
-  padding: 0 clamp(16px, 3vw, 48px);
-  gap: clamp(1.5rem, 3vw, 4rem);
+  align-items: stretch;
+  justify-content: space-between;
+  padding: 0;
   position: relative;
   z-index: 10;
+  overflow: hidden;
 }
 
-/* 3D Model Wrapper: Expanded viewing window */
+/* 3D Model Wrapper: Grounded in Bottom Left Corner Area */
 .robot-wrapper {
-  flex: 1 1 58%;
-  max-width: 62%;
+  flex: 1 1 50%;
+  max-width: 52%;
   height: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding-left: clamp(20px, 4vw, 70px);
+  padding-bottom: 0;
   margin: 0;
-  padding: 0;
   position: relative;
   overflow: visible;
 }
 
 .model-3d-container {
   width: 100%;
-  height: 90vh;
-  max-height: 940px;
+  height: clamp(420px, 78vh, 820px);
+  max-height: 85vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  justify-content: flex-start;
   position: relative;
   cursor: grab;
   user-select: none;
@@ -292,14 +293,16 @@ body {
   touch-action: none;
 }
 
-/* Intro Wrapper: Balanced Horizontal Layout Alignment */
+/* Intro Wrapper: Positioned in Top Right Corner Area */
 .intro-wrapper {
-  flex: 1 1 42%;
-  max-width: 44%;
+  flex: 1 1 50%;
+  max-width: 50%;
   height: 100%;
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-top: clamp(36px, 7.5vh, 84px);
+  padding-right: clamp(24px, 4.5vw, 76px);
   padding-bottom: 0;
 }
 
@@ -308,7 +311,7 @@ body {
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
-  max-width: 620px;
+  max-width: 520px;
 }
 
 .intro-text-group {
@@ -318,32 +321,32 @@ body {
   width: 100%;
 }
 
-/* Clear, Organized Typographic Hierarchy with Professional Modern Type */
+/* Clear, Organized Typographic Hierarchy in SF Mono Regular */
 .intro-hi {
-  font-family: var(--font-display);
-  font-size: clamp(3rem, 6.5vw, 5.2rem);
-  font-weight: 700;
+  font-family: var(--font-sf-mono);
+  font-size: clamp(2.4rem, 4.6vw, 3.8rem);
+  font-weight: 750;
   color: var(--gold);
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-  margin: 0 0 6px 0;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px 0;
   padding: 0;
 }
 
 .intro-name {
-  font-family: var(--font-main);
-  font-size: clamp(2.4rem, 4.8vw, 4.2rem);
-  font-weight: 400;
+  font-family: var(--font-sf-mono);
+  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+  font-weight: 500;
   color: var(--gold);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  margin: 0 0 16px 0;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin: 0 0 20px 0;
   padding: 0;
 }
 
 .name-am {
   color: var(--deep-atlas-navy);
-  font-weight: 700;
+  font-weight: 750;
 }
 
 /* Dynamic "I do:" Container - Precision Baseline Lock & Fixed Slot */
@@ -441,43 +444,73 @@ body {
    PERFECT RESPONSIVE BREAKPOINTS
    ========================================== */
 
-/* Laptop & Medium Desktops */
+/* Laptop & Medium Desktops: Top-Right Text and Bottom-Left 3D Model */
 @media (max-width: 1200px) {
   .landing-container {
-    gap: clamp(1.5rem, 4vw, 3.5rem);
-    padding: 0 3vw;
-  }
-
-  .model-3d-container {
-    height: 88vh;
-    max-height: 800px;
-  }
-}
-
-/* Tablets Landscape & Portrait */
-@media (max-width: 960px) {
-  .landing-container {
-    gap: 2rem;
-    align-items: center;
+    justify-content: space-between;
+    align-items: stretch;
   }
 
   .robot-wrapper {
     flex: 1 1 48%;
-    max-width: 48%;
-    align-items: center;
-    justify-content: center;
+    max-width: 50%;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding-left: clamp(16px, 3vw, 44px);
+    padding-bottom: 0;
+  }
+
+  .model-3d-container {
+    height: clamp(380px, 72vh, 700px);
+    max-height: 78vh;
   }
 
   .intro-wrapper {
     flex: 1 1 52%;
     max-width: 52%;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-top: clamp(30px, 6vh, 64px);
+    padding-right: clamp(20px, 3.5vw, 48px);
+  }
+
+  .intro-content {
+    max-width: 480px;
+  }
+}
+
+/* Tablets Landscape & Portrait: Top-Right Text and Bottom-Left 3D Model */
+@media (max-width: 960px) and (min-width: 769px) {
+  .landing-container {
+    justify-content: space-between;
+    align-items: stretch;
+  }
+
+  .robot-wrapper {
+    flex: 1 1 48%;
+    max-width: 50%;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding-left: 20px;
     padding-bottom: 0;
   }
 
+  .intro-wrapper {
+    flex: 1 1 52%;
+    max-width: 52%;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-top: 26px;
+    padding-right: 22px;
+  }
+
+  .intro-content {
+    max-width: 390px;
+  }
+
   .model-3d-container {
-    height: 70vh;
-    max-height: 600px;
-    align-items: center;
+    height: clamp(340px, 62vh, 540px);
+    max-height: 66vh;
   }
 }
 
