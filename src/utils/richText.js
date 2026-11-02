@@ -26,7 +26,7 @@ export const FONT_SIZES = [
 ];
 
 export const FONT_FAMILIES = [
-  { label: 'SF Mono Regular', font: 'var(--font-sf-mono)' },
+  { label: 'Cute Sans (Outfit)', font: 'var(--font-cute)' },
   { label: 'Code Mono (JetBrains)', font: 'var(--font-mono)' },
   { label: 'Classic Serif (Georgia)', font: 'Georgia, serif' }
 ];
