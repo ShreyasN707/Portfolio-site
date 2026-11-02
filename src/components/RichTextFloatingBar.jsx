@@ -5,7 +5,9 @@ import {
   PRESET_COLORS,
   FONT_SIZES,
   FONT_FAMILIES,
-  applyStyleToSelection
+  applyStyleToSelection,
+  getSavedSelectionRange,
+  setSavedSelectionRange
 } from '../utils/richText';
 import { playHoverTick, playSelectClick } from '../utils/audio';
 
@@ -15,9 +17,10 @@ export default function RichTextFloatingBar({ onApplyFormat }) {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showSizePicker, setShowSizePicker] = useState(false);
   const [showFontPicker, setShowFontPicker] = useState(false);
-  const [customColor, setCustomColor] = useState('#B89A5A');
+  const [customColor, setCustomColor] = useState('#0E1D61');
 
   const barRef = useRef(null);
+  const rangeRef = useRef(null);
 
   useEffect(() => {
     const updatePosition = () => {
@@ -44,6 +47,8 @@ export default function RichTextFloatingBar({ onApplyFormat }) {
       }
 
       const range = selection.getRangeAt(0);
+      rangeRef.current = range.cloneRange();
+      setSavedSelectionRange(rangeRef.current);
       const rect = range.getBoundingClientRect();
 
       if (rect.width > 0 && rect.height > 0) {
@@ -108,7 +113,7 @@ export default function RichTextFloatingBar({ onApplyFormat }) {
 
   const handleFormat = (style) => {
     playSelectClick();
-    applyStyleToSelection(style, onApplyFormat);
+    applyStyleToSelection(style, onApplyFormat, rangeRef.current);
   };
 
   if (!visible) return null;
@@ -222,7 +227,7 @@ export default function RichTextFloatingBar({ onApplyFormat }) {
           </button>
 
           {showColorPicker && (
-            <div className="toolbar-color-palette fade-in">
+            <div className="toolbar-color-palette fade-in" onMouseDown={(e) => e.stopPropagation()}>
               <div className="color-swatches-grid">
                 {PRESET_COLORS.map((c, i) => (
                   <button
@@ -231,6 +236,7 @@ export default function RichTextFloatingBar({ onApplyFormat }) {
                     className="color-swatch-dot"
                     style={{ backgroundColor: c.color }}
                     title={c.name}
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       handleFormat({ color: c.color });
                       setShowColorPicker(false);
@@ -239,15 +245,44 @@ export default function RichTextFloatingBar({ onApplyFormat }) {
                 ))}
               </div>
 
-              <div className="custom-color-row">
+              <div className="custom-color-row" onMouseDown={(e) => e.stopPropagation()}>
                 <span className="custom-color-label">Custom:</span>
                 <input
                   type="color"
                   className="custom-color-input"
                   value={customColor}
+                  onFocus={() => getSavedSelectionRange()}
+                  onMouseDown={(e) => {
+                    getSavedSelectionRange();
+                    e.stopPropagation();
+                  }}
+                  onInput={(e) => {
+                    setCustomColor(e.target.value);
+                    handleFormat({ color: e.target.value });
+                  }}
                   onChange={(e) => {
                     setCustomColor(e.target.value);
                     handleFormat({ color: e.target.value });
+                  }}
+                />
+                <input
+                  type="text"
+                  className="custom-hex-input"
+                  value={customColor}
+                  placeholder="#0E1D61"
+                  onFocus={() => getSavedSelectionRange()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    setCustomColor(e.target.value);
+                    if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+                      handleFormat({ color: e.target.value });
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleFormat({ color: customColor });
+                      setShowColorPicker(false);
+                    }
                   }}
                 />
               </div>

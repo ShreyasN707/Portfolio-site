@@ -1,12 +1,16 @@
 export const PRESET_COLORS = [
-  { name: 'Dark Gold', color: '#70551E' },
-  { name: 'Royal Gold', color: '#B89A5A' },
   { name: 'Deep Atlas Navy', color: '#0E1D61' },
-  { name: 'Warm Ivory', color: '#E8E0D2' },
+  { name: 'Midnight Navy', color: '#070F33' },
+  { name: 'Luminous Ivory', color: '#FAF7F2' },
+  { name: 'Warm Parchment', color: '#E8E0D2' },
+  { name: 'Pure White', color: '#FFFFFF' },
+  { name: 'Royal Gold', color: '#B89A5A' },
+  { name: 'Antique Gold', color: '#70551E' },
+  { name: 'Radiant Gold', color: '#E0BC5C' },
   { name: 'Emerald Green', color: '#16a34a' },
+  { name: 'Cyber Cyan', color: '#06b6d4' },
   { name: 'Coral Rose', color: '#fb7185' },
-  { name: 'Purple Lavender', color: '#c084fc' },
-  { name: 'Bright White', color: '#ffffff' }
+  { name: 'Purple Lavender', color: '#c084fc' }
 ];
 
 export const FONT_SIZES = [
@@ -27,14 +31,51 @@ export const FONT_FAMILIES = [
   { label: 'Classic Serif (Georgia)', font: 'Georgia, serif' }
 ];
 
-export function applyStyleToSelection(styles, onContentChange) {
-  const selection = window.getSelection();
-  if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
+let savedRange = null;
 
-  const range = selection.getRangeAt(0);
-  const anchorNode = selection.anchorNode;
+if (typeof window !== 'undefined') {
+  const updateSavedRange = () => {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+      savedRange = sel.getRangeAt(0).cloneRange();
+    }
+  };
+  document.addEventListener('selectionchange', updateSavedRange);
+  window.addEventListener('mouseup', updateSavedRange);
+  window.addEventListener('touchend', updateSavedRange);
+}
+
+export function getSavedSelectionRange() {
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+    savedRange = sel.getRangeAt(0).cloneRange();
+  }
+  return savedRange;
+}
+
+export function setSavedSelectionRange(range) {
+  if (range) {
+    savedRange = range.cloneRange ? range.cloneRange() : range;
+  }
+}
+
+export function applyStyleToSelection(styles, onContentChange, targetRange = null) {
+  const selection = window.getSelection();
+  let range = null;
+
+  if (targetRange && !targetRange.collapsed) {
+    range = targetRange;
+  } else if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+    range = selection.getRangeAt(0);
+  } else if (savedRange && !savedRange.collapsed) {
+    range = savedRange;
+  }
+
+  if (!range) return;
+
+  const anchorNode = range.startContainer;
   const element = anchorNode?.nodeType === 1 ? anchorNode : anchorNode?.parentElement;
-  const editableParent = element?.closest('[data-rich-editable="true"], .rich-inline-editable, [contenteditable="true"]');
+  const editableParent = element?.closest('[data-rich-editable="true"], .rich-inline-editable, [contenteditable="true"], [data-rich-field]');
 
   if (styles.clear) {
     const text = range.toString();
@@ -53,7 +94,9 @@ export function applyStyleToSelection(styles, onContentChange) {
   }
 
   const span = document.createElement('span');
-  if (styles.color) span.style.color = styles.color;
+  if (styles.color) {
+    span.style.setProperty('color', styles.color, 'important');
+  }
   if (styles.fontSize) span.style.fontSize = styles.fontSize;
   if (styles.fontFamily) span.style.fontFamily = styles.fontFamily;
   if (styles.fontWeight) span.style.fontWeight = styles.fontWeight;
@@ -72,8 +115,11 @@ export function applyStyleToSelection(styles, onContentChange) {
     // Keep the formatted text selected so owner can apply multiple styles in succession
     const newRange = document.createRange();
     newRange.selectNodeContents(span);
-    selection.removeAllRanges();
-    selection.addRange(newRange);
+    if (selection) {
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+    }
+    savedRange = newRange.cloneRange();
 
     if (editableParent) {
       editableParent.dispatchEvent(new Event('input', { bubbles: true }));

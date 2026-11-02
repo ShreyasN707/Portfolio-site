@@ -4,7 +4,9 @@ import {
   applyStyleToSelection,
   PRESET_COLORS,
   FONT_SIZES,
-  FONT_FAMILIES
+  FONT_FAMILIES,
+  getSavedSelectionRange,
+  setSavedSelectionRange
 } from '../utils/richText';
 import { playHoverTick, playSelectClick } from '../utils/audio';
 
@@ -14,11 +16,31 @@ export default function RichTextEditorBox({
   placeholder = 'Write text here... Highlight any words with your mouse to change color, size, and font!'
 }) {
   const editorRef = useRef(null);
+  const rangeRef = useRef(null);
   const isInitialMount = useRef(true);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showSizePicker, setShowSizePicker] = useState(false);
   const [showFontPicker, setShowFontPicker] = useState(false);
-  const [customColor, setCustomColor] = useState('#B89A5A');
+  const [customColor, setCustomColor] = useState('#0E1D61');
+
+  useEffect(() => {
+    const handleSel = () => {
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+        const anchor = sel.anchorNode;
+        if (editorRef.current && (editorRef.current.contains(anchor) || anchor === editorRef.current)) {
+          rangeRef.current = sel.getRangeAt(0).cloneRange();
+          setSavedSelectionRange(rangeRef.current);
+        }
+      }
+    };
+    document.addEventListener('selectionchange', handleSel);
+    window.addEventListener('mouseup', handleSel);
+    return () => {
+      document.removeEventListener('selectionchange', handleSel);
+      window.removeEventListener('mouseup', handleSel);
+    };
+  }, []);
 
   useEffect(() => {
     if (isInitialMount.current) {
@@ -44,9 +66,13 @@ export default function RichTextEditorBox({
 
   const handleFormat = (style) => {
     playSelectClick();
-    applyStyleToSelection(style, () => {
-      handleInput();
-    });
+    applyStyleToSelection(
+      style,
+      () => {
+        handleInput();
+      },
+      rangeRef.current
+    );
   };
 
   return (
@@ -142,7 +168,7 @@ export default function RichTextEditorBox({
             <span>Color</span>
           </button>
           {showColorPicker && (
-            <div className="toolbar-color-palette fade-in">
+            <div className="toolbar-color-palette fade-in" onMouseDown={(e) => e.stopPropagation()}>
               <div className="color-swatches-grid">
                 {PRESET_COLORS.map((c, i) => (
                   <button
@@ -151,6 +177,7 @@ export default function RichTextEditorBox({
                     className="color-swatch-dot"
                     style={{ backgroundColor: c.color }}
                     title={c.name}
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       handleFormat({ color: c.color });
                       setShowColorPicker(false);
@@ -158,15 +185,44 @@ export default function RichTextEditorBox({
                   />
                 ))}
               </div>
-              <div className="custom-color-row">
+              <div className="custom-color-row" onMouseDown={(e) => e.stopPropagation()}>
                 <span className="custom-color-label">Custom:</span>
                 <input
                   type="color"
                   className="custom-color-input"
                   value={customColor}
+                  onFocus={() => getSavedSelectionRange()}
+                  onMouseDown={(e) => {
+                    getSavedSelectionRange();
+                    e.stopPropagation();
+                  }}
+                  onInput={(e) => {
+                    setCustomColor(e.target.value);
+                    handleFormat({ color: e.target.value });
+                  }}
                   onChange={(e) => {
                     setCustomColor(e.target.value);
                     handleFormat({ color: e.target.value });
+                  }}
+                />
+                <input
+                  type="text"
+                  className="custom-hex-input"
+                  value={customColor}
+                  placeholder="#0E1D61"
+                  onFocus={() => getSavedSelectionRange()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    setCustomColor(e.target.value);
+                    if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+                      handleFormat({ color: e.target.value });
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleFormat({ color: customColor });
+                      setShowColorPicker(false);
+                    }
                   }}
                 />
               </div>

@@ -1125,7 +1125,17 @@ export default function AdminEditView({ onNavigateHome }) {
 
                   <div className="about-hero-section">
                     <h1 className="about-name-title">
-                      Hi, I'm <span className="highlight-cute">{data.profile?.name || 'Shreyas Naik'}</span>
+                      Hi, I'm{' '}
+                      <span
+                        className="highlight-cute rich-inline-editable"
+                        contentEditable
+                        suppressContentEditableWarning
+                        data-rich-editable="true"
+                        data-rich-field="profile.name"
+                        title="Highlight text to change color, font, and size!"
+                        onBlur={(e) => handleInlineSave('profile.name', e.currentTarget.innerHTML)}
+                        dangerouslySetInnerHTML={{ __html: data.profile?.name || 'Shreyas Naik' }}
+                      />
                     </h1>
                     <div
                       className="about-description rich-inline-editable"

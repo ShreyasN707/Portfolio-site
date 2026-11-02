@@ -188,7 +188,7 @@ export default function PortfolioView({ onBackToLanding, onNavigateEdit }) {
               {!data.hiddenSections?.profileHero && (
                 <div className="about-hero-section">
                   <h1 className="about-name-title">
-                    Hi, I'm <span className="highlight-cute">{data.profile?.name || 'Shreyas Naik'}</span>
+                    Hi, I'm <span className="highlight-cute" dangerouslySetInnerHTML={{ __html: data.profile?.name || 'Shreyas Naik' }} />
                   </h1>
                   <p
                     className="about-description"

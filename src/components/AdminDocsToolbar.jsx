@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Bold,
   Italic,
@@ -13,7 +13,9 @@ import {
   PRESET_COLORS,
   FONT_SIZES,
   FONT_FAMILIES,
-  applyStyleToSelection
+  applyStyleToSelection,
+  getSavedSelectionRange,
+  setSavedSelectionRange
 } from '../utils/richText';
 import { playHoverTick, playSelectClick } from '../utils/audio';
 
@@ -21,11 +23,30 @@ export default function AdminDocsToolbar({ onApplyFormat, onOpenReorderModal }) 
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showSizePicker, setShowSizePicker] = useState(false);
   const [showFontPicker, setShowFontPicker] = useState(false);
-  const [customColor, setCustomColor] = useState('#B89A5A');
+  const [customColor, setCustomColor] = useState('#0E1D61');
+  const rangeRef = useRef(null);
+
+  useEffect(() => {
+    const handleSel = () => {
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+        rangeRef.current = sel.getRangeAt(0).cloneRange();
+        setSavedSelectionRange(rangeRef.current);
+      }
+    };
+    document.addEventListener('selectionchange', handleSel);
+    window.addEventListener('mouseup', handleSel);
+    window.addEventListener('touchend', handleSel);
+    return () => {
+      document.removeEventListener('selectionchange', handleSel);
+      window.removeEventListener('mouseup', handleSel);
+      window.removeEventListener('touchend', handleSel);
+    };
+  }, []);
 
   const handleFormat = (style) => {
     playSelectClick();
-    applyStyleToSelection(style, onApplyFormat);
+    applyStyleToSelection(style, onApplyFormat, rangeRef.current);
   };
 
   return (
@@ -122,7 +143,7 @@ export default function AdminDocsToolbar({ onApplyFormat, onOpenReorderModal }) 
             <span>Color</span>
           </button>
           {showColorPicker && (
-            <div className="toolbar-color-palette fade-in">
+            <div className="toolbar-color-palette fade-in" onMouseDown={(e) => e.stopPropagation()}>
               <div className="color-swatches-grid">
                 {PRESET_COLORS.map((c, i) => (
                   <button
@@ -131,6 +152,7 @@ export default function AdminDocsToolbar({ onApplyFormat, onOpenReorderModal }) 
                     className="color-swatch-dot"
                     style={{ backgroundColor: c.color }}
                     title={c.name}
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       handleFormat({ color: c.color });
                       setShowColorPicker(false);
@@ -138,15 +160,44 @@ export default function AdminDocsToolbar({ onApplyFormat, onOpenReorderModal }) 
                   />
                 ))}
               </div>
-              <div className="custom-color-row">
+              <div className="custom-color-row" onMouseDown={(e) => e.stopPropagation()}>
                 <span className="custom-color-label">Custom:</span>
                 <input
                   type="color"
                   className="custom-color-input"
                   value={customColor}
+                  onFocus={() => getSavedSelectionRange()}
+                  onMouseDown={(e) => {
+                    getSavedSelectionRange();
+                    e.stopPropagation();
+                  }}
+                  onInput={(e) => {
+                    setCustomColor(e.target.value);
+                    handleFormat({ color: e.target.value });
+                  }}
                   onChange={(e) => {
                     setCustomColor(e.target.value);
                     handleFormat({ color: e.target.value });
+                  }}
+                />
+                <input
+                  type="text"
+                  className="custom-hex-input"
+                  value={customColor}
+                  placeholder="#0E1D61"
+                  onFocus={() => getSavedSelectionRange()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    setCustomColor(e.target.value);
+                    if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+                      handleFormat({ color: e.target.value });
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleFormat({ color: customColor });
+                      setShowColorPicker(false);
+                    }
                   }}
                 />
               </div>
