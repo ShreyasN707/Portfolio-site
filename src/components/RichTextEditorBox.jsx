@@ -21,7 +21,7 @@ export default function RichTextEditorBox({
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showSizePicker, setShowSizePicker] = useState(false);
   const [showFontPicker, setShowFontPicker] = useState(false);
-  const [customColor, setCustomColor] = useState('#0E1D61');
+  const [customColor, setCustomColor] = useState('#39FF14');
 
   useEffect(() => {
     const handleSel = () => {
@@ -209,7 +209,7 @@ export default function RichTextEditorBox({
                   type="text"
                   className="custom-hex-input"
                   value={customColor}
-                  placeholder="#0E1D61"
+                  placeholder="#39FF14"
                   onFocus={() => getSavedSelectionRange()}
                   onMouseDown={(e) => e.stopPropagation()}
                   onChange={(e) => {

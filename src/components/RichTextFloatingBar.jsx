@@ -17,7 +17,7 @@ export default function RichTextFloatingBar({ onApplyFormat }) {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showSizePicker, setShowSizePicker] = useState(false);
   const [showFontPicker, setShowFontPicker] = useState(false);
-  const [customColor, setCustomColor] = useState('#0E1D61');
+  const [customColor, setCustomColor] = useState('#39FF14');
 
   const barRef = useRef(null);
   const rangeRef = useRef(null);
@@ -269,7 +269,7 @@ export default function RichTextFloatingBar({ onApplyFormat }) {
                   type="text"
                   className="custom-hex-input"
                   value={customColor}
-                  placeholder="#0E1D61"
+                  placeholder="#39FF14"
                   onFocus={() => getSavedSelectionRange()}
                   onMouseDown={(e) => e.stopPropagation()}
                   onChange={(e) => {

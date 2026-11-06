@@ -1,16 +1,15 @@
 export const PRESET_COLORS = [
-  { name: 'Deep Atlas Navy', color: '#0E1D61' },
-  { name: 'Midnight Navy', color: '#070F33' },
+  { name: 'Neon Lime Green', color: '#39FF14' },
+  { name: 'Midnight Black', color: '#090A0F' },
   { name: 'Luminous Ivory', color: '#FAF7F2' },
-  { name: 'Warm Parchment', color: '#E8E0D2' },
+  { name: 'Soft Ivory', color: '#ECE5DA' },
+  { name: 'Electric Lime', color: '#4EFE1E' },
+  { name: 'Mac Charcoal', color: '#212228' },
   { name: 'Pure White', color: '#FFFFFF' },
-  { name: 'Royal Gold', color: '#B89A5A' },
-  { name: 'Antique Gold', color: '#70551E' },
-  { name: 'Radiant Gold', color: '#E0BC5C' },
+  { name: 'Terminal Gray', color: '#888E9B' },
   { name: 'Emerald Green', color: '#16a34a' },
   { name: 'Cyber Cyan', color: '#06b6d4' },
-  { name: 'Coral Rose', color: '#fb7185' },
-  { name: 'Purple Lavender', color: '#c084fc' }
+  { name: 'Coral Rose', color: '#fb7185' }
 ];
 
 export const FONT_SIZES = [
